@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "BugLens - Your AI senior reviewer never sleeps",
   description:
     "BugLens reviews every pull request before your team does - catching bugs, vulnerabilities, and style violations.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon",
+  },
 };
 
 export default function RootLayout({
