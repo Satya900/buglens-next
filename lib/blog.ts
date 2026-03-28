@@ -1,10 +1,43 @@
 import { cache } from "react";
 
+type NotionRichText = {
+  plain_text?: string;
+};
+
+type NotionFile =
+  | {
+      type: "external";
+      external?: {
+        url?: string;
+      };
+      name?: string;
+    }
+  | {
+      type: "file";
+      file?: {
+        url?: string;
+        expiry_time?: string;
+      };
+      name?: string;
+    };
+
+type BlogBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "heading_2"; text: string }
+  | { type: "heading_3"; text: string }
+  | { type: "quote"; text: string }
+  | { type: "callout"; text: string }
+  | { type: "code"; text: string; language?: string }
+  | { type: "bulleted_list_item"; text: string }
+  | { type: "numbered_list_item"; text: string }
+  | { type: "image"; url: string; caption?: string }
+  | { type: "divider" };
+
 export type BlogPost = {
   slug: string;
   title: string;
   excerpt: string;
-  content: string[];
+  content: BlogBlock[];
   tag: string;
   author: string;
   publishedAt: string;
@@ -13,6 +46,7 @@ export type BlogPost = {
   seoTitle?: string;
   seoDescription?: string;
   coverImage?: string;
+  coverImageForMetadata?: string;
 };
 
 const fallbackPosts: BlogPost[] = [
@@ -30,9 +64,18 @@ const fallbackPosts: BlogPost[] = [
     seoDescription:
       "A technical breakdown of why BugLens uses LangGraph instead of LangChain for stateful, context-rich pull request review workflows.",
     content: [
-      "Multi-agent review systems fail when orchestration stays linear. Real review pipelines branch, retry, and revisit context as new evidence appears.",
-      "BugLens is built around that constraint. The Lens agent inspects diffs, the Context agent pulls standards and prior decisions, and the Review agent turns that into a developer-facing verdict.",
-      "LangGraph made that statefulness explicit. Instead of encoding complex control flow inside prompts, the workflow remains inspectable and easier to debug as the product grows.",
+      {
+        type: "paragraph",
+        text: "Multi-agent review systems fail when orchestration stays linear. Real review pipelines branch, retry, and revisit context as new evidence appears.",
+      },
+      {
+        type: "paragraph",
+        text: "BugLens is built around that constraint. The Lens agent inspects diffs, the Context agent pulls standards and prior decisions, and the Review agent turns that into a developer-facing verdict.",
+      },
+      {
+        type: "paragraph",
+        text: "LangGraph made that statefulness explicit. Instead of encoding complex control flow inside prompts, the workflow remains inspectable and easier to debug as the product grows.",
+      },
     ],
   },
   {
@@ -48,9 +91,18 @@ const fallbackPosts: BlogPost[] = [
     seoDescription:
       "How BugLens uses retrieval-augmented generation so code reviews reflect the team's own architecture docs, RFCs, and historical pull request context.",
     content: [
-      "Code review quality is bounded by context quality. A model that only sees the diff will overfit to generic best practices and miss team-specific constraints.",
-      "The BugLens retrieval layer indexes docs, RFCs, and historical reviews so the reviewer can explain why something violates a local convention instead of hand-waving.",
-      "That context also improves trust. Engineers are more likely to accept review feedback when the reasoning points back to standards they already use.",
+      {
+        type: "paragraph",
+        text: "Code review quality is bounded by context quality. A model that only sees the diff will overfit to generic best practices and miss team-specific constraints.",
+      },
+      {
+        type: "paragraph",
+        text: "The BugLens retrieval layer indexes docs, RFCs, and historical reviews so the reviewer can explain why something violates a local convention instead of hand-waving.",
+      },
+      {
+        type: "paragraph",
+        text: "That context also improves trust. Engineers are more likely to accept review feedback when the reasoning points back to standards they already use.",
+      },
     ],
   },
   {
@@ -66,9 +118,18 @@ const fallbackPosts: BlogPost[] = [
     seoDescription:
       "Lessons from AST-based SQL injection detection and how that work influences BugLens security analysis for pull request review.",
     content: [
-      "Pattern matching is fast, but security review needs more than regex. Structural parsing is what makes it possible to distinguish dangerous interpolation from safe parameterization.",
-      "That lesson carried directly into BugLens. Security feedback only matters if the review can point at the code shape that makes an issue real.",
-      "A good scanner does not just find risk. It reduces noise enough that developers continue trusting the tool after the first week.",
+      {
+        type: "paragraph",
+        text: "Pattern matching is fast, but security review needs more than regex. Structural parsing is what makes it possible to distinguish dangerous interpolation from safe parameterization.",
+      },
+      {
+        type: "paragraph",
+        text: "That lesson carried directly into BugLens. Security feedback only matters if the review can point at the code shape that makes an issue real.",
+      },
+      {
+        type: "paragraph",
+        text: "A good scanner does not just find risk. It reduces noise enough that developers continue trusting the tool after the first week.",
+      },
     ],
   },
   {
@@ -84,9 +145,18 @@ const fallbackPosts: BlogPost[] = [
     seoDescription:
       "Why MCP matters for AI tooling and how BugLens uses protocol-native integrations to expose review context across developer workflows.",
     content: [
-      "The protocol matters because it lowers integration cost. Instead of hand-building bespoke connectors for every surface, tools can expose capabilities through a common interface.",
-      "That matters for BugLens because review findings should not be trapped inside a single dashboard. The same context should be available in IDEs, PR flows, and agents.",
-      "Standardization does not remove product differentiation. It lets product work focus on insight quality rather than one-off plumbing.",
+      {
+        type: "paragraph",
+        text: "The protocol matters because it lowers integration cost. Instead of hand-building bespoke connectors for every surface, tools can expose capabilities through a common interface.",
+      },
+      {
+        type: "paragraph",
+        text: "That matters for BugLens because review findings should not be trapped inside a single dashboard. The same context should be available in IDEs, PR flows, and agents.",
+      },
+      {
+        type: "paragraph",
+        text: "Standardization does not remove product differentiation. It lets product work focus on insight quality rather than one-off plumbing.",
+      },
     ],
   },
 ];
@@ -112,55 +182,350 @@ function asPlainText(value: unknown) {
         return "";
       }
 
-      const text = (item as { plain_text?: string }).plain_text;
-      return typeof text === "string" ? text : "";
+      return typeof (item as NotionRichText).plain_text === "string"
+        ? (item as NotionRichText).plain_text!
+        : "";
     })
     .join("")
     .trim();
 }
 
-function mapNotionPost(result: Record<string, unknown>): BlogPost | null {
-  const properties = (result.properties ?? {}) as Record<string, Record<string, unknown>>;
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-  const slug = (properties.Slug?.rich_text as unknown[]) ?? [];
-  const title = (properties.Title?.title as unknown[]) ?? [];
-  const excerpt = (properties.Excerpt?.rich_text as unknown[]) ?? [];
-  const author = (properties.Author?.rich_text as unknown[]) ?? [];
-  const tag = properties.Tag?.select as { name?: string } | undefined;
-  const publishedAt = properties.PublishedAt?.date as
-    | { start?: string }
-    | undefined;
-  const updatedAt = properties.UpdatedAt?.date as
-    | { start?: string }
-    | undefined;
-  const readTime = (properties.ReadTime?.rich_text as unknown[]) ?? [];
-  const seoTitle = (properties.SeoTitle?.rich_text as unknown[]) ?? [];
-  const seoDescription = (properties.SeoDescription?.rich_text as unknown[]) ?? [];
-  const published = properties.Published?.checkbox;
+function propertyEntries(
+  properties: Record<string, Record<string, unknown>>
+): Array<[string, Record<string, unknown>]> {
+  return Object.entries(properties);
+}
 
-  if (!published) {
+function findProperty(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const lowerNames = names.map((name) => name.toLowerCase());
+
+  for (const [key, value] of propertyEntries(properties)) {
+    if (lowerNames.includes(key.toLowerCase())) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function findPropertyByType(
+  properties: Record<string, Record<string, unknown>>,
+  type: string
+) {
+  return propertyEntries(properties).find(([, value]) => value.type === type)?.[1];
+}
+
+function getTitleFromProperties(properties: Record<string, Record<string, unknown>>) {
+  const titleProperty = findPropertyByType(properties, "title");
+  return asPlainText((titleProperty?.title as unknown[]) ?? []);
+}
+
+function getRichTextValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  return asPlainText((property?.rich_text as unknown[]) ?? []);
+}
+
+function getSelectValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  const select = property?.select as { name?: string } | undefined;
+  return select?.name?.trim() ?? "";
+}
+
+function getStatusValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  const status = property?.status as { name?: string } | undefined;
+  return status?.name?.trim() ?? "";
+}
+
+function getDateValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  const date = property?.date as { start?: string } | undefined;
+  return date?.start?.trim() ?? "";
+}
+
+function getCheckboxValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  return property?.checkbox === true;
+}
+
+function getFilesValue(
+  properties: Record<string, Record<string, unknown>>,
+  names: string[]
+) {
+  const property = findProperty(properties, names);
+  return Array.isArray(property?.files) ? (property.files as NotionFile[]) : [];
+}
+
+function getFileUrl(file?: NotionFile) {
+  if (!file) {
+    return undefined;
+  }
+
+  if (file.type === "external") {
+    return file.external?.url;
+  }
+
+  return file.file?.url;
+}
+
+function getDurableFileUrl(file?: NotionFile) {
+  if (!file) {
+    return undefined;
+  }
+
+  if (file.type === "external") {
+    return file.external?.url;
+  }
+
+  return undefined;
+}
+
+function extractPageCover(page: Record<string, unknown>) {
+  const cover = page.cover as
+    | {
+        type?: "external" | "file";
+        external?: { url?: string };
+        file?: { url?: string };
+      }
+    | undefined;
+
+  if (!cover) {
+    return {};
+  }
+
+  if (cover.type === "external") {
+    return {
+      coverImage: cover.external?.url,
+      coverImageForMetadata: cover.external?.url,
+    };
+  }
+
+  return {
+    coverImage: cover.file?.url,
+  };
+}
+
+function deriveExcerpt(content: BlogBlock[]) {
+  const firstParagraph = content.find(
+    (block) => block.type === "paragraph" && block.text.trim().length > 0
+  );
+
+  return firstParagraph && "text" in firstParagraph ? firstParagraph.text : "";
+}
+
+function computeReadTime(content: BlogBlock[]) {
+  const text = content
+    .map((block) =>
+      "text" in block && typeof block.text === "string" ? block.text : ""
+    )
+    .join(" ")
+    .trim();
+
+  const wordCount = text ? text.split(/\s+/).length : 0;
+  const minutes = Math.max(1, Math.ceil(wordCount / 220));
+  return `${minutes} min read`;
+}
+
+async function notionFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`https://api.notion.com/v1${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${notionConfig.token}`,
+      "Content-Type": "application/json",
+      "Notion-Version": notionConfig.version,
+      ...(init?.headers ?? {}),
+    },
+    next: {
+      revalidate: 3600,
+      ...(init as { next?: { revalidate?: number } } | undefined)?.next,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Notion request failed: ${response.status} ${path}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+function mapBlock(block: Record<string, unknown>): BlogBlock | null {
+  const type = block.type;
+
+  if (typeof type !== "string") {
     return null;
   }
 
-  const normalizedSlug = asPlainText(slug);
-  const normalizedTitle = asPlainText(title);
+  const payload = block[type] as Record<string, unknown> | undefined;
 
-  if (!normalizedSlug || !normalizedTitle) {
+  if (!payload && type !== "divider") {
+    return null;
+  }
+
+  const text = asPlainText((payload?.rich_text as unknown[]) ?? []);
+
+  switch (type) {
+    case "paragraph":
+      return text ? { type, text } : null;
+    case "heading_2":
+      return text ? { type, text } : null;
+    case "heading_3":
+      return text ? { type, text } : null;
+    case "quote":
+      return text ? { type, text } : null;
+    case "callout":
+      return text ? { type, text } : null;
+    case "code":
+      return text
+        ? {
+            type,
+            text,
+            language:
+              typeof payload?.language === "string" ? payload.language : undefined,
+          }
+        : null;
+    case "bulleted_list_item":
+      return text ? { type, text } : null;
+    case "numbered_list_item":
+      return text ? { type, text } : null;
+    case "image": {
+      const image = payload as NotionFile & {
+        caption?: unknown[];
+      };
+      const url = getFileUrl(image);
+
+      return url
+        ? {
+            type,
+            url,
+            caption: asPlainText((image.caption as unknown[]) ?? []) || undefined,
+          }
+        : null;
+    }
+    case "divider":
+      return { type };
+    default:
+      return null;
+  }
+}
+
+async function fetchBlockChildren(blockId: string): Promise<BlogBlock[]> {
+  const blocks: BlogBlock[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const search = new URLSearchParams();
+    if (cursor) {
+      search.set("start_cursor", cursor);
+    }
+
+    const payload = await notionFetch<{
+      results?: Record<string, unknown>[];
+      has_more?: boolean;
+      next_cursor?: string | null;
+    }>(`/blocks/${blockId}/children?${search.toString()}`);
+
+    for (const result of payload.results ?? []) {
+      const mapped = mapBlock(result);
+      if (mapped) {
+        blocks.push(mapped);
+      }
+    }
+
+    cursor = payload.has_more ? payload.next_cursor ?? undefined : undefined;
+  } while (cursor);
+
+  return blocks;
+}
+
+async function mapNotionPost(result: Record<string, unknown>): Promise<BlogPost | null> {
+  const properties = (result.properties ?? {}) as Record<string, Record<string, unknown>>;
+  const pageId = typeof result.id === "string" ? result.id : "";
+  const title = getTitleFromProperties(properties);
+  const explicitSlug = getRichTextValue(properties, ["Slug", "slug"]);
+  const slug = explicitSlug || slugify(title);
+  const content = pageId ? await fetchBlockChildren(pageId) : [];
+  const excerpt =
+    getRichTextValue(properties, ["Excerpt", "Summary", "Description"]) ||
+    deriveExcerpt(content);
+  const author =
+    getRichTextValue(properties, ["Author", "author"]) ||
+    getRichTextValue(properties, ["Byline"]) ||
+    "BugLens";
+  const tag =
+    getSelectValue(properties, ["Tag", "Category"]) ||
+    getStatusValue(properties, ["CategoryStatus"]) ||
+    "blog";
+  const publishedAt =
+    getDateValue(properties, ["PublishedAt", "Publish Date", "Published"]) ||
+    (typeof result.created_time === "string" ? result.created_time : new Date().toISOString());
+  const updatedAt =
+    getDateValue(properties, ["UpdatedAt", "Updated"]) ||
+    (typeof result.last_edited_time === "string"
+      ? result.last_edited_time
+      : publishedAt);
+  const seoTitle = getRichTextValue(properties, ["SeoTitle", "SEO Title"]);
+  const seoDescription = getRichTextValue(properties, [
+    "SeoDescription",
+    "SEO Description",
+    "Meta Description",
+  ]);
+  const readTime =
+    getRichTextValue(properties, ["ReadTime", "Read Time"]) ||
+    computeReadTime(content);
+  const files = getFilesValue(properties, ["CoverImage", "Cover", "HeroImage"]);
+  const fileCover = files[0];
+  const pageCover = extractPageCover(result);
+  const published =
+    getCheckboxValue(properties, ["Published"]) ||
+    getStatusValue(properties, ["Status"]).toLowerCase() === "published" ||
+    !findProperty(properties, ["Published", "Status"]);
+
+  if (!published || !title || !slug) {
     return null;
   }
 
   return {
-    slug: normalizedSlug,
-    title: normalizedTitle,
-    excerpt: asPlainText(excerpt),
-    content: [],
-    tag: tag?.name ?? "blog",
-    author: asPlainText(author) || "BugLens",
-    publishedAt: publishedAt?.start ?? new Date().toISOString(),
-    updatedAt: updatedAt?.start ?? publishedAt?.start ?? new Date().toISOString(),
-    readTime: asPlainText(readTime) || "5 min read",
-    seoTitle: asPlainText(seoTitle) || undefined,
-    seoDescription: asPlainText(seoDescription) || undefined,
+    slug,
+    title,
+    excerpt: excerpt || title,
+    content: content.length > 0 ? content : [{ type: "paragraph", text: excerpt || title }],
+    tag,
+    author,
+    publishedAt,
+    updatedAt,
+    readTime,
+    seoTitle: seoTitle || undefined,
+    seoDescription: seoDescription || undefined,
+    coverImage: getFileUrl(fileCover) ?? pageCover.coverImage,
+    coverImageForMetadata:
+      getDurableFileUrl(fileCover) ?? pageCover.coverImageForMetadata,
   };
 }
 
@@ -169,48 +534,17 @@ async function fetchNotionPosts(): Promise<BlogPost[]> {
     return fallbackPosts;
   }
 
-  const response = await fetch(
-    `https://api.notion.com/v1/databases/${notionConfig.databaseId}/query`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${notionConfig.token}`,
-        "Content-Type": "application/json",
-        "Notion-Version": notionConfig.version,
-      },
-      body: JSON.stringify({
-        filter: {
-          property: "Published",
-          checkbox: {
-            equals: true,
-          },
-        },
-        sorts: [
-          {
-            property: "PublishedAt",
-            direction: "descending",
-          },
-        ],
-      }),
-      next: {
-        revalidate: 3600,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch posts from Notion: ${response.status}`);
-  }
-
-  const payload = (await response.json()) as {
+  const payload = await notionFetch<{
     results?: Record<string, unknown>[];
-  };
+  }>(`/databases/${notionConfig.databaseId}/query`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
 
-  const posts =
-    payload.results?.map(mapNotionPost).filter((post): post is BlogPost => Boolean(post)) ??
-    [];
+  const posts = await Promise.all((payload.results ?? []).map(mapNotionPost));
+  const filtered = posts.filter((post): post is BlogPost => Boolean(post));
 
-  return posts.length > 0 ? posts : fallbackPosts;
+  return filtered.length > 0 ? filtered : fallbackPosts;
 }
 
 export const getPublishedPosts = cache(async () => {

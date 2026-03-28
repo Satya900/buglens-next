@@ -31,7 +31,7 @@ export async function generateMetadata({
   const title = post.seoTitle ?? post.title;
   const description = post.seoDescription ?? post.excerpt;
   const canonical = `/blog/${post.slug}`;
-  const image = `/blog/${post.slug}/opengraph-image`;
+  const image = post.coverImageForMetadata ?? `/blog/${post.slug}/opengraph-image`;
 
   return {
     title,
@@ -93,11 +93,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     },
     mainEntityOfPage: getAbsoluteUrl(`/blog/${post.slug}`),
     keywords: [post.tag],
+    image: post.coverImageForMetadata ?? getAbsoluteUrl(`/blog/${post.slug}/opengraph-image`),
   };
 
   return (
     <main className="blog-page">
       <article className="section post-shell">
+        {post.coverImage ? (
+          <div className="post-cover-wrap">
+            {/* Notion-hosted file URLs are already transformed upstream when available. */}
+            <img className="post-cover" src={post.coverImage} alt={post.title} />
+          </div>
+        ) : null}
         <span className="blog-tag">{post.tag}</span>
         <h1 className="post-title">{post.title}</h1>
         <p className="post-excerpt">{post.excerpt}</p>
@@ -116,9 +123,53 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
 
         <div className="post-body">
-          {post.content.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          {post.content.map((block, index) => {
+            switch (block.type) {
+              case "paragraph":
+                return <p key={`${block.type}-${index}`}>{block.text}</p>;
+              case "heading_2":
+                return <h2 key={`${block.type}-${index}`}>{block.text}</h2>;
+              case "heading_3":
+                return <h3 key={`${block.type}-${index}`}>{block.text}</h3>;
+              case "quote":
+                return <blockquote key={`${block.type}-${index}`}>{block.text}</blockquote>;
+              case "callout":
+                return (
+                  <aside key={`${block.type}-${index}`} className="post-callout">
+                    {block.text}
+                  </aside>
+                );
+              case "code":
+                return (
+                  <pre key={`${block.type}-${index}`} className="post-code">
+                    <code>{block.text}</code>
+                  </pre>
+                );
+              case "bulleted_list_item":
+                return (
+                  <ul key={`${block.type}-${index}`} className="post-list">
+                    <li>{block.text}</li>
+                  </ul>
+                );
+              case "numbered_list_item":
+                return (
+                  <ol key={`${block.type}-${index}`} className="post-list post-list-numbered">
+                    <li>{block.text}</li>
+                  </ol>
+                );
+              case "image":
+                return (
+                  <figure key={`${block.type}-${index}`} className="post-figure">
+                    <img src={block.url} alt={block.caption ?? post.title} />
+                    {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+                  </figure>
+                );
+              case "divider":
+                return <hr key={`${block.type}-${index}`} className="post-divider" />;
+              default:
+                return null;
+            }
+          })}
         </div>
       </article>
       <script

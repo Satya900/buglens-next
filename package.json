@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "notion:setup-blog": "node scripts/setup-notion-blog.mjs"
   },
   "dependencies": {
     "next": "16.2.1",
