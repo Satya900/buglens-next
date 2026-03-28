@@ -1,4 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## BugLens
+
+Marketing site and blog for BugLens, built with Next.js 16.
+
+## Environment
+
+Create a `.env.local` file in the project root with:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://buglens.app
+NOTION_TOKEN=secret_your_notion_integration_token
+NOTION_DATABASE_ID=your_notion_database_id
+```
+
+Notes:
+
+- `NOTION_TOKEN` is the internal integration token from your Notion integration.
+- `NOTION_DATABASE_ID` is the database identifier for the blog CMS.
+- if the Notion env vars are missing, the app falls back to local demo blog posts.
+
+## Notion CMS Setup
+
+1. Create a Notion integration at `https://www.notion.so/profile/integrations`.
+2. Copy the internal integration token into `NOTION_TOKEN`.
+3. Open your blog database in Notion and connect the integration to that database.
+4. Copy the database ID from the Notion URL into `NOTION_DATABASE_ID`.
+5. Make sure the database has these properties:
+   - `Title`
+   - `Slug`
+   - `Excerpt`
+   - `Author`
+   - `Tag`
+   - `Published`
+   - `PublishedAt`
+   - `UpdatedAt`
+   - `ReadTime`
+   - `SeoTitle`
+   - `SeoDescription`
 
 ## Getting Started
 
