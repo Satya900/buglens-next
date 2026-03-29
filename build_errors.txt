@@ -1,0 +1,53 @@
+﻿
+> buglens-next@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.2.1 (Turbopack)
+- Environments: .env.local
+
+node.exe : ΓÜá The "middleware" file 
+convention is deprecated. Please use 
+"proxy" instead. Learn more: https://
+nextjs.org/docs/messages/middleware-t
+o-proxy
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\mohan\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: (ΓÜá The "middle...lewar  
+  e-to-proxy:String) [], RemoteExc   
+ eption
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 3.0s
+  Running TypeScript ...
+Failed to type check.
+
+./app/(auth)/(shell)/dashboard/page.t
+sx:95:56
+Type error: Parameter 'repo' 
+implicitly has an 'any' type.
+
+  [90m93 |[0m           </div>
+  [90m94 |[0m           <div>
+[31m[1m>[0m [90m95 |[0m         
+    {stats?.recent?.length ? 
+stats.recent.map((repo, i) => (
+  [90m   |[0m                      
+                                  
+[31m[1m^[0m
+  [90m96 |[0m               <div 
+key={repo.id} style={{
+  [90m97 |[0m                 
+display: [32m'flex'[0m, 
+alignItems: [32m'center'[0m, gap: 
+[32m'1rem'[0m,
+  [90m98 |[0m                 
+padding: [32m'0.9rem 1.5rem'[0m,
+Next.js build worker exited with 
+code: 1 and signal: null
