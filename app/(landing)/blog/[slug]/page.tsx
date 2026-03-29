@@ -5,7 +5,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPublishedPosts, slugify } from "@/lib/blog";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import TableOfContents from "@/components/TableOfContents";
 import AuthorBox from "@/components/AuthorBox";
 import RelatedPosts from "@/components/RelatedPosts";
@@ -272,14 +271,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <main className="blog-page">
       <div className="blog-container post-shell">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Journal", href: "/blog" },
-            { label: post.title, href: `/blog/${post.slug}` },
-          ]}
-        />
-
         <article className="post-article">
           <header className="post-header">
             <div className="post-kicker-row">

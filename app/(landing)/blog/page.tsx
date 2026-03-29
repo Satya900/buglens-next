@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/blog";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import BlogGrid from "@/components/BlogGrid";
 
 export const revalidate = 3600;
@@ -20,13 +19,6 @@ export default async function BlogIndexPage() {
   return (
     <main className="blog-page">
       <section className="blog-container blog-shell">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Journal", href: "/blog" },
-          ]}
-        />
-
         <div className="blog-hero-refined">
           <span className="section-eyebrow">{"// journal"}</span>
           <h1 className="blog-title-main">

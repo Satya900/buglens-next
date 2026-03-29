@@ -1450,3 +1450,196 @@ footer a:hover {
     align-items: flex-start;
   }
 }
+
+/* --- Auth & Profile additions --- */
+
+.nav-profile-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profile-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.profile-link:hover {
+  color: var(--green);
+}
+
+.profile-container {
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  animation: fadeUp 0.8s ease;
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.profile-header {
+  background: var(--surface2);
+  padding: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  background: var(--green);
+  color: #000;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--serif);
+  text-transform: uppercase;
+}
+
+.profile-intro {
+  flex: 1;
+}
+
+.profile-name {
+  font-family: var(--serif);
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.profile-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--green-muted);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  border: 1px solid var(--border-bright);
+}
+
+.profile-details {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-section label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.detail-section p {
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.about-text {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+.profile-footer {
+  padding: 2rem 3rem;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  text-align: right;
+}
+
+.edit-btn {
+  font-size: 12px;
+  padding: 8px 20px;
+}
+
+@media (max-width: 640px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+  }
+  .profile-details {
+    padding: 2rem;
+  }
+}
+
+/* --- Support & Verification Bar additions --- */
+.verify-bar {
+  background: linear-gradient(90deg, #1a2e1e 0%, #0d1510 100%);
+  border-bottom: 1px solid rgba(248, 113, 113, 0.2);
+  padding: 8px 1rem;
+  position: relative; /* Stays at the absolute top of the page */
+  z-index: 101; /* Above navbar when scrolling start */
+  animation: slideDown 0.4s ease;
+}
+
+.verify-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #f87171;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.verify-icon {
+  font-size: 14px;
+}
+
+.verify-resend-btn {
+  background: none;
+  border: none;
+  color: var(--green);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.verify-resend-btn:hover {
+  color: var(--green-dim);
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .verify-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+  }
+}

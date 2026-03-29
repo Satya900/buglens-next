@@ -1,7 +1,12 @@
 import Link from "next/link";
 import BugLensMark from "@/components/BugLensMark";
+import { createClient } from "@/utils/supabase/server";
+import { signOut } from "@/app/(auth)/actions";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <nav>
       <Link className="nav-logo" href="/" aria-label="BugLens home">
@@ -14,7 +19,16 @@ export default function Navbar() {
         <li><Link href="/#updates">Updates</Link></li>
         <li><a href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer">GitHub</a></li>
       </ul>
-      <Link className="nav-cta" href="/#updates">Early access -&gt;</Link>
+      {user ? (
+        <div className="nav-profile-group">
+          <Link href="/profile" className="nav-link profile-link">Profile</Link>
+          <form action={signOut}>
+            <button className="nav-cta" type="submit">Log Out</button>
+          </form>
+        </div>
+      ) : (
+        <Link className="nav-cta" href="/login">Sign In -&gt;</Link>
+      )}
     </nav>
   );
 }
