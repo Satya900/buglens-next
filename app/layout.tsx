@@ -12,9 +12,11 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   authors: [{ name: siteConfig.creator }],
   creator: siteConfig.creator,
+  publisher: siteConfig.name,
+  category: siteConfig.category,
   keywords: [...siteConfig.keywords],
   alternates: {
-    canonical: "/",
+    canonical: siteConfig.url,
   },
   openGraph: {
     type: "website",
@@ -35,11 +37,20 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BugLens | AI senior reviewer for pull requests",
     description: siteConfig.description,
+    site: siteConfig.twitterHandle,
+    creator: siteConfig.twitterHandle,
     images: [getAbsoluteUrl("/opengraph-image")],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
     icon: "/icon.svg",

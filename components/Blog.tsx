@@ -16,7 +16,7 @@ export default async function Blog() {
             <article key={post.slug} className="blog-card">
               <span className="blog-tag">{post.tag}</span>
               <Link className="blog-title-link" href={`/blog/${post.slug}`}>
-                <div className="blog-title">{post.title}</div>
+                <h3 className="blog-title">{post.title}</h3>
               </Link>
               <div className="blog-excerpt">{post.excerpt}</div>
               <div className="blog-meta">
