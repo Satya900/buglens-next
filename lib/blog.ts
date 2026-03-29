@@ -22,16 +22,16 @@ type NotionFile =
     };
 
 type BlogBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "heading_2"; text: string }
-  | { type: "heading_3"; text: string }
-  | { type: "quote"; text: string }
-  | { type: "callout"; text: string }
-  | { type: "code"; text: string; language?: string }
-  | { type: "bulleted_list_item"; text: string }
-  | { type: "numbered_list_item"; text: string }
-  | { type: "image"; url: string; caption?: string }
-  | { type: "divider" };
+  | { type: "paragraph"; text: string; id: string }
+  | { type: "heading_2"; text: string; id: string }
+  | { type: "heading_3"; text: string; id: string }
+  | { type: "quote"; text: string; id: string }
+  | { type: "callout"; text: string; id: string }
+  | { type: "code"; text: string; language?: string; id: string }
+  | { type: "bulleted_list_item"; text: string; id: string }
+  | { type: "numbered_list_item"; text: string; id: string }
+  | { type: "image"; url: string; caption?: string; id: string }
+  | { type: "divider"; id: string };
 
 export type BlogPost = {
   slug: string;
@@ -66,14 +66,17 @@ const fallbackPosts: BlogPost[] = [
     content: [
       {
         type: "paragraph",
+        id: "fb-1-1",
         text: "Multi-agent review systems fail when orchestration stays linear. Real review pipelines branch, retry, and revisit context as new evidence appears.",
       },
       {
         type: "paragraph",
+        id: "fb-1-2",
         text: "BugLens is built around that constraint. The Lens agent inspects diffs, the Context agent pulls standards and prior decisions, and the Review agent turns that into a developer-facing verdict.",
       },
       {
         type: "paragraph",
+        id: "fb-1-3",
         text: "LangGraph made that statefulness explicit. Instead of encoding complex control flow inside prompts, the workflow remains inspectable and easier to debug as the product grows.",
       },
     ],
@@ -93,14 +96,17 @@ const fallbackPosts: BlogPost[] = [
     content: [
       {
         type: "paragraph",
+        id: "fb-2-1",
         text: "Code review quality is bounded by context quality. A model that only sees the diff will overfit to generic best practices and miss team-specific constraints.",
       },
       {
         type: "paragraph",
+        id: "fb-2-2",
         text: "The BugLens retrieval layer indexes docs, RFCs, and historical reviews so the reviewer can explain why something violates a local convention instead of hand-waving.",
       },
       {
         type: "paragraph",
+        id: "fb-2-3",
         text: "That context also improves trust. Engineers are more likely to accept review feedback when the reasoning points back to standards they already use.",
       },
     ],
@@ -120,14 +126,17 @@ const fallbackPosts: BlogPost[] = [
     content: [
       {
         type: "paragraph",
+        id: "fb-3-1",
         text: "Pattern matching is fast, but security review needs more than regex. Structural parsing is what makes it possible to distinguish dangerous interpolation from safe parameterization.",
       },
       {
         type: "paragraph",
+        id: "fb-3-2",
         text: "That lesson carried directly into BugLens. Security feedback only matters if the review can point at the code shape that makes an issue real.",
       },
       {
         type: "paragraph",
+        id: "fb-3-3",
         text: "A good scanner does not just find risk. It reduces noise enough that developers continue trusting the tool after the first week.",
       },
     ],
@@ -147,14 +156,17 @@ const fallbackPosts: BlogPost[] = [
     content: [
       {
         type: "paragraph",
+        id: "fb-4-1",
         text: "The protocol matters because it lowers integration cost. Instead of hand-building bespoke connectors for every surface, tools can expose capabilities through a common interface.",
       },
       {
         type: "paragraph",
+        id: "fb-4-2",
         text: "That matters for BugLens because review findings should not be trapped inside a single dashboard. The same context should be available in IDEs, PR flows, and agents.",
       },
       {
         type: "paragraph",
+        id: "fb-4-3",
         text: "Standardization does not remove product differentiation. It lets product work focus on insight quality rather than one-off plumbing.",
       },
     ],
@@ -190,7 +202,7 @@ function asPlainText(value: unknown) {
     .trim();
 }
 
-function slugify(value: string) {
+export function slugify(value: string) {
   return value
     .toLowerCase()
     .trim()
@@ -377,8 +389,9 @@ async function notionFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 function mapBlock(block: Record<string, unknown>): BlogBlock | null {
   const type = block.type;
+  const id = typeof block.id === "string" ? block.id : "";
 
-  if (typeof type !== "string") {
+  if (typeof type !== "string" || !id) {
     return null;
   }
 
@@ -392,15 +405,15 @@ function mapBlock(block: Record<string, unknown>): BlogBlock | null {
 
   switch (type) {
     case "paragraph":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "heading_2":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "heading_3":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "quote":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "callout":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "code":
       return text
         ? {
@@ -408,12 +421,13 @@ function mapBlock(block: Record<string, unknown>): BlogBlock | null {
             text,
             language:
               typeof payload?.language === "string" ? payload.language : undefined,
+            id,
           }
         : null;
     case "bulleted_list_item":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "numbered_list_item":
-      return text ? { type, text } : null;
+      return text ? { type, text, id } : null;
     case "image": {
       const image = payload as NotionFile & {
         caption?: unknown[];
@@ -425,11 +439,12 @@ function mapBlock(block: Record<string, unknown>): BlogBlock | null {
             type,
             url,
             caption: asPlainText((image.caption as unknown[]) ?? []) || undefined,
+            id,
           }
         : null;
     }
     case "divider":
-      return { type };
+      return { type, id };
     default:
       return null;
   }
@@ -515,7 +530,7 @@ async function mapNotionPost(result: Record<string, unknown>): Promise<BlogPost 
     slug,
     title,
     excerpt: excerpt || title,
-    content: content.length > 0 ? content : [{ type: "paragraph", text: excerpt || title }],
+    content: content.length > 0 ? content : [{ type: "paragraph", id: "default-1", text: excerpt || title }],
     tag,
     author,
     publishedAt,

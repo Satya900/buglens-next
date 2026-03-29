@@ -1,19 +1,20 @@
+import Link from "next/link";
 import BugLensMark from "@/components/BugLensMark";
 
 export default function Navbar() {
   return (
     <nav>
-      <a className="nav-logo" href="#top" aria-label="BugLens home">
+      <Link className="nav-logo" href="/" aria-label="BugLens home">
         <BugLensMark />
         buglens.app
-      </a>
+      </Link>
       <ul className="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#blog">Blog</a></li>
-        <li><a href="#updates">Updates</a></li>
+        <li><Link href="/#features">Features</Link></li>
+        <li><Link href="/blog">Blog</Link></li>
+        <li><Link href="/#updates">Updates</Link></li>
         <li><a href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer">GitHub</a></li>
       </ul>
-      <a className="nav-cta" href="#updates">Early access -&gt;</a>
+      <Link className="nav-cta" href="/#updates">Early access -&gt;</Link>
     </nav>
   );
 }

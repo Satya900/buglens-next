@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import BlogNavbar from "@/components/BlogNavbar";
+import Navbar from "@/components/Navbar";
+import Newsletter from "@/components/Newsletter";
+import Footer from "@/components/Footer";
 
 type BlogLayoutProps = Readonly<{
   children: ReactNode;
@@ -8,8 +10,10 @@ type BlogLayoutProps = Readonly<{
 export default function BlogLayout({ children }: BlogLayoutProps) {
   return (
     <>
-      <BlogNavbar />
+      <Navbar />
       {children}
+      <Newsletter />
+      <Footer />
     </>
   );
 }
