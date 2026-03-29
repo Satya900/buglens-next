@@ -33,27 +33,27 @@ export default function AppleIcon() {
             cx="9"
             cy="9"
             r="5"
-            stroke="currentColor"
+            stroke="#22c55e"
             strokeWidth="1.5"
           />
-          <circle cx="9" cy="9" r="2" fill="currentColor" />
+          <circle cx="9" cy="9" r="2" fill="#22c55e" />
           <line
             x1="13"
             y1="13"
             x2="18"
             y2="18"
-            stroke="currentColor"
+            stroke="#22c55e"
             strokeLinecap="round"
             strokeWidth="2"
           />
-          <circle cx="6.5" cy="2" r="1" fill="currentColor" />
-          <circle cx="11.5" cy="2" r="1" fill="currentColor" />
+          <circle cx="6.5" cy="2" r="1" fill="#22c55e" />
+          <circle cx="11.5" cy="2" r="1" fill="#22c55e" />
           <line
             x1="6.5"
             y1="3"
             x2="7.5"
             y2="5.5"
-            stroke="currentColor"
+            stroke="#22c55e"
             strokeLinecap="round"
             strokeWidth="1"
           />
@@ -62,7 +62,7 @@ export default function AppleIcon() {
             y1="3"
             x2="10.5"
             y2="5.5"
-            stroke="currentColor"
+            stroke="#22c55e"
             strokeLinecap="round"
             strokeWidth="1"
           />
