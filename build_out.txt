@@ -1,0 +1,67 @@
+﻿
+> buglens-next@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.2.1 (Turbopack)
+- Environments: .env.local
+
+node.exe : ΓÜá The "middleware" file 
+convention is deprecated. Please use 
+"proxy" instead. Learn more: https://
+nextjs.org/docs/messages/middleware-t
+o-proxy
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\mohan\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: (ΓÜá The "middle...lewar  
+  e-to-proxy:String) [], RemoteExc   
+ eption
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 3.4s
+  Running TypeScript ...
+  Finished TypeScript in 3.3s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/21) ...
+  Generating static pages using 11 workers (5/21) 
+  Generating static pages using 11 workers (10/21) 
+  Generating static pages using 11 workers (15/21) 
+Γ£ô Generating static pages using 11 workers (21/21) in 6.4s
+  Finalizing page optimization ...
+
+Route (app)                              Revalidate  Expire
+Γöî ╞Æ /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /analytics
+Γö£ ╞Æ /api/github/repos
+Γö£ ╞Æ /api/github/repos/[owner]/[repo]
+Γö£ Γùï /apple-icon
+Γö£ ╞Æ /auth/callback
+Γö£ ╞Æ /blog
+Γö£ ╞Æ /blog/[slug]
+Γö£ ╞Æ /blog/[slug]/opengraph-image-1ofxfa
+Γö£ ╞Æ /dashboard
+Γö£ Γùï /icon.svg
+Γö£ ╞Æ /knowledge
+Γö£ Γùï /login
+Γö£ Γùï /manifest.webmanifest
+Γö£ Γùï /onboarding
+Γö£ Γùï /opengraph-image
+Γö£ ╞Æ /profile
+Γö£ ╞Æ /repos
+Γö£ ╞Æ /reviews
+Γö£ Γùï /robots.txt
+Γöö Γùï /sitemap.xml                                 1h      1y
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

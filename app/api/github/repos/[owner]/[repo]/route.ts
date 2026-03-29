@@ -1,9 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 
+type Params = Promise<{ owner: string; repo: string }>
+
 export async function GET(
-  request: Request,
-  { params }: { params: { owner: string; repo: string } }
+  _request: Request,
+  { params }: { params: Params }
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -22,36 +24,30 @@ export async function GET(
     return NextResponse.json({ error: 'GitHub token not found. Please re-login.' }, { status: 400 })
   }
 
-  const { owner, repo } = await params
+  const { owner, repo: repoName } = await params
+
+  const headers = {
+    Authorization: `token ${profile.github_token}`,
+    Accept: 'application/vnd.github.v3+json',
+  }
 
   try {
-    // Fetch open PRs for the repo
     const [prsRes, repoRes] = await Promise.all([
-      fetch(
-        `https://api.github.com/repos/${owner}/${repo}/pulls?state=open&per_page=50`,
-        {
-          headers: {
-            Authorization: `token ${profile.github_token}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-        }
-      ),
-      fetch(
-        `https://api.github.com/repos/${owner}/${repo}`,
-        {
-          headers: {
-            Authorization: `token ${profile.github_token}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-        }
-      )
+      fetch(`https://api.github.com/repos/${owner}/${repoName}/pulls?state=open&per_page=50`, { headers }),
+      fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers }),
     ])
 
     if (!prsRes.ok || !repoRes.ok) {
       return NextResponse.json({ error: 'GitHub API error fetching repo details' }, { status: 400 })
     }
 
-    const [prs, repoData] = await Promise.all([prsRes.json(), repoRes.json()])
+    const prs = await prsRes.json() as unknown[]
+    const repoData = await repoRes.json() as {
+      default_branch: string
+      language: string | null
+      stargazers_count: number
+      open_issues_count: number
+    }
 
     return NextResponse.json({
       open_prs: prs.length,

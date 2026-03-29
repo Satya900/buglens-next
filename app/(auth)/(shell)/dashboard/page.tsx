@@ -2,6 +2,11 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
+type RecentRepo = {
+  id: number; name: string; full_name: string; url: string
+  updated_at: string; open_issues: number; language: string | null; private: boolean
+}
+
 async function getGitHubStats(token: string) {
   try {
     const [reposRes, userRes] = await Promise.all([
@@ -17,7 +22,7 @@ async function getGitHubStats(token: string) {
     if (!reposRes.ok || !userRes.ok) return null
     const [repos, ghUser] = await Promise.all([reposRes.json(), userRes.json()])
     const totalOpenIssues = repos.reduce((s: number, r: { open_issues_count: number }) => s + r.open_issues_count, 0)
-    const recent = repos.slice(0, 6).map((r: {
+    const recent: RecentRepo[] = repos.slice(0, 6).map((r: {
       id: number; name: string; full_name: string; html_url: string;
       updated_at: string; open_issues_count: number; language: string | null; private: boolean;
     }) => ({
