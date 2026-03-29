@@ -3,14 +3,42 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPostBySlug, getPublishedPosts } from "@/lib/blog";
+import { getPostBySlug, getPublishedPosts, slugify } from "@/lib/blog";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import TableOfContents from "@/components/TableOfContents";
+import AuthorBox from "@/components/AuthorBox";
+import RelatedPosts from "@/components/RelatedPosts";
 
 type BlogPostPageProps = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+type Heading = {
+  text: string;
+  level: number;
+  id: string;
+};
+
+const IconPublishedBy = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+  </svg>
+);
+
+const IconCalendar = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
+  </svg>
+);
+
+const IconClock = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+  </svg>
+);
 
 function renderPostBlocks(post: Awaited<ReturnType<typeof getPostBySlug>>) {
   if (!post) {
@@ -55,10 +83,18 @@ function renderPostBlocks(post: Awaited<ReturnType<typeof getPostBySlug>>) {
         blocks.push(<p key={`${block.type}-${index}`}>{block.text}</p>);
         break;
       case "heading_2":
-        blocks.push(<h2 key={`${block.type}-${index}`}>{block.text}</h2>);
+        blocks.push(
+          <h2 id={block.id} key={`${block.type}-${index}`}>
+            {block.text}
+          </h2>
+        );
         break;
       case "heading_3":
-        blocks.push(<h3 key={`${block.type}-${index}`}>{block.text}</h3>);
+        blocks.push(
+          <h3 id={block.id} key={`${block.type}-${index}`}>
+            {block.text}
+          </h3>
+        );
         break;
       case "quote":
         blocks.push(
@@ -94,7 +130,9 @@ function renderPostBlocks(post: Awaited<ReturnType<typeof getPostBySlug>>) {
         );
         break;
       case "divider":
-        blocks.push(<hr key={`${block.type}-${index}`} className="post-divider" />);
+        blocks.push(
+          <hr key={`${block.type}-${index}`} className="post-divider" />
+        );
         break;
       default:
         break;
@@ -172,6 +210,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
+  const allPosts = await getPublishedPosts();
+  const relatedPosts = allPosts
+    .filter((p) => p.slug !== post.slug)
+    .slice(0, 3);
+
+  const headings: Heading[] = post.content
+    .filter((b) => b.type === "heading_2" || b.type === "heading_3")
+    .map((b) => ({
+      text: "text" in b ? b.text : "",
+      level: b.type === "heading_2" ? 2 : 3,
+      id: b.id, // Use the unique block ID from Notion
+    }));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -195,50 +246,88 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <main className="blog-page">
-      <article className="section post-shell">
-        <Link className="post-back-link" href="/blog">
-          Back to journal
-        </Link>
+      <div className="blog-container post-shell">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Journal", href: "/blog" },
+            { label: post.title, href: `/blog/${post.slug}` },
+          ]}
+        />
 
-        <header className="post-header">
-          <div className="post-kicker-row">
-            <span className="blog-tag">{post.tag}</span>
-            <div className="blog-meta post-meta">
-              <span>{post.author}</span>
-              <span className="blog-meta-dot"></span>
-              <time dateTime={post.publishedAt}>
-                {new Date(post.publishedAt).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </time>
-              <span className="blog-meta-dot"></span>
-              <span>{post.readTime}</span>
+        <article className="post-article">
+          <header className="post-header">
+            <div className="post-kicker-row">
+              <span className="blog-tag">{post.tag}</span>
+              <div className="post-meta-fancy">
+                <div className="post-meta-item">
+                  <IconPublishedBy />
+                  <div className="post-meta-text">
+                    <span className="post-meta-label">Published By</span>
+                    <span className="post-meta-value">{post.author}</span>
+                  </div>
+                </div>
+                <div className="post-meta-item">
+                  <IconCalendar />
+                  <div className="post-meta-text">
+                    <span className="post-meta-label">Published On</span>
+                    <time dateTime={post.publishedAt} className="post-meta-value">
+                      {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </time>
+                  </div>
+                </div>
+                <div className="post-meta-item">
+                  <IconClock />
+                  <div className="post-meta-text">
+                    <span className="post-meta-label">Reading Time</span>
+                    <span className="post-meta-value">{post.readTime}</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <h1 className="post-title">{post.title}</h1>
+            <p className="post-excerpt">{post.excerpt}</p>
+          </header>
+
+          {post.coverImage ? (
+            <div className="post-cover-wrap">
+              <Image
+                className="post-cover"
+                src={post.coverImage}
+                alt={post.title}
+                width={1600}
+                height={900}
+                unoptimized
+                priority
+              />
+            </div>
+          ) : null}
+
+          <div className="post-content-layout">
+            <div className="post-content-main">
+              <div className="post-body">{renderPostBlocks(post)}</div>
+              <AuthorBox name={post.author} />
+            </div>
+            <aside className="post-sidebar">
+              <div className="sticky-sidebar">
+                <TableOfContents headings={headings} />
+                <div className="sidebar-cta">
+                  <h3 className="sidebar-cta-title">Ship better code</h3>
+                  <p className="sidebar-cta-desc">BugLens reviews every PR before your team does. Get early access to the private beta.</p>
+                  <Link href="/#updates" className="sidebar-cta-btn">Get Early Access</Link>
+                </div>
+              </div>
+            </aside>
           </div>
+        </article>
 
-          <h1 className="post-title">{post.title}</h1>
-          <p className="post-excerpt">{post.excerpt}</p>
-        </header>
-
-        {post.coverImage ? (
-          <div className="post-cover-wrap">
-            {/* Notion-hosted file URLs are already transformed upstream when available. */}
-            <Image
-              className="post-cover"
-              src={post.coverImage}
-              alt={post.title}
-              width={1600}
-              height={900}
-              unoptimized
-              preload
-            />
-          </div>
-        ) : null}
-
-        <div className="post-body">{renderPostBlocks(post)}</div>
-      </article>
+        <RelatedPosts posts={relatedPosts} />
+      </div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

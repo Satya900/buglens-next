@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getPublishedPosts } from "@/lib/blog";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import BlogGrid from "@/components/BlogGrid";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Journal",
   description:
     "Engineering notes from building BugLens, covering AI code review, retrieval systems, security analysis, and product architecture.",
   alternates: {
@@ -18,63 +19,26 @@ export default async function BlogIndexPage() {
 
   return (
     <main className="blog-page">
-      <section className="section blog-shell">
-        <div className="blog-hero">
-          <div className="section-eyebrow">{"// buglens journal"}</div>
-          <h1 className="section-title">
-            Shipping the product in <em>public</em>
+      <section className="blog-container blog-shell">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Journal", href: "/blog" },
+          ]}
+        />
+
+        <div className="blog-hero-refined">
+          <span className="section-eyebrow">{"// journal"}</span>
+          <h1 className="blog-title-main">
+            BugLens <em>Journal</em>
           </h1>
-          <p className="section-sub blog-lead">
-            Long-form notes on the technical decisions behind BugLens, from
-            multi-agent architecture to code review ergonomics and security
-            analysis.
+          <p className="blog-desc-main">
+            Deep dives into building professional code review agents — from
+            agentic RAG to the security of large-scale code analysis.
           </p>
-
-          <div className="blog-hero-stats" aria-label="Blog summary">
-            <div className="blog-hero-stat">
-              <span className="blog-hero-stat-label">Posts</span>
-              <strong>{posts.length}</strong>
-            </div>
-            <div className="blog-hero-stat">
-              <span className="blog-hero-stat-label">Topics</span>
-              <strong>Architecture, RAG, security</strong>
-            </div>
-            <div className="blog-hero-stat">
-              <span className="blog-hero-stat-label">Intent</span>
-              <strong>Technical notes, not growth content</strong>
-            </div>
-          </div>
         </div>
 
-        <div className="blog-list">
-          {posts.map((post, index) => (
-            <article key={post.slug} className="blog-list-item">
-              <div className="blog-list-index">
-                <span>{String(index + 1).padStart(2, "0")}</span>
-              </div>
-              <div className="blog-list-content">
-                <span className="blog-tag">{post.tag}</span>
-                <h2 className="blog-list-title">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </h2>
-                <p className="blog-list-excerpt">{post.excerpt}</p>
-                <div className="blog-meta">
-                  <span>{post.author}</span>
-                  <span className="blog-meta-dot"></span>
-                  <span>
-                    {new Date(post.publishedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                  <span className="blog-meta-dot"></span>
-                  <span>{post.readTime}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+        <BlogGrid posts={posts} />
       </section>
     </main>
   );
