@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "notion:setup-blog": "node scripts/setup-notion-blog.mjs"
+    "notion:setup-blog": "node scripts/setup-notion-blog.mjs",
+    "notion:publish-sample-post": "node scripts/publish-sample-post.mjs"
   },
   "dependencies": {
     "next": "16.2.1",

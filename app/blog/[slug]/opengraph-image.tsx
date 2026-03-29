@@ -47,7 +47,7 @@ export default async function OpengraphImage({ params }: BlogPostImageProps) {
             style={{
               width: "64px",
               height: "64px",
-              borderRadius: "18px",
+              borderRadius: "14px",
               border: "2px solid rgba(34, 197, 94, 0.3)",
               display: "flex",
               alignItems: "center",
@@ -55,15 +55,42 @@ export default async function OpengraphImage({ params }: BlogPostImageProps) {
               background: "rgba(26, 46, 30, 0.8)",
             }}
           >
-            <div
-              style={{
-                width: "26px",
-                height: "26px",
-                borderRadius: "999px",
-                border: "4px solid #22c55e",
-                position: "relative",
-              }}
-            />
+            <svg
+              width="44"
+              height="44"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="28"
+                cy="28"
+                r="14"
+                stroke="#22c55e"
+                strokeWidth="4"
+              />
+              <circle cx="28" cy="28" r="5.5" fill="#22c55e" />
+              <path
+                d="M39 39L52 52"
+                stroke="#22c55e"
+                strokeLinecap="round"
+                strokeWidth="5"
+              />
+              <circle cx="21" cy="9.5" r="2.5" fill="#22c55e" />
+              <circle cx="35" cy="9.5" r="2.5" fill="#22c55e" />
+              <path
+                d="M21 12L23.5 18"
+                stroke="#22c55e"
+                strokeLinecap="round"
+                strokeWidth="2.5"
+              />
+              <path
+                d="M35 12L32.5 18"
+                stroke="#22c55e"
+                strokeLinecap="round"
+                strokeWidth="2.5"
+              />
+            </svg>
           </div>
           <span>buglens.app</span>
         </div>

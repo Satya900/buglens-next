@@ -1,4 +1,7 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPublishedPosts } from "@/lib/blog";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
@@ -8,6 +11,100 @@ type BlogPostPageProps = {
     slug: string;
   }>;
 };
+
+function renderPostBlocks(post: Awaited<ReturnType<typeof getPostBySlug>>) {
+  if (!post) {
+    return null;
+  }
+
+  const blocks: ReactNode[] = [];
+  let index = 0;
+
+  while (index < post.content.length) {
+    const block = post.content[index];
+
+    if (block.type === "bulleted_list_item" || block.type === "numbered_list_item") {
+      const isNumbered = block.type === "numbered_list_item";
+      const items: string[] = [];
+
+      while (index < post.content.length) {
+        const current = post.content[index];
+        if (current.type !== block.type) {
+          break;
+        }
+        items.push(current.text);
+        index += 1;
+      }
+
+      const ListTag = isNumbered ? "ol" : "ul";
+      blocks.push(
+        <ListTag
+          key={`${block.type}-${index}`}
+          className={`post-list${isNumbered ? " post-list-numbered" : ""}`}
+        >
+          {items.map((item, itemIndex) => (
+            <li key={`${block.type}-item-${itemIndex}`}>{item}</li>
+          ))}
+        </ListTag>
+      );
+      continue;
+    }
+
+    switch (block.type) {
+      case "paragraph":
+        blocks.push(<p key={`${block.type}-${index}`}>{block.text}</p>);
+        break;
+      case "heading_2":
+        blocks.push(<h2 key={`${block.type}-${index}`}>{block.text}</h2>);
+        break;
+      case "heading_3":
+        blocks.push(<h3 key={`${block.type}-${index}`}>{block.text}</h3>);
+        break;
+      case "quote":
+        blocks.push(
+          <blockquote key={`${block.type}-${index}`}>{block.text}</blockquote>
+        );
+        break;
+      case "callout":
+        blocks.push(
+          <aside key={`${block.type}-${index}`} className="post-callout">
+            {block.text}
+          </aside>
+        );
+        break;
+      case "code":
+        blocks.push(
+          <pre key={`${block.type}-${index}`} className="post-code">
+            <code>{block.text}</code>
+          </pre>
+        );
+        break;
+      case "image":
+        blocks.push(
+          <figure key={`${block.type}-${index}`} className="post-figure">
+            <Image
+              src={block.url}
+              alt={block.caption ?? post.title}
+              width={1600}
+              height={900}
+              unoptimized
+            />
+            {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+          </figure>
+        );
+        break;
+      case "divider":
+        blocks.push(<hr key={`${block.type}-${index}`} className="post-divider" />);
+        break;
+      default:
+        break;
+    }
+
+    index += 1;
+  }
+
+  return blocks;
+}
 
 export const revalidate = 3600;
 
@@ -99,78 +196,48 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <main className="blog-page">
       <article className="section post-shell">
+        <Link className="post-back-link" href="/blog">
+          Back to journal
+        </Link>
+
+        <header className="post-header">
+          <div className="post-kicker-row">
+            <span className="blog-tag">{post.tag}</span>
+            <div className="blog-meta post-meta">
+              <span>{post.author}</span>
+              <span className="blog-meta-dot"></span>
+              <time dateTime={post.publishedAt}>
+                {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </time>
+              <span className="blog-meta-dot"></span>
+              <span>{post.readTime}</span>
+            </div>
+          </div>
+
+          <h1 className="post-title">{post.title}</h1>
+          <p className="post-excerpt">{post.excerpt}</p>
+        </header>
+
         {post.coverImage ? (
           <div className="post-cover-wrap">
             {/* Notion-hosted file URLs are already transformed upstream when available. */}
-            <img className="post-cover" src={post.coverImage} alt={post.title} />
+            <Image
+              className="post-cover"
+              src={post.coverImage}
+              alt={post.title}
+              width={1600}
+              height={900}
+              unoptimized
+              preload
+            />
           </div>
         ) : null}
-        <span className="blog-tag">{post.tag}</span>
-        <h1 className="post-title">{post.title}</h1>
-        <p className="post-excerpt">{post.excerpt}</p>
-        <div className="blog-meta post-meta">
-          <span>{post.author}</span>
-          <span className="blog-meta-dot"></span>
-          <time dateTime={post.publishedAt}>
-            {new Date(post.publishedAt).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </time>
-          <span className="blog-meta-dot"></span>
-          <span>{post.readTime}</span>
-        </div>
 
-        <div className="post-body">
-          {post.content.map((block, index) => {
-            switch (block.type) {
-              case "paragraph":
-                return <p key={`${block.type}-${index}`}>{block.text}</p>;
-              case "heading_2":
-                return <h2 key={`${block.type}-${index}`}>{block.text}</h2>;
-              case "heading_3":
-                return <h3 key={`${block.type}-${index}`}>{block.text}</h3>;
-              case "quote":
-                return <blockquote key={`${block.type}-${index}`}>{block.text}</blockquote>;
-              case "callout":
-                return (
-                  <aside key={`${block.type}-${index}`} className="post-callout">
-                    {block.text}
-                  </aside>
-                );
-              case "code":
-                return (
-                  <pre key={`${block.type}-${index}`} className="post-code">
-                    <code>{block.text}</code>
-                  </pre>
-                );
-              case "bulleted_list_item":
-                return (
-                  <ul key={`${block.type}-${index}`} className="post-list">
-                    <li>{block.text}</li>
-                  </ul>
-                );
-              case "numbered_list_item":
-                return (
-                  <ol key={`${block.type}-${index}`} className="post-list post-list-numbered">
-                    <li>{block.text}</li>
-                  </ol>
-                );
-              case "image":
-                return (
-                  <figure key={`${block.type}-${index}`} className="post-figure">
-                    <img src={block.url} alt={block.caption ?? post.title} />
-                    {block.caption ? <figcaption>{block.caption}</figcaption> : null}
-                  </figure>
-                );
-              case "divider":
-                return <hr key={`${block.type}-${index}`} className="post-divider" />;
-              default:
-                return null;
-            }
-          })}
-        </div>
+        <div className="post-body">{renderPostBlocks(post)}</div>
       </article>
       <script
         type="application/ld+json"
