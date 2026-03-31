@@ -1,23 +1,74 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
-const SEVERITY: Array<{ label: string; cls: string }> = [
-  { label: 'Critical', cls: 'badge-red' },
-  { label: 'High', cls: 'badge-red' },
-  { label: 'Medium', cls: 'badge-yellow' },
-  { label: 'Low', cls: 'badge-dim' },
-]
+type ReviewRow = {
+  id: string
+  pr_title: string | null
+  repo_full_name: string
+  pr_number: number | null
+  pr_url: string | null
+  merge_decision: string | null
+  findings_count: number | null
+  risk_summary: string | null
+  created_at: string
+}
 
-const PLACEHOLDER_REVIEWS = [
-  { id: '1', pr: 'Fix: Auth race condition', repo: 'buglens-next #124', severity: 'Critical', findings: 3, score: 34, date: '2h ago' },
-  { id: '2', pr: 'Feat: Add GitHub OAuth', repo: 'buglens-next #123', severity: 'Low', findings: 0, score: 98, date: '5h ago' },
-  { id: '3', pr: 'Refactor: DB middleware', repo: 'api-gateway #45', severity: 'Medium', findings: 2, score: 72, date: '1d ago' },
-]
+type ShadowReviewRow = {
+  id: string
+  pr_title: string | null
+  repo_full_name: string
+  pr_number: number | null
+  pr_url: string | null
+  merge_decision: string | null
+  findings_count: number | null
+  risk_summary: string | null
+  created_at: string
+  findings_json: Array<{ confidence?: number; source?: string; category?: string }> | null
+}
+
+type TimelineReview = {
+  id: string
+  kind: 'posted' | 'shadow'
+  pr_title: string | null
+  repo_full_name: string
+  pr_number: number | null
+  pr_url: string | null
+  merge_decision: string | null
+  findings_count: number
+  risk_summary: string | null
+  created_at: string
+  avgConfidence: number | null
+  sources: string[]
+}
+
+function timeAgo(d: string) {
+  const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000)
+  if (m < 60) return `${m}m ago`
+  if (m < 1440) return `${Math.floor(m / 60)}h ago`
+  return `${Math.floor(m / 1440)}d ago`
+}
+
+function averageConfidence(findings: ShadowReviewRow['findings_json']) {
+  if (!findings?.length) return null
+  const scored = findings.filter((item) => typeof item.confidence === 'number')
+  if (!scored.length) return null
+  return scored.reduce((sum, item) => sum + Number(item.confidence || 0), 0) / scored.length
+}
 
 export default async function ReviewsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const { data: reviews, error: reviewsError } = await supabase
+    .from('reviews')
+    .select('id, pr_title, repo_full_name, pr_number, pr_url, merge_decision, findings_count, risk_summary, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50)
+
+  const timeline = (reviews || []) as ReviewRow[]
 
   return (
     <div className="page-shell">
@@ -27,74 +78,74 @@ export default async function ReviewsPage() {
           <h1 className="page-heading">Review History</h1>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {['All Repos', 'All Severities', 'All Statuses'].map(f => (
-            <select key={f} style={{
-              background: 'var(--surface)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '6px 10px', color: 'var(--text-muted)',
-              fontFamily: 'var(--mono)', fontSize: 11, cursor: 'pointer'
-            }}>
-              <option>{f}</option>
-            </select>
-          ))}
+          <span className="badge-dim">{timeline.length} total reviews</span>
         </div>
       </div>
 
-      <div className="alert-banner warn" style={{ marginBottom: '1.5rem' }}>
-        <span>⚠</span>
-        <span>These are placeholder reviews. Real data will appear once the BugLens GitHub App is installed.</span>
-      </div>
+      {!timeline.length && !reviewsError && (
+        <div className="alert-banner warn" style={{ marginBottom: '1.5rem' }}>
+          <span>i</span>
+          <span>No reviews found yet. Open a PR on an active repository to start seeing BugLens in action.</span>
+        </div>
+      )}
+
+      {reviewsError && (
+        <div className="alert-banner red" style={{ marginBottom: '1.5rem' }}>
+          <span>x</span>
+          <span>Error loading review history: {reviewsError?.message}</span>
+        </div>
+      )}
 
       <div className="data-table-wrapper">
         <table className="data-table">
           <thead>
             <tr>
               <th>Pull Request</th>
-              <th>Severity</th>
+              <th>Status</th>
               <th>Findings</th>
-              <th>Score</th>
+              <th>Risk Summary</th>
               <th>Date</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {PLACEHOLDER_REVIEWS.map(r => {
-              const sev = SEVERITY.find(s => s.label === r.severity)
+            {timeline.map((review) => {
+              const statusCls = review.merge_decision === 'APPROVE'
+                ? 'badge-green'
+                : review.merge_decision === 'REQUEST_CHANGES'
+                  ? 'badge-red'
+                  : 'badge-dim'
+
               return (
-                <tr key={r.id}>
+                <tr key={review.id}>
                   <td>
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{r.pr}</div>
-                    <div style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-dim)' }}>{r.repo}</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{review.pr_title || 'Untitled PR'}</div>
+                    <div style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-dim)' }}>
+                      {review.repo_full_name} #{review.pr_number || '—'}
+                    </div>
                   </td>
-                  <td><span className={sev?.cls || 'badge-dim'}>{r.severity}</span></td>
+                  <td><span className={statusCls}>{review.merge_decision || 'PENDING'}</span></td>
                   <td>
-                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12 }} className={r.findings > 0 ? 'text-red' : 'text-dim'}>
-                      {r.findings} findings
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 12 }} className={(review.findings_count || 0) > 0 ? 'text-red' : 'text-dim'}>
+                      {review.findings_count || 0} findings
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ fontSize: 11, color: 'var(--text-dim)', maxWidth: '280px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {review.risk_summary || 'No risk summary available'}
                     </span>
                   </td>
+                  <td><span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>{timeAgo(review.created_at)}</span></td>
                   <td>
-                    <span style={{ fontFamily: 'var(--mono)', fontSize: 12 }} className={r.score < 50 ? 'text-red' : r.score > 80 ? 'text-green' : 'text-yellow'}>
-                      {r.score}%
-                    </span>
-                  </td>
-                  <td><span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>{r.date}</span></td>
-                  <td>
-                    <a href={`/reviews/${r.id}`} style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
-                      View →
-                    </a>
+                    <Link href={review.pr_url || '#'} target="_blank" style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
+                      GitHub ↗
+                    </Link>
                   </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>
-        <span>{PLACEHOLDER_REVIEWS.length} results</span>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn-secondary" disabled style={{ opacity: 0.4 }}>← Prev</button>
-          <button className="btn-secondary" disabled style={{ opacity: 0.4 }}>Next →</button>
-        </div>
       </div>
     </div>
   )

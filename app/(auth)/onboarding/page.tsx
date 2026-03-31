@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { completeOnboarding } from '../actions'
+import { completeOnboarding, getWebhookSecret } from '../actions'
 import { useRouter } from 'next/navigation'
 
 const STEPS = [
@@ -18,11 +18,11 @@ const STEPS = [
   },
   {
     id: 2,
-    title: 'Select Repos',
-    description: 'Choose which repositories you want Buglens to monitor.',
+    title: 'Secure Configuration',
+    description: 'Connect your GitHub App to the BugLens Core engine.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
     ),
   },
@@ -41,7 +41,23 @@ const STEPS = [
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [webhookSecret, setWebhookSecret] = useState('Fetching...')
+  const [copied, setCopied] = useState<string | null>(null)
+  
+  const webhookUrl = process.env.NEXT_PUBLIC_BUGLENS_CORE_WEBHOOK_URL || 'http://localhost:3001/webhook'
   const router = useRouter()
+
+  useEffect(() => {
+    if (currentStep === 2) {
+      getWebhookSecret().then(secret => setWebhookSecret(secret || 'No secret found'))
+    }
+  }, [currentStep])
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(id)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -81,23 +97,69 @@ export default function OnboardingPage() {
 
           <div className="step-actions">
             {currentStep === 1 && (
-              <button onClick={handleNext} className="btn-primary">
-                Install App
-              </button>
+              <>
+                <button onClick={handleNext} className="btn-primary">
+                  Install GitHub App →
+                </button>
+                <p className="hint text-center max-w-[280px]">
+                  Grant BugLens access to use AI for reviews.
+                </p>
+              </>
             )}
+            
             {currentStep === 2 && (
-              <button onClick={handleNext} className="btn-primary">
-                Select Repositories
-              </button>
+              <div className="webhook-config-box">
+                <div className="config-item">
+                  <label>Webhook URL</label>
+                  <div className="copy-field">
+                    <input readOnly value={webhookUrl} />
+                    <button onClick={() => copyToClipboard(webhookUrl, 'url')}>
+                      {copied === 'url' ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="config-item">
+                  <label>Webhook Secret</label>
+                  <div className="copy-field">
+                    <input readOnly type="password" value={webhookSecret} />
+                    <button onClick={() => copyToClipboard(webhookSecret, 'secret')}>
+                      {copied === 'secret' ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="alert-banner green" style={{ fontSize: 11, marginBottom: '1.5rem', textAlign: 'left' }}>
+                  <span>ℹ</span>
+                  <span>Paste these into your GitHub App's "Webhook" settings to enable Secure AI scanning.</span>
+                </div>
+
+                <button onClick={handleNext} className="btn-primary">
+                  I've configured this →
+                </button>
+              </div>
             )}
+
             {currentStep === 3 && (
-              <button 
-                onClick={finishOnboarding} 
-                className="btn-primary"
-                disabled={loading}
-              >
-                {loading ? 'Finalizing...' : 'Go to Dashboard'}
-              </button>
+              <>
+                <div className="final-check">
+                  <div className="check-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>App Installed</span>
+                  </div>
+                  <div className="check-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Webhook Secure</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={finishOnboarding} 
+                  className="btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? 'Finalizing...' : 'Go to Dashboard'}
+                </button>
+              </>
             )}
             
             <button 
@@ -105,11 +167,12 @@ export default function OnboardingPage() {
               className="btn-skip"
               disabled={loading}
             >
-              Skip for now
+              Skip setup
             </button>
           </div>
         </div>
       </div>
+
 
       <style jsx>{`
         .onboarding-container {
@@ -147,51 +210,6 @@ export default function OnboardingPage() {
           height: 1px;
           background: var(--border);
           z-index: 0;
-        }
-
-        .progress-step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.75rem;
-          position: relative;
-          z-index: 1;
-          flex: 1;
-        }
-
-        .step-number {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: var(--mono);
-          font-size: 12px;
-          color: var(--text-dim);
-          transition: all 0.3s;
-        }
-
-        .progress-step.active .step-number {
-          background: var(--green);
-          border-color: var(--green);
-          color: #000;
-          box-shadow: 0 0 15px var(--green-glow);
-        }
-
-        .step-label {
-          font-family: var(--mono);
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: var(--text-dim);
-          transition: all 0.3s;
-        }
-
-        .progress-step.active .step-label {
-          color: var(--green);
         }
 
         .onboarding-content {
@@ -251,11 +269,152 @@ export default function OnboardingPage() {
           color: var(--text-muted);
         }
 
+
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+          position: relative;
+          z-index: 1;
+          flex: 1;
+        }
+
+        .step-number {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: var(--surface2);
+          border: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: var(--mono);
+          font-size: 12px;
+          color: var(--text-dim);
+          transition: all 0.3s;
+        }
+
+        .progress-step.active .step-number {
+          background: var(--green);
+          border-color: var(--green);
+          color: #000;
+          box-shadow: 0 0 15px var(--green-glow);
+        }
+
+        .step-label {
+          font-family: var(--mono);
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-dim);
+          transition: all 0.3s;
+        }
+
+        .progress-step.active .step-label {
+          color: var(--green);
+        }
+
+        .webhook-config-box {
+          width: 100%;
+          background: var(--surface2);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          text-align: left;
+        }
+
+        .config-item {
+          margin-bottom: 1.25rem;
+        }
+
+        .config-item label {
+          display: block;
+          font-family: var(--mono);
+          font-size: 11px;
+          color: var(--text-dim);
+          text-transform: uppercase;
+          margin-bottom: 0.5rem;
+        }
+
+        .copy-field {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .copy-field input {
+          flex: 1;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 0.5rem 0.75rem;
+          font-family: var(--mono);
+          font-size: 13px;
+          color: var(--text);
+          min-width: 0;
+        }
+
+        .copy-field button {
+          padding: 0.5rem 1rem;
+          background: var(--surface);
+          border: 1px solid var(--border-bright);
+          border-radius: 4px;
+          color: var(--text);
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .copy-field button:hover {
+          background: var(--border);
+        }
+
+        .final-check {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-bottom: 2.5rem;
+          align-items: center;
+        }
+
+        .check-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: var(--green);
+          font-family: var(--mono);
+          font-size: 12px;
+        }
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint {
+          font-size: 11px;
+          color: var(--text-dim);
+          margin-top: 0.5rem;
+          line-height: 1.5;
+        }
+
+        .alert-banner {
+          display: flex;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          border-radius: 6px;
+          margin-bottom: 1rem;
+          line-height: 1.4;
+        }
+        
+        .alert-banner.green {
+          background: var(--green-muted);
+          border: 1px solid var(--green);
+          color: var(--green);
         }
       `}</style>
     </div>
   )
 }
+
