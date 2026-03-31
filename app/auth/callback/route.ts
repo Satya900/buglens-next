@@ -15,16 +15,20 @@ export async function GET(request: Request) {
     if (!sessionError && data?.session) {
       const user = data.session.user
       const providerToken = data.session.provider_token
+      const metadata = user.user_metadata
       
-      console.log('Auth successful for user:', user.email)
+      console.log('Auth successful for user:', user.email, 'Github:', metadata.user_name)
       
-      // Update or create profile with the github_token
+      // Update or create profile with the github_token and username
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .upsert({ 
           id: user.id, 
           github_token: providerToken,
+          github_username: metadata.user_name, // 🚀 Critical for multi-tenant linking
+          full_name: metadata.full_name || metadata.user_name,
           email: user.email,
+          avatar_url: metadata.avatar_url,
           updated_at: new Date().toISOString()
         })
         .select('onboarding_completed')

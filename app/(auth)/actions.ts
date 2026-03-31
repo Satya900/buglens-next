@@ -63,3 +63,11 @@ export async function signOut() {
   revalidatePath('/', 'layout')
   redirect('/')
 }
+
+export async function getWebhookSecret() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  
+  return process.env.WEBHOOK_SECRET || 'no_secret_set'
+}
