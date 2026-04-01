@@ -2,7 +2,8 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
+  const { success } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -10,11 +11,10 @@ export default async function BillingPage() {
   // Fetch billing data from profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_tier, current_usage, usage_limit')
+    .select('subscription_tier, current_usage, usage_limit, email')
     .eq('id', user.id)
     .single()
 
-  // Fetch transaction history
   // Fetch transaction history
   const { data: transactions } = await supabase
     .from('billing_history')
@@ -34,6 +34,8 @@ export default async function BillingPage() {
   const isUnlimited = usageLimit === Infinity
   const usagePercent = isUnlimited ? 0 : Math.min(100, ((usageCount || 0) / usageLimit) * 100)
 
+  const isSuccessRedirect = success === 'true' && tier !== 'PRO'
+
   return (
     <div className="page-shell">
       <div className="page-header">
@@ -42,6 +44,32 @@ export default async function BillingPage() {
           <h1 className="page-heading">Plan & Billing</h1>
         </div>
       </div>
+
+      {isSuccessRedirect && (
+        <div style={{ 
+          background: 'rgba(34, 197, 94, 0.1)', 
+          border: '1px solid var(--green)', 
+          borderRadius: 12, 
+          padding: '1.5rem', 
+          marginBottom: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.25rem',
+          animation: 'pulse 2s infinite'
+        }}>
+          <div style={{ fontSize: 24 }}>✨</div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--green)', marginBottom: 4 }}>Payment Successful!</h3>
+            <p style={{ fontSize: 12, color: 'var(--text-dim)' }}>We are currently processing your upgrade. Your dashboard will reflect **PRO** status in moments...</p>
+          </div>
+          <div className="loader-small" />
+          <script dangerouslySetInnerHTML={{ __html: `
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          `}} />
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -98,28 +126,42 @@ export default async function BillingPage() {
               </div>
             </div>
 
-            <div className="card" style={{ border: '1px solid var(--green-muted)', background: 'linear-gradient(to bottom right, var(--surface), rgba(34,197,94,0.03))' }}>
+            <div className="card" style={{ border: tier === 'PRO' ? '1px solid var(--green-muted)' : '1px solid var(--border)', background: tier === 'PRO' ? 'linear-gradient(to bottom right, var(--surface), rgba(34,197,94,0.03))' : 'var(--surface)' }}>
               <div className="card-header">
-                <span className="card-title" style={{ color: 'var(--green)' }}>Pro</span>
+                <span className="card-title" style={{ color: tier === 'PRO' ? 'var(--green)' : 'var(--text)' }}>Pro</span>
                 <span className="badge-green" style={{ fontSize: 9 }}>POPULAR</span>
               </div>
               <div style={{ padding: '1.5rem' }}>
                 <div style={{ fontSize: 24, fontWeight: 700, marginBottom: '1rem' }}>$19<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-dim)' }}>/mo</span></div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
                   {['Unlimited Reviews', 'Priority AI Models', 'Private Repositories', 'Security Audits', 'Priority Support'].map(f => (
-                    <li key={f} style={{ fontSize: 12, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <li key={f} style={{ fontSize: 12, color: tier === 'PRO' ? 'var(--text)' : 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ color: 'var(--green)' }}>✓</span> {f}
                     </li>
                   ))}
                 </ul>
-                <Link 
-                  href={`/api/checkout/polar?products=${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`} 
-                  data-polar-checkout
-                  className="btn-primary" 
-                  style={{ width: '100%', fontSize: 12, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
-                >
-                  Upgrade to Pro
-                </Link>
+                {tier === 'PRO' ? (
+                  <div style={{ 
+                    padding: '12px', 
+                    borderRadius: 8, 
+                    border: '1px solid var(--green)', 
+                    color: 'var(--green)', 
+                    textAlign: 'center', 
+                    fontSize: 12,
+                    fontWeight: 600
+                  }}>
+                    Currently Active
+                  </div>
+                ) : (
+                  <Link 
+                    href={`/api/checkout/polar?products=${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`} 
+                    data-polar-checkout
+                    className="btn-primary" 
+                    style={{ width: '100%', fontSize: 12, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
+                  >
+                    Upgrade to Pro
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -130,7 +172,13 @@ export default async function BillingPage() {
             <div className="card-header"><span className="card-title">Billing Portal</span></div>
             <div style={{ padding: '1rem' }}>
               <p style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: '1rem' }}>Manage your payment methods and download invoices.</p>
-              <button className="btn-secondary" style={{ width: '100%', fontSize: 11 }}>Customer Portal ↗</button>
+              <button 
+                className="btn-secondary" 
+                style={{ width: '100%', fontSize: 11 }}
+                onClick={() => window.open('https://polar.sh/settings', '_blank')}
+              >
+                Customer Portal ↗
+              </button>
             </div>
           </div>
 
@@ -158,6 +206,24 @@ export default async function BillingPage() {
           </div>
         </div>
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.7; }
+          100% { opacity: 1; }
+        }
+        .loader-small {
+          width: 20px;
+          height: 20px;
+          border: 2px solid var(--green-muted);
+          border-top: 2px solid var(--green);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}} />
     </div>
   )
 }
