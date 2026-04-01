@@ -22,7 +22,9 @@ export const POST = Webhooks({
       if (
         type === "subscription.created" ||
         type === "subscription.updated" ||
-        type === "subscription.active"
+        type === "subscription.active" ||
+        type === "order.created" ||
+        type === "order.paid"
       ) {
         const identity = resolveBillingIdentity(data);
         const profile = await findProfileForBilling(supabase, identity);
