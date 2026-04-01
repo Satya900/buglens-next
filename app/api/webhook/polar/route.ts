@@ -23,23 +23,36 @@ export const POST = Webhooks({
         const subscription = data as any;
         const userEmail = subscription.user.email;
         const productName = (subscription.product.name as string).toUpperCase();
-        
+        const userId = subscription.customer_metadata?.user_id || subscription.metadata?.user_id;
+
         // Find the matching tier
         const tierConfig = TIER_MAPPING[productName as keyof typeof TIER_MAPPING] || TIER_MAPPING["PRO"];
         
-        console.log(`[Polar Webhook] Upgrading user: ${userEmail} to ${tierConfig.tier}`);
+        console.log(`[Polar Webhook] Upgrading user: ${userId || userEmail} to ${tierConfig.tier}`);
 
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            subscription_tier: tierConfig.tier,
-            usage_limit: tierConfig.limit
-          })
-          .eq("email", userEmail);
+        let query = supabase.from("profiles").update({
+          subscription_tier: tierConfig.tier,
+          usage_limit: tierConfig.limit
+        });
 
-        if (error) throw error;
+        if (userId) {
+          query = query.eq("id", userId);
+        } else {
+          query = query.ilike("email", userEmail.trim());
+        }
+
+        const { error, data: updateData } = await query.select();
+
+        if (error) {
+           console.error(`[Polar Webhook] Supabase Update Error: ${error.message}`);
+           throw error;
+        }
         
-        console.log(`[Polar Webhook] Successfully upgraded ${userEmail}`);
+        if (!updateData || updateData.length === 0) {
+           console.warn(`[Polar Webhook] No user found matching ${userId ? 'ID: ' + userId : 'Email: ' + userEmail}.`);
+        } else {
+           console.log(`[Polar Webhook] Successfully upgraded ${userId || userEmail}`);
+        }
       }
 
       if (type === "subscription.revoked" || type === "subscription.canceled") {
