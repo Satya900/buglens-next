@@ -1,6 +1,6 @@
 -- Run this in your Supabase SQL Editor to set up the database schema
 
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS github_username TEXT; -- 🚀 Used for multi-tenant linking
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS github_username TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS github_token TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
@@ -8,12 +8,12 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
--- 2. Billing-related Columns: Unifying with Dashboard Logic
+-- Billing-related columns
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS subscription_tier TEXT DEFAULT 'FREE';
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS current_usage INTEGER DEFAULT 0;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS usage_limit INTEGER DEFAULT 50;
 
--- 3. Billing History Table
+-- Billing history
 CREATE TABLE IF NOT EXISTS billing_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -22,15 +22,28 @@ CREATE TABLE IF NOT EXISTS billing_history (
   status TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+ALTER TABLE billing_history ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES profiles(id) ON DELETE CASCADE;
+ALTER TABLE billing_history ADD COLUMN IF NOT EXISTS transaction_id TEXT;
+ALTER TABLE billing_history ADD COLUMN IF NOT EXISTS amount TEXT;
+ALTER TABLE billing_history ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE billing_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
--- 4. Repo review controls & Stats
+-- Repo review controls and stats
+ALTER TABLE repos ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE repos ADD COLUMN IF NOT EXISTS repo_full_name TEXT;
+ALTER TABLE repos ADD COLUMN IF NOT EXISTS repo_id BIGINT;
 ALTER TABLE repos ADD COLUMN IF NOT EXISTS shadow_mode BOOLEAN DEFAULT TRUE;
 ALTER TABLE repos ADD COLUMN IF NOT EXISTS review_strictness TEXT DEFAULT 'balanced';
 ALTER TABLE repos ADD COLUMN IF NOT EXISTS auto_post_reviews BOOLEAN DEFAULT FALSE;
+ALTER TABLE repos ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 ALTER TABLE repos ADD COLUMN IF NOT EXISTS total_reviews INTEGER DEFAULT 0;
 ALTER TABLE repos ADD COLUMN IF NOT EXISTS last_review_at TIMESTAMPTZ;
 
--- 5. Shadow review storage for safe rollout
+CREATE UNIQUE INDEX IF NOT EXISTS repos_user_id_repo_full_name_idx
+  ON repos (user_id, repo_full_name)
+  WHERE user_id IS NOT NULL AND repo_full_name IS NOT NULL;
+
+-- Shadow review storage
 CREATE TABLE IF NOT EXISTS shadow_reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   repo_full_name TEXT NOT NULL,
@@ -48,7 +61,7 @@ CREATE TABLE IF NOT EXISTS shadow_reviews (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Production reviews table (queried by Dashboard)
+-- Production reviews table
 CREATE TABLE IF NOT EXISTS reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -64,8 +77,20 @@ CREATE TABLE IF NOT EXISTS reviews (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   kind TEXT DEFAULT 'posted'
 );
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES profiles(id) ON DELETE CASCADE;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS repo_full_name TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS pr_number INTEGER;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS pr_title TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS pr_author TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS pr_url TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS merge_decision TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS risk_summary TEXT;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS files_reviewed INTEGER DEFAULT 0;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS findings_count INTEGER DEFAULT 0;
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS kind TEXT DEFAULT 'posted';
 
--- 7. Findings (Individual issues within a review)
+-- Findings
 CREATE TABLE IF NOT EXISTS findings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
@@ -82,16 +107,24 @@ CREATE TABLE IF NOT EXISTS findings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS billing_history_transaction_id_idx
+  ON billing_history (transaction_id)
+  WHERE transaction_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS shadow_reviews_repo_pr_idx
   ON shadow_reviews (repo_full_name, pr_number, created_at DESC);
 CREATE INDEX IF NOT EXISTS findings_review_id_idx ON findings (review_id);
 
--- Ensure RLS is enabled
+-- Enable RLS
+ALTER TABLE billing_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shadow_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE findings ENABLE ROW LEVEL SECURITY;
 
--- 🛡️ Idempotent Policies
+-- Policies
+DROP POLICY IF EXISTS "users see own billing history" ON billing_history;
+CREATE POLICY "users see own billing history" ON billing_history
+FOR SELECT USING (user_id = auth.uid());
+
 DROP POLICY IF EXISTS "users see own shadow reviews" ON shadow_reviews;
 CREATE POLICY "users see own shadow reviews" ON shadow_reviews
 FOR ALL USING (

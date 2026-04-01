@@ -1,78 +1,82 @@
 import { Webhooks } from "@polar-sh/nextjs";
-import { createClient } from "@supabase/supabase-js";
-
-const TIER_MAPPING = {
-  "FREE": { tier: "FREE", limit: 50 },
-  "BUGLENS_PRO": { tier: "PRO", limit: 1000000 },
-  "PRO": { tier: "PRO", limit: 1000000 },
-  "BUSINESS": { tier: "BUSINESS", limit: 10000000 }
-};
+import {
+  applyBillingState,
+  findProfileForBilling,
+  formatPolarAmount,
+  getPlanByTier,
+  recordBillingHistory,
+  resolveBillingIdentity,
+  resolvePlanFromPayload,
+} from "@/utils/billing";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
   onPayload: async (payload: any) => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = createAdminClient();
     const { type, data } = payload;
     console.log(`[Polar Webhook] Received event: ${type}`);
 
     try {
-      if (type === "subscription.created" || type === "subscription.updated") {
-        const subscription = data as any;
-        const userEmail = subscription.user.email;
-        const productName = (subscription.product.name as string).toUpperCase();
-        const userId = subscription.customer_metadata?.user_id || subscription.metadata?.user_id;
+      if (
+        type === "subscription.created" ||
+        type === "subscription.updated" ||
+        type === "subscription.active"
+      ) {
+        const identity = resolveBillingIdentity(data);
+        const profile = await findProfileForBilling(supabase, identity);
 
-        // Find the matching tier
-        const tierConfig = TIER_MAPPING[productName as keyof typeof TIER_MAPPING] || TIER_MAPPING["PRO"];
-        
-        console.log(`[Polar Webhook] Upgrading user: ${userId || userEmail} to ${tierConfig.tier}`);
+        if (!profile) {
+          console.warn(
+            `[Polar Webhook] No profile found for subscription event. userId=${identity.userId ?? "n/a"} email=${identity.email ?? "n/a"}`
+          );
+          return;
+        }
 
-        let query = supabase.from("profiles").update({
-          subscription_tier: tierConfig.tier,
-          usage_limit: tierConfig.limit
+        const plan = resolvePlanFromPayload(data);
+        const updatedProfile = await applyBillingState(supabase, profile.id, plan);
+        console.log(
+          `[Polar Webhook] Updated ${profile.id} to ${updatedProfile.subscription_tier} (${updatedProfile.usage_limit} reviews)`
+        );
+      }
+
+      if (type === "order.paid") {
+        const identity = resolveBillingIdentity(data);
+        const profile = await findProfileForBilling(supabase, identity);
+
+        if (!profile) {
+          console.warn(
+            `[Polar Webhook] No profile found for order event. userId=${identity.userId ?? "n/a"} email=${identity.email ?? "n/a"}`
+          );
+          return;
+        }
+
+        await recordBillingHistory(supabase, {
+          userId: profile.id,
+          transactionId: data.id,
+          amount: formatPolarAmount(data.totalAmount),
+          status: data.status ?? "paid",
         });
-
-        if (userId) {
-          query = query.eq("id", userId);
-        } else {
-          query = query.ilike("email", userEmail.trim());
-        }
-
-        const { error, data: updateData } = await query.select();
-
-        if (error) {
-           console.error(`[Polar Webhook] Supabase Update Error: ${error.message}`);
-           throw error;
-        }
-        
-        if (!updateData || updateData.length === 0) {
-           console.warn(`[Polar Webhook] No user found matching ${userId ? 'ID: ' + userId : 'Email: ' + userEmail}.`);
-        } else {
-           console.log(`[Polar Webhook] Successfully upgraded ${userId || userEmail}`);
-        }
+        console.log(`[Polar Webhook] Stored billing history for order ${data.id}`);
       }
 
       if (type === "subscription.revoked" || type === "subscription.canceled") {
-        const subscription = data as any;
-        const userEmail = subscription.user.email;
-        
-        console.log(`[Polar Webhook] Revoking PRO from user: ${userEmail}`);
-        
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            subscription_tier: "FREE",
-            usage_limit: 50
-          })
-          .eq("email", userEmail);
+        const identity = resolveBillingIdentity(data);
+        const profile = await findProfileForBilling(supabase, identity);
 
-        if (error) throw error;
+        if (!profile) {
+          console.warn(
+            `[Polar Webhook] No profile found for revoke event. userId=${identity.userId ?? "n/a"} email=${identity.email ?? "n/a"}`
+          );
+          return;
+        }
+
+        await applyBillingState(supabase, profile.id, getPlanByTier("FREE"));
+        console.log(`[Polar Webhook] Downgraded ${profile.id} to FREE`);
       }
     } catch (err) {
       console.error("[Polar Webhook Error]", err);
+      throw err;
     }
   },
 });

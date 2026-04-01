@@ -10,6 +10,16 @@ Create a `.env.local` file in the project root with:
 NEXT_PUBLIC_SITE_URL=https://buglens.app
 NOTION_TOKEN=secret_your_notion_integration_token
 NOTION_DATABASE_ID=your_notion_database_id
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_BUGLENS_CORE_WEBHOOK_URL=http://localhost:3001/webhook
+WEBHOOK_SECRET=shared_webhook_secret_for_buglens_core
+POLAR_SERVER=sandbox
+POLAR_ACCESS_TOKEN=polar_access_token
+POLAR_WEBHOOK_SECRET=polar_webhook_secret
+NEXT_PUBLIC_POLAR_PRODUCT_ID=polar_pro_product_id
+NEXT_PUBLIC_POLAR_BUSINESS_PRODUCT_ID=polar_business_product_id
 ```
 
 Notes:
@@ -17,6 +27,9 @@ Notes:
 - `NOTION_TOKEN` is the internal integration token from your Notion integration.
 - `NOTION_DATABASE_ID` is the database identifier for the blog CMS.
 - if the Notion env vars are missing, the app falls back to local demo blog posts.
+- `SUPABASE_SERVICE_ROLE_KEY` is required for Polar webhook writes into `profiles` and `billing_history`.
+- `WEBHOOK_SECRET` must match `buglens-core` because both apps rely on the same signed webhook secret.
+- `POLAR_SERVER=sandbox` should only be used with sandbox Polar products; switch to `production` for live checkout.
 
 ## Notion CMS Setup
 
