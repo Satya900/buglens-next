@@ -1,11 +1,6 @@
 import { Webhooks } from "@polar-sh/nextjs";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 const TIER_MAPPING = {
   "FREE": { tier: "FREE", limit: 50 },
   "BUGLENS_PRO": { tier: "PRO", limit: 1000000 },
@@ -16,6 +11,10 @@ const TIER_MAPPING = {
 export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
   onPayload: async (payload: any) => {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const { type, data } = payload;
     console.log(`[Polar Webhook] Received event: ${type}`);
 
