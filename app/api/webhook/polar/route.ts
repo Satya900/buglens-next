@@ -43,7 +43,7 @@ export const POST = Webhooks({
         );
       }
 
-      if (type === "order.paid") {
+      if (type === "order.paid" || (type === "order.created" && data.status === "paid")) {
         const identity = resolveBillingIdentity(data);
         const profile = await findProfileForBilling(supabase, identity);
 
