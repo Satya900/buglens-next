@@ -65,7 +65,7 @@ export function getPolarServer() {
     return "sandbox" as const;
   }
 
-  return process.env.NODE_ENV === "production" ? ("production" as const) : ("sandbox" as const);
+  return process.env.POLAR_SERVER === "production" ? ("production" as const) : ("sandbox" as const);
 }
 
 export function requireEnv(name: string) {
