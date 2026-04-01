@@ -172,13 +172,15 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             <div className="card-header"><span className="card-title">Billing Portal</span></div>
             <div style={{ padding: '1rem' }}>
               <p style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: '1rem' }}>Manage your payment methods and download invoices.</p>
-              <button 
+              <a 
+                href="https://polar.sh/settings" 
+                target="_blank" 
+                rel="noopener noreferrer" 
                 className="btn-secondary" 
-                style={{ width: '100%', fontSize: 11 }}
-                onClick={() => window.open('https://polar.sh/settings', '_blank')}
+                style={{ width: '100%', fontSize: 11, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
               >
                 Customer Portal ↗
-              </button>
+              </a>
             </div>
           </div>
 
