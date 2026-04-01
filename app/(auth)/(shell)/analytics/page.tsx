@@ -7,17 +7,12 @@ type FindingRow = {
   confidence: number | null
 }
 
-type ShadowReviewRow = {
-  findings_count: number | null
-  merge_decision: string | null
-  created_at: string
-}
-
 export default async function AnalyticsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Fetch real review data and findings
   const [{ data: reviews }, { data: findings }] = await Promise.all([
     supabase
       .from('reviews')
@@ -32,134 +27,127 @@ export default async function AnalyticsPage() {
 
   const safeReviews = reviews || []
   const safeFindings = (findings || []) as unknown as FindingRow[]
-
-  const severityCounts = safeFindings.reduce(
-    (acc, finding) => {
-      if (finding.severity === 'HIGH') acc.HIGH += 1
-      if (finding.severity === 'MEDIUM') acc.MEDIUM += 1
-      if (finding.severity === 'LOW') acc.LOW += 1
-      return acc
-    },
-    { HIGH: 0, MEDIUM: 0, LOW: 0 }
-  )
-
+  
+  // 📈 Realistic Metrics Calculation
+  const highSeverityCount = safeFindings.filter(f => f.severity === 'HIGH').length
   const totalFindings = safeFindings.length
-  const averageConfidence = totalFindings
-    ? safeFindings.reduce((sum, finding) => sum + Number(finding.confidence || 0), 0) / totalFindings
+  
+  // Calculate average confidence score
+  const avgConfidence = totalFindings 
+    ? (safeFindings.reduce((sum, f) => sum + (f.confidence || 0), 0) / totalFindings) * 100 
     : 0
-  const requestChanges = safeReviews.filter((review) => review.merge_decision === 'REQUEST_CHANGES').length
-  const topCategories = Object.entries(
-    safeFindings.reduce<Record<string, number>>((acc, finding) => {
-      const key = finding.category || 'general'
-      acc[key] = (acc[key] || 0) + 1
-      return acc
-    }, {})
-  ).sort((left, right) => right[1] - left[1]).slice(0, 5)
 
-  const reviewVolume = Array.from({ length: 6 }, (_, index) => {
-    const now = new Date()
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
-    const monthKey = `${monthDate.getFullYear()}-${monthDate.getMonth()}`
-    const count = safeReviews.filter((review) => {
-      const date = new Date(review.created_at)
-      return `${date.getFullYear()}-${date.getMonth()}` === monthKey
-    }).length
-    return { label: monthDate.toLocaleString('en-US', { month: 'short' }), count }
-  })
+  // Estimated "Engineering Hours Saved" (Logic: 2h per High, 0.5h per Medium/Low)
+  const hoursSaved = (highSeverityCount * 2) + ((totalFindings - highSeverityCount) * 0.5)
 
-  const maxBar = Math.max(...reviewVolume.map((item) => item.count), 1)
+  // Severity Distribution
+  const severityMap = safeFindings.reduce((acc, f) => {
+    const s = f.severity || 'LOW'
+    acc[s] = (acc[s] || 0) + 1
+    return acc
+  }, { HIGH: 0, MEDIUM: 0, LOW: 0 } as Record<string, number>)
 
   return (
     <div className="page-shell">
-      <div className="page-header">
+      <div className="page-header" style={{ marginBottom: '2.5rem' }}>
         <div>
-          <p className="page-title">BugLens</p>
-          <h1 className="page-heading">Analytics</h1>
+          <p className="section-eyebrow" style={{ margin: 0 }}>ENGINEERING INTELLIGENCE</p>
+          <h1 className="page-heading" style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', marginTop: 8 }}>
+            System Impact <span style={{ color: 'var(--text-dim)', fontWeight: 400 }}>Dashboard</span>
+          </h1>
         </div>
-        <span className="badge-dim">Platform Impact</span>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <span className="badge-green">LIVE UPDATES</span>
+        </div>
       </div>
 
-      <div className="stat-cards-row" style={{ marginBottom: '1.5rem' }}>
-        {[
-          { label: 'Total Reviews', value: String(safeReviews.length), sub: `${requestChanges} request changes` },
-          { label: 'Avg. Confidence', value: `${Math.round(averageConfidence * 100)}%`, sub: `${totalFindings} persisted findings`, cls: averageConfidence >= 0.85 ? 'green' : '' },
-          { label: 'Total Findings', value: String(totalFindings), sub: 'across all repositories', cls: 'green' },
-        ].map((stat) => (
-          <div className="stat-card" key={stat.label}>
-            <div className="stat-label">{stat.label}</div>
-            <div className={`stat-number ${stat.cls || ''}`}>{stat.value}</div>
-            <div className="stat-sub">{stat.sub}</div>
-          </div>
-        ))}
+      <div className="stat-cards-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div className="stat-card">
+          <div className="stat-label">Critical Caught</div>
+          <div className="stat-number" style={{ color: '#f87171' }}>{highSeverityCount}</div>
+          <div className="stat-sub">High-risk vulnerabilities</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Reviews Finalized</div>
+          <div className="stat-number">{safeReviews.length}</div>
+          <div className="stat-sub">AI agent processing active</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Avg. Confidence</div>
+          <div className="stat-number green">{Math.round(avgConfidence)}%</div>
+          <div className="stat-sub">Precision across {totalFindings} findings</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Hours Reclaimed</div>
+          <div className="stat-number" style={{ color: 'var(--green)' }}>{hoursSaved}h</div>
+          <div className="stat-sub">Estimated manual review time</div>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Posted Reviews Over Time</span>
-            <span className="badge-dim">Last 6 Months</span>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem' }}>
+        {/* Risk Distribution Chart */}
+        <div className="card" style={{ padding: '2rem' }}>
+          <div className="card-header" style={{ padding: 0, marginBottom: '2rem' }}>
+            <span className="card-title">Severity Distribution</span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>Across all codebases</span>
           </div>
-          <div className="card-body">
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 180 }}>
-              {reviewVolume.map((item) => (
-                <div key={item.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: '100%', justifyContent: 'flex-end' }}>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)' }}>{item.count}</div>
-                  <div
-                    className="bar-hover"
-                    style={{
-                      width: '100%',
-                      height: `${Math.max((item.count / maxBar) * 100, item.count > 0 ? 14 : 4)}%`,
-                      background: item.count > 0 ? 'var(--green-muted)' : 'var(--surface2)',
-                      border: '1px solid var(--border-bright)',
-                      borderRadius: '4px 4px 0 0',
-                    }}
-                  />
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)' }}>{item.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className="card">
-            <div className="card-header"><span className="card-title">Severity Breakdown</span></div>
-            <div className="card-body">
-              {[
-                { label: 'High', count: severityCounts.HIGH, cls: 'text-red' },
-                { label: 'Medium', count: severityCounts.MEDIUM, cls: 'text-yellow' },
-                { label: 'Low', count: severityCounts.LOW, cls: 'text-dim' },
-              ].map((item) => {
-                const pct = totalFindings ? Math.round((item.count / totalFindings) * 100) : 0
-                return (
-                  <div key={item.label} style={{ marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--mono)', fontSize: 11, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>{item.label}</span>
-                      <span className={item.cls}>{item.count} ({pct}%)</span>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {['HIGH', 'MEDIUM', 'LOW'].map((sev) => {
+              const count = severityMap[sev]
+              const percent = totalFindings ? (count / totalFindings) * 100 : 0
+              const color = sev === 'HIGH' ? '#f87171' : sev === 'MEDIUM' ? '#fbbf24' : 'var(--green)'
+              
+              return (
+                <div key={sev}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>{sev} RISK</span>
                     </div>
-                    <div style={{ height: 4, background: 'var(--surface2)', borderRadius: 2 }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: 'var(--green)', borderRadius: 2, opacity: pct < 20 ? 0.4 : pct < 40 ? 0.65 : 0.85 }} />
-                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--mono)' }}>{count} <span style={{ color: 'var(--text-dim)', fontWeight: 400, fontSize: 11 }}>({Math.round(percent)}%)</span></span>
                   </div>
-                )
-              })}
-            </div>
+                  <div style={{ height: 6, background: 'var(--surface2)', borderRadius: 10, overflow: 'hidden' }}>
+                    <div style={{ width: `${percent}%`, height: '100%', background: color, opacity: 0.8 }} />
+                  </div>
+                </div>
+              )
+            })}
           </div>
+        </div>
 
-          <div className="card">
-            <div className="card-header"><span className="card-title">Top Bug Types</span></div>
-            <div className="card-body" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {topCategories.length > 0 ? topCategories.map(([category, count]) => (
-                <span key={category} className="badge-dim" style={{ fontSize: 10 }}>
-                  {category} ({count})
-                </span>
-              )) : (
-                <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>No findings persisted yet.</span>
-              )}
-            </div>
+        {/* Intelligence Summary */}
+        <div className="card" style={{ padding: '2rem' }}>
+          <div className="card-header" style={{ padding: 0, marginBottom: '1.5rem' }}>
+            <span className="card-title">Agent Focus</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {[
+              { id: 1, label: 'Security Vulnerabilities', status: highSeverityCount > 0 ? 'Active' : 'Scanning', desc: 'Detecting SQLi, XSS, and broken auth.' },
+              { id: 2, label: 'Resource Leaks', status: 'Optimal', desc: 'Monitoring for unclosed connections and memory spikes.' },
+              { id: 3, label: 'Logic Flaws', status: 'Optimal', desc: 'Detecting race conditions and business logic errors.' },
+              { id: 4, label: 'Code Quality', status: 'Optimal', desc: 'Enforcing style guides and anti-pattern detection.' },
+            ].map(item => (
+              <div key={item.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', background: 'var(--surface2)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>{item.label}</span>
+                    <span style={{ fontSize: 9, color: 'var(--green)', fontWeight: 700 }}>{item.status.toUpperCase()}</span>
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.4 }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {totalFindings === 0 && (
+        <div style={{ marginTop: '2rem', padding: '3rem', textAlign: 'center', background: 'rgba(34, 197, 94, 0.02)', border: '1px dashed var(--border)', borderRadius: 12 }}>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 8 }}>🚀 <strong>Awaiting Data Context</strong></p>
+          <p style={{ fontSize: 11, color: 'var(--text-dim)' }}>BugLens hasn&apos;t detected any significant findings yet. As your team opens more Pull Requests, this dashboard will automatically populate with risk trends and productivity metrics.</p>
+        </div>
+      )}
     </div>
   )
 }

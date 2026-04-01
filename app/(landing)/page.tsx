@@ -24,7 +24,7 @@ export default function Home() {
       name: siteConfig.name,
       logo: {
         "@type": "ImageObject",
-        url: `${siteConfig.url}/icon.svg`,
+        url: `${siteConfig.url}/BUGLENS_Llogo.png`,
       },
     },
     offers: {

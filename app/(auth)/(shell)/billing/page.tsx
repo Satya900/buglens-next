@@ -22,13 +22,17 @@ export default async function BillingPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  const tier = profile?.subscription_tier || 'FREE'
-  const usageCount = profile?.current_usage || 0
+  const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
   
-  // Dynamic limits according to plan
-  const usageLimit = tier === 'PRO' ? Infinity : (profile?.usage_limit || 50)
+  // Calculate usage from real reviews
+  const { count: usageCount } = await supabase
+    .from('reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  const usageLimit = tier === 'PRO' ? Infinity : 50
   const isUnlimited = usageLimit === Infinity
-  const usagePercent = isUnlimited ? 0 : Math.min(100, (usageCount / usageLimit) * 100)
+  const usagePercent = isUnlimited ? 0 : Math.min(100, ((usageCount || 0) / usageLimit) * 100)
 
   return (
     <div className="page-shell">
@@ -100,7 +104,7 @@ export default async function BillingPage() {
                 <span className="badge-green" style={{ fontSize: 9 }}>POPULAR</span>
               </div>
               <div style={{ padding: '1.5rem' }}>
-                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: '1rem' }}>$29<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-dim)' }}>/mo</span></div>
+                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: '1rem' }}>$19<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-dim)' }}>/mo</span></div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
                   {['Unlimited Reviews', 'Priority AI Models', 'Private Repositories', 'Security Audits', 'Priority Support'].map(f => (
                     <li key={f} style={{ fontSize: 12, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -108,7 +112,14 @@ export default async function BillingPage() {
                     </li>
                   ))}
                 </ul>
-                <button className="btn-primary" style={{ width: '100%', fontSize: 12 }}>Upgrade to Pro</button>
+                <Link 
+                  href={`/api/checkout/polar?products=${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`} 
+                  data-polar-checkout
+                  className="btn-primary" 
+                  style={{ width: '100%', fontSize: 12, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
+                >
+                  Upgrade to Pro
+                </Link>
               </div>
             </div>
           </div>
