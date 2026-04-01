@@ -8,15 +8,16 @@ export default async function ShellLayout({ children }: { children: React.ReactN
 
   const { data: profile } = user ? await supabase
     .from('profiles')
-    .select('full_name, github_token')
+    .select('full_name, github_token, subscription_tier')
     .eq('id', user.id)
     .single() : { data: null }
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User'
+  const planTier = profile?.subscription_tier || 'FREE'
 
   return (
     <div className="auth-layout-wrapper">
-      <Sidebar userEmail={displayName} />
+      <Sidebar userEmail={displayName} userPlan={planTier} />
       <main className="main-content">
         {children}
       </main>

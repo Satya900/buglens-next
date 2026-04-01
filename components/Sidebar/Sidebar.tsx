@@ -39,11 +39,12 @@ const ACCOUNT_NAV = [
   },
 ]
 
-export function Sidebar({ userEmail }: { userEmail?: string }) {
+export function Sidebar({ userEmail, userPlan }: { userEmail?: string; userPlan?: string }) {
   const pathname = usePathname()
   if (pathname === '/onboarding') return null
 
   const initials = (userEmail || 'U').charAt(0).toUpperCase()
+  const displayPlan = (userPlan || 'Free').charAt(0).toUpperCase() + (userPlan || 'Free').slice(1).toLowerCase()
 
   return (
     <aside className="sidebar">
@@ -93,7 +94,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
           <div className="user-avatar">{initials}</div>
           <div className="user-info">
             <span className="user-name" title={userEmail}>{userEmail}</span>
-            <span className="user-plan">Free Plan</span>
+            <span className="user-plan">{displayPlan} Plan</span>
           </div>
         </div>
         <form action="/auth/signout" method="post">
