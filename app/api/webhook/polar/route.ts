@@ -13,6 +13,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
   onPayload: async (payload: any) => {
+    console.log(`[POLAR HEARTBEAT] Incoming Webhook Event: ${payload?.type || 'UNKNOWN'}`);
     const supabase = createAdminClient();
     const { type, data } = payload;
     console.log(`[Polar Webhook] Received event: ${type}`);
