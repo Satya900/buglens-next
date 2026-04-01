@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import BugLensMark from '@/components/BugLensMark'
 import './Sidebar.css'
 
 const CORE_NAV = [
@@ -48,7 +49,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
     <aside className="sidebar">
       <div className="sidebar-top">
         <Link href="/dashboard" className="sidebar-logo">
-          <div className="sidebar-logo-icon">B</div>
+          <BugLensMark size={30} />
           <span className="sidebar-logo-text">BugLens</span>
         </Link>
 

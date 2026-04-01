@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script"
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -53,8 +54,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/apple-icon",
+    icon: "/BUGLENS_Llogo.png",
+    apple: "/BUGLENS_Llogo.png",
   },
   verification: {
     google: "2hBpANs5oMr3M_eJtuQFjx-dvCrNfLzr4qka_EjwzfQ",
@@ -70,6 +71,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         {children}
+        <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />
       </body>
     </html>
   );

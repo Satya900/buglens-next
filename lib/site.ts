@@ -6,6 +6,7 @@ export const siteConfig = {
     "BugLens reviews every pull request before your team does, catching bugs, vulnerabilities, and style violations with your own codebase as context.",
   creator: "Satyabrata Mohanty",
   twitterHandle: "@satyabrat_me",
+  logo: "/BUGLENS_Llogo.png",
   category: "technology",
   keywords: [
     "AI code review",

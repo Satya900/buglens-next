@@ -3,6 +3,7 @@
 import { signInWithGitHub } from '../actions'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import BugLensMark from '@/components/BugLensMark'
 
 function LoginContent() {
   const searchParams = useSearchParams()
@@ -12,10 +13,8 @@ function LoginContent() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
-            </svg>
+          <div className="auth-icon" style={{ background: 'transparent', border: 'none' }}>
+            <BugLensMark size={48} />
           </div>
           <h1 className="auth-title">Welcome to <em>Buglens</em></h1>
           <p className="auth-subtitle">
