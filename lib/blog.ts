@@ -51,16 +51,16 @@ export type BlogPost = {
 
 const fallbackPosts: BlogPost[] = [
   {
-    slug: "langgraph-over-langchain",
+    slug: "langgraph-vs-langchain-multi-agent",
     tag: "architecture",
-    title: "Why I chose LangGraph over LangChain for multi-agent orchestration",
+    title: "LangGraph vs LangChain: The multi-agent orchestration that powers BugLens",
     excerpt:
       "State machines beat chains when your agents need to loop, retry, and share context. Here is the architecture that drove the decision.",
     author: "Satyabrata Mohanty",
     publishedAt: "2026-03-28T00:00:00.000Z",
     updatedAt: "2026-03-28T00:00:00.000Z",
     readTime: "6 min read",
-    seoTitle: "Why BugLens uses LangGraph for multi-agent PR reviews",
+    seoTitle: "LangGraph vs LangChain Multi-Agent orchestration | BugLens Blog",
     seoDescription:
       "A technical breakdown of why BugLens uses LangGraph instead of LangChain for stateful, context-rich pull request review workflows.",
     content: [
@@ -107,7 +107,7 @@ const fallbackPosts: BlogPost[] = [
       {
         type: "paragraph",
         id: "fb-2-3",
-        text: "That context also improves trust. Engineers are more likely to accept review feedback when the reasoning points back to standards they already use.",
+        text: "That context also improves trust. Engineers are more likely to accept review feedback when the reasoning points back to standards they already use. This trust is further reinforced by our orchestration strategy, which ensures that context is never lost across review steps.",
       },
     ],
   },

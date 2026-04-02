@@ -35,6 +35,12 @@ export default async function Blog() {
             </article>
           ))}
         </div>
+
+        <div style={{ marginTop: "4rem", textAlign: "center" }}>
+          <Link href="/blog" className="btn-ghost" style={{ padding: "12px 32px" }}>
+            View Journal &rarr;
+          </Link>
+        </div>
       </section>
     </>
   );
