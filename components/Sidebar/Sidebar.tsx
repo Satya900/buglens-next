@@ -51,7 +51,9 @@ export function Sidebar({ userEmail, userPlan }: { userEmail?: string; userPlan?
       <div className="sidebar-top">
         <Link href="/dashboard" className="sidebar-logo">
           <BugLensMark size={30} />
-          <span className="sidebar-logo-text">BugLens</span>
+          <span className="sidebar-logo-text" style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)' }}>
+            BugLens
+          </span>
         </Link>
 
         <nav className="nav-container">

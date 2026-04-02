@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import TeachAIButton from '@/components/TeachAIButton'
 
 type ReviewRow = {
   id: string
@@ -117,7 +118,7 @@ export default async function ReviewsPage() {
                   : 'badge-dim'
 
               return (
-                <tr key={review.id}>
+                <tr key={review.id} style={{ position: 'relative' }}>
                   <td>
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{review.pr_title || 'Untitled PR'}</div>
                     <div style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-dim)' }}>
@@ -137,9 +138,12 @@ export default async function ReviewsPage() {
                   </td>
                   <td><span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>{timeAgo(review.created_at)}</span></td>
                   <td>
-                    <Link href={review.pr_url || '#'} target="_blank" style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
-                      GitHub ↗
-                    </Link>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                      <Link href={review.pr_url || '#'} target="_blank" style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
+                        GitHub ↗
+                      </Link>
+                      <TeachAIButton repoFullName={review.repo_full_name} prTitle={review.pr_title} />
+                    </div>
                   </td>
                 </tr>
               )

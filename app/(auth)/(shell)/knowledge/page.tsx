@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import LessonsManager from '@/components/LessonsManager'
+import { getLessons } from '@/app/(auth)/lessons-actions'
 
 const DOCS = [
   { name: 'Coding Standards v2.pdf', chunks: 142, status: 'Active', statusCls: 'badge-green' },
@@ -12,6 +14,21 @@ export default async function KnowledgeBasePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Fetch initial lessons and repos
+  const [lessonsRes, reposRes] = await Promise.all([
+    getLessons(),
+    supabase.from('repos').select('repo_full_name').eq('user_id', user.id).eq('is_active', true)
+  ])
+
+  const lessons = (lessonsRes.data || []).map((l: any) => ({
+    id: l.id,
+    repo_full_name: l.repo_full_name,
+    content: l.content,
+    created_at: l.created_at,
+  }))
+
+  const repos = (reposRes.data || []).map((r: any) => ({ full_name: r.repo_full_name }))
+
   return (
     <div className="page-shell">
       <div className="page-header">
@@ -23,26 +40,11 @@ export default async function KnowledgeBasePage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* Upload Zone */}
-          <div style={{
-            border: '1px dashed var(--border-bright)', borderRadius: 8,
-            padding: '2.5rem', textAlign: 'center', background: 'var(--surface)',
-            cursor: 'pointer', transition: 'all 0.15s'
-          }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" style={{ marginBottom: 12 }}>
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>
-              Drag & drop files here or click to browse
-            </p>
-            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              PDF · Markdown · TXT — max 10MB
-            </p>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* AI Tuning & Lessons Learned */}
+          <LessonsManager initialLessons={lessons} repos={repos} />
 
-          {/* Document List */}
+          {/* Document List (Existing RAG) */}
           <div className="card">
             <div className="card-header"><span className="card-title">Indexed Documents</span></div>
             <div className="data-table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
@@ -92,26 +94,26 @@ export default async function KnowledgeBasePage() {
               {[
                 { label: 'Total Documents', value: '3' },
                 { label: 'Total Chunks', value: '1,248', cls: 'text-green' },
-                { label: 'Vector Store', value: 'Gemini' },
-                { label: 'Auto-sync', value: 'On', cls: 'text-green' },
+                { label: 'Vector Store', value: 'Gemini 2.5' },
+                { label: 'Shadow Learning', value: 'Active', cls: 'text-green' },
               ].map(s => (
                 <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>{s.label}</span>
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 12 }} className={s.cls || ''}>{s.value}</span>
                 </div>
               ))}
-              <button className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}>Re-Index Brain</button>
+              <button className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}>Re-Sync Lessons</button>
             </div>
           </div>
 
           <div className="card">
-            <div className="card-header"><span className="card-title">Test Query</span></div>
+            <div className="card-header"><span className="card-title">RAG Query</span></div>
             <div className="card-body">
               <textarea style={{
                 width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)',
                 borderRadius: 6, padding: '8px 10px', color: 'var(--text)', fontFamily: 'var(--mono)',
                 fontSize: 12, resize: 'vertical', minHeight: 70, outline: 'none'
-              }} placeholder="What does our RFC say about authentication?..." />
+              }} placeholder="How should we handle CORS?..." />
               <button className="btn-primary" style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center' }}>Query Brain →</button>
             </div>
           </div>

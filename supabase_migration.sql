@@ -140,3 +140,18 @@ CREATE POLICY "users see own findings" ON findings
 FOR ALL USING (
   review_id IN (SELECT id FROM reviews WHERE user_id = auth.uid())
 );
+ 
+ -- Lessons Learned for AI Shadow Learning
+ CREATE TABLE IF NOT EXISTS lessons_learned (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   repo_full_name TEXT NOT NULL,
+   content TEXT NOT NULL,
+   rating INTEGER DEFAULT 0, -- Positive for good feedback, negative for correction
+   created_at TIMESTAMPTZ DEFAULT NOW()
+ );
+ 
+ ALTER TABLE lessons_learned ENABLE ROW LEVEL SECURITY;
+ CREATE POLICY "users see lessons for their repos" ON lessons_learned
+ FOR SELECT USING (
+   repo_full_name IN (SELECT repo_full_name FROM repos WHERE user_id = auth.uid())
+ );

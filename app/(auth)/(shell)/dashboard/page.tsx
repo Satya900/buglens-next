@@ -107,16 +107,16 @@ export default async function DashboardPage() {
     <div className="page-shell">
       <UpgradeModal show={isOutOfPRs} />
 
-      <div className="page-header" style={{ marginBottom: '2.5rem' }}>
+      <div className="page-header" style={{ marginBottom: '3rem', alignItems: 'flex-start', borderBottom: 'none' }}>
         <div>
-          <p className="section-eyebrow" style={{ margin: 0 }}>OVERVIEW</p>
-          <h1 className="page-heading" style={{ fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', marginTop: 8 }}>
-            Welcome back, <span style={{ fontWeight: 600, color: 'var(--text)' }}>{displayName}</span>
+          <p className="section-eyebrow" style={{ margin: 0, opacity: 0.7 }}>OVERVIEW</p>
+          <h1 className="page-heading" style={{ fontSize: 42, fontWeight: 700, letterSpacing: '-0.03em', marginTop: 8, background: 'linear-gradient(to right, var(--text-active), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            Welcome back, <span style={{ color: 'var(--green)', WebkitTextFillColor: 'initial' }}>{displayName}</span>
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link href="/billing" className={isOutOfPRs ? 'badge-red' : 'badge-green'} style={{ textDecoration: 'none', fontSize: 10 }}>{tier} PLAN</Link>
-          <Link href="/repos" className="btn-ghost" style={{ fontSize: 11, padding: '8px 16px' }}>Review Controls →</Link>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginTop: 12 }}>
+          <Link href="/billing" className={isOutOfPRs ? 'badge-red' : 'badge-green'} style={{ textDecoration: 'none', fontSize: 10, padding: '6px 12px' }}>{tier} PLAN</Link>
+          <Link href="/repos" className="btn-primary" style={{ fontSize: 11, padding: '10px 20px' }}>Review Controls →</Link>
         </div>
       </div>
 
@@ -154,27 +154,30 @@ export default async function DashboardPage() {
                 alignItems: 'center',
                 padding: '1.25rem 1.75rem',
                 borderBottom: '1px solid var(--border)',
-                gap: '1.25rem'
-              }}>
+                gap: '1.25rem',
+                transition: 'all var(--transition-fast)',
+                cursor: 'default'
+              }} className="list-item-hover">
                 <div style={{
-                  width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                  width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: review.merge_decision === 'APPROVE' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+                  background: review.merge_decision === 'APPROVE' ? 'rgba(34, 197, 94, 0.08)' : 'rgba(248, 113, 113, 0.08)',
                   color: review.merge_decision === 'APPROVE' ? 'var(--green)' : '#f87171',
-                  border: '1px solid currentColor'
+                  border: '1px solid currentColor',
+                  boxShadow: review.merge_decision === 'APPROVE' ? '0 0 10px rgba(34, 197, 94, 0.2)' : 'none'
                 }}>
-                  <span style={{ fontSize: 12 }}>{review.merge_decision === 'APPROVE' ? '✓' : '!'}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700 }}>{review.merge_decision === 'APPROVE' ? '✓' : '!'}</span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-active)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {review.pr_title || 'Untitled Pull Request'}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-dim)', opacity: 0.8 }}>
-                    {review.repo_full_name} · {review.findings_count || 0} findings · {timeAgo(review.created_at)}
+                  <div style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 500 }}>
+                    {review.repo_full_name} · <span style={{ color: 'var(--text-muted)' }}>{review.findings_count || 0} findings</span> · {timeAgo(review.created_at)}
                   </div>
                 </div>
-                <Link href={review.pr_url || '#'} target="_blank" className="btn-icon" style={{ opacity: 0.4 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <Link href={review.pr_url || '#'} target="_blank" className="btn-icon" style={{ opacity: 0.6 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                     <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
                   </svg>
@@ -197,14 +200,21 @@ export default async function DashboardPage() {
               <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)' }}>{usageCount} / {isUnlimited ? '∞' : usageLimit}</span>
             </div>
 
-            <div style={{ height: 4, background: 'var(--surface2)', borderRadius: 10, overflow: 'hidden', marginBottom: '1.5rem' }}>
-              <div style={{ width: `${usagePercent}%`, height: '100%', background: 'var(--green)', boxShadow: '0 0 10px var(--green)' }} />
+            <div style={{ height: 6, background: 'rgba(34, 197, 94, 0.05)', borderRadius: 10, overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
+              <div style={{ 
+                width: `${usagePercent}%`, 
+                height: '100%', 
+                background: 'var(--green)', 
+                boxShadow: '0 0 15px var(--green-glow-intense)',
+                borderRadius: 10,
+                transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
+              }} />
             </div>
 
-            <p style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '2rem', fontWeight: 450 }}>
               {isUnlimited 
                 ? "Unlimited agent capacity enabled. Private repo support active."
-                : `You have ${prsLeft} reviews remaining this month. Next credit refresh: 1st of next month.`}
+                : `You've utilized ${usageCount} of your ${usageLimit} PR reviews for this cycle. Credits refresh automatically on the 1st.`}
             </p>
 
             <Link href="/billing" className="btn-ghost" style={{ width: '100%', fontSize: 11, textAlign: 'center', textDecoration: 'none', padding: '8px' }}>
