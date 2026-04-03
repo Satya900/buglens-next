@@ -50,24 +50,7 @@ const Pricing = () => {
                 "Public + private repos"
             ],
             buttonText: "Join Team",
-            link: "#",
-            featured: false,
-            comingSoon: true
-        },
-        {
-            name: "Enterprise",
-            price: "Custom",
-            period: "",
-            description: "Air-gapped models and strict compliance.",
-            features: [
-                "Unlimited + SLA",
-                "Unlimited PRs",
-                "SSO + audit log + custom model",
-                "Dedicated CSM",
-                "On-premise option"
-            ],
-            buttonText: "Contact Sales",
-            link: "mailto:sales@buglens.app",
+            link: POLAR_PLANS.TEAM.checkoutUrl,
             featured: false,
             comingSoon: true
         }
@@ -80,7 +63,7 @@ const Pricing = () => {
                 <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-30"></div>
                 <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-20"></div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                     {plans.map((plan) => (
                         <div 
                             key={plan.name} 

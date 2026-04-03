@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import Terminal from "@/components/Terminal";
 import Features from "@/components/Features";
+import Pricing from "@/components/Pricing";
 import Blog from "@/components/Blog";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
@@ -40,6 +41,7 @@ export default function Home() {
       <Hero />
       <Terminal />
       <Features />
+      <Pricing />
       <Blog />
       <Newsletter />
       <Footer />
