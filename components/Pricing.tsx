@@ -16,14 +16,14 @@ const Pricing = () => {
                 "Public repos only"
             ],
             buttonText: "Start for Free",
-            link: "/dashboard",
+            link: "/login",
             featured: false,
             comingSoon: false
         },
         {
             name: "Starter",
             price: "$19",
-            period: "/month",
+            period: "per month",
             description: "Empower your team with site-specific RAG context.",
             features: [
                 "Up to 3 repos",
@@ -40,7 +40,7 @@ const Pricing = () => {
         {
             name: "Team",
             price: "$49",
-            period: "/seat / month",
+            period: "per seat / month",
             description: "The ultimate solution for scaling engineering teams.",
             features: [
                 "Unlimited repos",
@@ -69,7 +69,7 @@ const Pricing = () => {
                         className={`price-card ${plan.featured ? 'featured' : ''} ${plan.comingSoon ? 'coming-soon' : ''}`}
                     >
                         {plan.featured && (
-                            <div className="price-badge">Recommended</div>
+                            <div className="price-badge">Highly Recommended</div>
                         )}
 
                         <div className="price-name">{plan.name} {plan.comingSoon && "(Soon)"}</div>
@@ -100,6 +100,15 @@ const Pricing = () => {
                         </a>
                     </div>
                 ))}
+            </div>
+            
+            <div className="pricing-footer">
+                <p>
+                    Need a custom plan or self-hosted instance? 
+                    <a href="mailto:sales@buglens.app">
+                        Contact Sales -&gt;
+                    </a>
+                </p>
             </div>
         </section>
     );
