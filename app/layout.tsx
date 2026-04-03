@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script"
+import { Analytics } from '@vercel/analytics/next';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -71,6 +72,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         {children}
+        <Analytics />
         <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />
       </body>
     </html>
