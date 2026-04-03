@@ -9,8 +9,8 @@ const Pricing = () => {
             period: "forever",
             description: "Perfect for students and early explorers.",
             features: [
-                "1 repo",
-                "50 PRs / month",
+                "1 repository",
+                "50 AI reviews / month",
                 "Generic review only",
                 "Community support",
                 "Public repos only"
@@ -21,35 +21,35 @@ const Pricing = () => {
             comingSoon: false
         },
         {
-            name: "Starter",
+            name: "Pro",
             price: "$19",
             period: "per month",
-            description: "Empower your team with site-specific RAG context.",
+            description: "Advanced context-aware features for growing teams.",
             features: [
-                "Up to 3 repos",
-                "500 PRs / month",
-                "Generic + team docs RAG",
-                "Email support",
-                "Public + private repos"
+                "Unlimited AI reviews",
+                "Full Context RAG (Docs + PRs)",
+                "Support for Private repositories",
+                "Priority analysis queue",
+                "Email support"
             ],
-            buttonText: "Get Starter",
-            link: POLAR_PLANS.STARTER.checkoutUrl,
+            buttonText: "Upgrade to Pro",
+            link: POLAR_PLANS.STARTER.checkoutUrl, 
             featured: true,
             comingSoon: false
         },
         {
-            name: "Team",
+            name: "Business",
             price: "$49",
             period: "per seat / month",
             description: "The ultimate solution for scaling engineering teams.",
             features: [
-                "Unlimited repos",
-                "Unlimited PRs",
-                "Full RAG + custom rules",
-                "Slack channel support",
-                "Public + private repos"
+                "Everything in Pro",
+                "Custom AI Coding Standards",
+                "Slack & Discord integrations",
+                "Organization-wide installation",
+                "Priority Slack support"
             ],
-            buttonText: "Join Team",
+            buttonText: "Get Business",
             link: POLAR_PLANS.TEAM.checkoutUrl,
             featured: false,
             comingSoon: true
@@ -69,7 +69,7 @@ const Pricing = () => {
                         className={`price-card ${plan.featured ? 'featured' : ''} ${plan.comingSoon ? 'coming-soon' : ''}`}
                     >
                         {plan.featured && (
-                            <div className="price-badge">Highly Recommended</div>
+                            <div className="price-badge">Most Popular</div>
                         )}
 
                         <div className="price-name">{plan.name} {plan.comingSoon && "(Soon)"}</div>

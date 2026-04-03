@@ -4,7 +4,6 @@ import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
 import Blog from "@/components/Blog";
 import Newsletter from "@/components/Newsletter";
-import Footer from "@/components/Footer";
 import { siteConfig } from "@/lib/site";
 
 export default function Home() {
@@ -44,7 +43,6 @@ export default function Home() {
       <Pricing />
       <Blog />
       <Newsletter />
-      <Footer />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
