@@ -22,7 +22,7 @@ function LoginContent() {
           </p>
         </div>
 
-        <div className="auth-content text-center">
+        <div className="auth-content">
           <button
             onClick={() => signInWithGitHub()}
             className="btn-github-primary"
@@ -36,7 +36,7 @@ function LoginContent() {
           {error && <div className="auth-error">{error}</div>}
         </div>
 
-        <div className="auth-footer mt-10">
+        <div className="auth-footer">
           <p>By continuing, you agree to Buglens&apos;s Terms and Privacy Policy.</p>
         </div>
       </div>
@@ -120,6 +120,7 @@ function LoginContent() {
 
         .auth-content {
           margin-bottom: 2rem;
+          text-align: center;
         }
 
         .btn-github-primary {
@@ -191,7 +192,7 @@ function LoginContent() {
         }
 
         .auth-footer {
-          margin-top: 2.5rem;
+          margin-top: 3.5rem;
           text-align: center;
           font-size: 11px;
           color: var(--text-dim);

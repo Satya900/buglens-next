@@ -23,7 +23,7 @@ const Pricing = () => {
         {
             name: "Starter",
             price: "$19",
-            period: "per month",
+            period: "/month",
             description: "Empower your team with site-specific RAG context.",
             features: [
                 "Up to 3 repos",
@@ -40,7 +40,7 @@ const Pricing = () => {
         {
             name: "Team",
             price: "$49",
-            period: "per seat / month",
+            period: "/seat / month",
             description: "The ultimate solution for scaling engineering teams.",
             features: [
                 "Unlimited repos",
@@ -57,80 +57,49 @@ const Pricing = () => {
     ];
 
     return (
-        <section id="pricing" className="py-20 bg-background overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-                {/* Decorative gradients */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-30"></div>
-                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-20"></div>
+        <section className="section" id="pricing">
+            <div className="section-eyebrow">{"// pricing"}</div>
+            <h2 className="section-title">Scale your<br /><em>engineering quality</em></h2>
+            <p className="section-sub">Simple, transparent pricing for teams of all sizes. No hidden fees.</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-                    {plans.map((plan) => (
-                        <div 
-                            key={plan.name} 
-                            className={`group relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-1 ${
-                                plan.featured 
-                                    ? 'border-primary shadow-xl shadow-primary/10 bg-primary/[0.02]' 
-                                    : 'border-border bg-card'
-                            } ${plan.comingSoon ? 'opacity-90' : ''}`}
-                        >
-                            {plan.featured && (
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-[10px] font-bold tracking-widest uppercase rounded-full">
-                                    Highly Recommended
-                                </div>
-                            )}
+            <div className="pricing-grid">
+                {plans.map((plan) => (
+                    <div 
+                        key={plan.name} 
+                        className={`price-card ${plan.featured ? 'featured' : ''} ${plan.comingSoon ? 'coming-soon' : ''}`}
+                    >
+                        {plan.featured && (
+                            <div className="price-badge">Recommended</div>
+                        )}
 
-                            {plan.comingSoon && (
-                                <div className="absolute top-4 right-4 px-2 py-0.5 bg-secondary text-secondary-foreground text-[9px] font-bold uppercase rounded-md tracking-wider">
-                                    Coming Soon
-                                </div>
-                            )}
-                            
-                            <div className="mb-6">
-                                <h3 className="text-xl font-bold tracking-tight mb-1">{plan.name}</h3>
-                                <p className="text-xs text-muted-foreground leading-relaxed">{plan.description}</p>
-                            </div>
-
-                            <div className="mb-8">
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-extrabold tracking-tight">{plan.price}</span>
-                                    {plan.period && <span className="text-sm font-medium text-muted-foreground">{plan.period}</span>}
-                                </div>
-                            </div>
-
-                            <div className="flex-grow">
-                                <ul className="space-y-3.5 mb-10">
-                                    {plan.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-sm">
-                                            <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${plan.featured ? 'bg-primary/20' : 'bg-secondary'}`}>
-                                                <svg className={`w-2.5 h-2.5 ${plan.featured ? 'text-primary' : 'text-muted-foreground'}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-muted-foreground/90">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {plan.comingSoon ? (
-                                <button disabled className="w-full py-3.5 px-4 rounded-xl bg-secondary/50 text-muted-foreground font-semibold text-sm cursor-not-allowed border border-border">
-                                    Waitlist Open
-                                </button>
-                            ) : (
-                                <a 
-                                    href={plan.link}
-                                    className={`w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-center shadow-sm transition-all duration-200 active:scale-95 ${
-                                    plan.featured 
-                                        ? 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20' 
-                                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                                }`}
-                                >
-                                    {plan.buttonText}
-                                </a>
-                            )}
+                        <div className="price-name">{plan.name} {plan.comingSoon && "(Soon)"}</div>
+                        
+                        <div className="price-val-wrap">
+                            <span className="price-val">{plan.price}</span>
+                            <span className="price-period">{plan.period}</span>
                         </div>
-                    ))}
-                </div>
+
+                        <p className="price-desc">{plan.description}</p>
+
+                        <ul className="price-features">
+                            {plan.features.map((feature, i) => (
+                                <li key={i} className="price-feature">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    {feature}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <a 
+                            href={plan.link}
+                            className={`price-btn ${plan.featured ? 'price-btn-primary' : 'price-btn-ghost'} ${plan.comingSoon ? 'disabled' : ''}`}
+                        >
+                            {plan.comingSoon ? "Join Waitlist" : plan.buttonText}
+                        </a>
+                    </div>
+                ))}
             </div>
         </section>
     );
