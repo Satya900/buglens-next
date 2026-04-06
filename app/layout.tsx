@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script"
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
