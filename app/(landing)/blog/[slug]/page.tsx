@@ -8,6 +8,8 @@ import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import TableOfContents from "@/components/TableOfContents";
 import AuthorBox from "@/components/AuthorBox";
 import RelatedPosts from "@/components/RelatedPosts";
+import BlogCTA from "@/components/BlogCTA";
+
 
 type BlogPostPageProps = {
   params: Promise<{
@@ -327,6 +329,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="post-content-layout">
             <div className="post-content-main">
               <div className="post-body">{renderPostBlocks(post)}</div>
+              <BlogCTA />
               <AuthorBox name={post.author} />
             </div>
             <aside className="post-sidebar">

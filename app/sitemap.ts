@@ -19,6 +19,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: getAbsoluteUrl("/pricing"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: getAbsoluteUrl("/alternatives"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+
     ...posts.map((post) => ({
       url: getAbsoluteUrl(`/blog/${post.slug}`),
       lastModified: post.updatedAt,
