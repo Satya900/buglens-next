@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Script from "next/script"
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: "BugLens | AI senior reviewer for pull requests",
+    default: "AI Code Review for GitHub PRs | BugLens",
     template: "%s | BugLens",
   },
   description: siteConfig.description,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteConfig.url,
-    title: "BugLens | AI senior reviewer for pull requests",
+    title: "AI Code Review for GitHub PRs | BugLens",
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
@@ -31,13 +31,13 @@ export const metadata: Metadata = {
         url: getAbsoluteUrl("/opengraph-image"),
         width: 1200,
         height: 630,
-        alt: "BugLens",
+        alt: "BugLens - AI Senior Reviewer for Pull Requests",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BugLens | AI senior reviewer for pull requests",
+    title: "AI Code Review for GitHub PRs | BugLens",
     description: siteConfig.description,
     site: siteConfig.twitterHandle,
     creator: siteConfig.twitterHandle,
@@ -58,6 +58,7 @@ export const metadata: Metadata = {
     icon: "/BUGLENS_Llogo.png",
     apple: "/BUGLENS_Llogo.png",
   },
+
   verification: {
     google: "2hBpANs5oMr3M_eJtuQFjx-dvCrNfLzr4qka_EjwzfQ",
   },
@@ -68,9 +69,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "BugLens",
+    operatingSystem: "GitHub",
+    applicationCategory: "DeveloperApplication",
+    offers: {
+      "@type": "AggregateOffer",
+      lowPrice: "0",
+      highPrice: "19",
+      priceCurrency: "USD",
+    },
+    description: "AI senior reviewer for GitHub PRs that catches bugs and style violations.",
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {children}
         <Analytics />
         <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />
@@ -78,3 +98,4 @@ export default function RootLayout({
     </html>
   );
 }
+

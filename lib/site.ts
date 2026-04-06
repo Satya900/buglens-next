@@ -3,24 +3,25 @@ export const siteConfig = {
   domain: "buglens.app",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://buglens.app",
   description:
-    "BugLens reviews every pull request before your team does, catching bugs, vulnerabilities, and style violations with your own codebase as context.",
+    "BugLens is an AI senior reviewer for GitHub PRs that catches bugs, vulnerabilities, and style violations before your team does.",
   creator: "Satyabrata Mohanty",
   twitterHandle: "@satyabrat_me",
   logo: "/BUGLENS_Llogo.png",
   category: "technology",
   keywords: [
-    "AI code review",
-    "pull request review",
-    "developer tools",
-    "static analysis",
-    "automated code review",
-    "code quality",
-    "software engineering",
-    "LangGraph",
-    "Notion CMS",
-    "Next.js",
+    "AI Code Review",
+    "GitHub PR Review AI",
+    "Automated Pull Request Review",
+    "AI Senior Reviewer",
+    "CodeRabbit Alternative",
+    "Software Quality AI",
+    "Static Analysis AI",
+    "Bug Detection AI",
+    "Developer Productivity Tools",
+    "Next.js SEO",
   ],
 } as const;
+
 
 export function getAbsoluteUrl(path = "/") {
   return new URL(path, siteConfig.url).toString();
