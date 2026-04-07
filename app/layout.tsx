@@ -94,6 +94,12 @@ export default function RootLayout({
         {children}
         <Analytics />
         <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />
+        <Script
+          src="https://datafa.st/js/script.js"
+          data-website-id="dfid_mJpWf8aDYVNj7ZFSaitbJ"
+          data-domain="buglens.app"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
