@@ -275,8 +275,20 @@ function getDateValue(
   names: string[]
 ) {
   const property = findProperty(properties, names);
-  const date = property?.date as { start?: string } | undefined;
-  return date?.start?.trim() ?? "";
+  if (property?.type === "date" && property.date) {
+    const date = property.date as { start?: string };
+    return date.start?.trim() ?? "";
+  }
+
+  // Fallback: look for any date property if the named ones aren't found or valid
+  for (const [, value] of Object.entries(properties)) {
+    if (value.type === "date" && value.date) {
+      const date = value.date as { start?: string };
+      if (date.start) return date.start.trim();
+    }
+  }
+
+  return "";
 }
 
 function getCheckboxValue(
@@ -498,7 +510,7 @@ async function mapNotionPost(result: Record<string, unknown>): Promise<BlogPost 
     getStatusValue(properties, ["CategoryStatus"]) ||
     "blog";
   const publishedAt =
-    getDateValue(properties, ["PublishedAt", "Publish Date", "Published"]) ||
+    getDateValue(properties, ["PublishedAt", "Publish Date", "Date"]) ||
     (typeof result.created_time === "string" ? result.created_time : new Date().toISOString());
   const updatedAt =
     getDateValue(properties, ["UpdatedAt", "Updated"]) ||
