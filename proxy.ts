@@ -2,7 +2,15 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request)
+  const host = request.headers.get("host") ?? "";
+  const response = await updateSession(request);
+
+  // Block Google from indexing the raw Vercel deployment URL
+  if (host.includes("vercel.app")) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  return response;
 }
 
 export const config = {
