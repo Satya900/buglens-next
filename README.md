@@ -1,4 +1,4 @@
-## BugLens
+## BugLens.app
 
 ### DATE - 09-04-2026
 
