@@ -18,11 +18,11 @@ export const metadata: Metadata = {
   category: siteConfig.category,
   keywords: [...siteConfig.keywords],
   alternates: {
-    canonical: siteConfig.url,
+    canonical: `${siteConfig.url.replace(/\/$/, "")}/`,
   },
   openGraph: {
     type: "website",
-    url: siteConfig.url,
+    url: `${siteConfig.url.replace(/\/$/, "")}/`,
     title: "AI Code Review for GitHub PRs | BugLens",
     description: siteConfig.description,
     siteName: siteConfig.name,
