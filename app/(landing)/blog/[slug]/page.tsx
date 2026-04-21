@@ -337,8 +337,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <TableOfContents headings={headings} />
                 <div className="sidebar-cta">
                   <h3 className="sidebar-cta-title">Ship better code</h3>
-                  <p className="sidebar-cta-desc">BugLens reviews every PR before your team does. Get early access to the private beta.</p>
-                  <Link href="/#updates" className="sidebar-cta-btn">Get Early Access</Link>
+                  <p className="sidebar-cta-desc">BugLens reviews every PR before your team does. Free to start — no config needed.</p>
+                  <Link href="/login" className="sidebar-cta-btn">Start for Free</Link>
                 </div>
               </div>
             </aside>

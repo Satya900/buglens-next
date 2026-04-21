@@ -22,8 +22,8 @@ export default function BlogNavbar() {
           </a>
         </div>
 
-        <Link className="blog-nav-cta" href="/#updates">
-          Early access
+        <Link className="blog-nav-cta" href="/login">
+          Start for Free
         </Link>
       </nav>
     </header>

@@ -93,7 +93,7 @@ export default function AlternativesPage() {
            Join the 500+ developers shipping more reliable code with BugLens.
          </p>
          <div className="hero-actions">
-           <Link href="/#updates" className="btn-primary">Get Started for Free</Link>
+           <Link href="/login" className="btn-primary">Get Started for Free</Link>
            <Link href="/pricing/" className="btn-ghost">View Pricing</Link>
          </div>
       </section>

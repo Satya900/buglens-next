@@ -12,8 +12,8 @@ export default function BlogCTA() {
           Join the waitlist for our private beta today.
         </p>
         <div className="blog-cta-actions">
-          <Link href="/#updates" className="btn-primary">
-            Get Early Access
+          <Link href="/login" className="btn-primary">
+            Start for Free
           </Link>
           <Link href="/pricing/" className="btn-ghost" style={{ background: "transparent" }}>
             View Pricing →

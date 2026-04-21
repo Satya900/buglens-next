@@ -1,6 +1,8 @@
 import Hero from "@/components/Hero";
 import Terminal from "@/components/Terminal";
+import ReviewPreview from "@/components/ReviewPreview";
 import Features from "@/components/Features";
+import KnowledgeBaseSection from "@/components/KnowledgeBaseSection";
 import Pricing from "@/components/Pricing";
 import Blog from "@/components/Blog";
 import Newsletter from "@/components/Newsletter";
@@ -39,7 +41,9 @@ export default function Home() {
     <main>
       <Hero />
       <Terminal />
+      <ReviewPreview />
       <Features />
+      <KnowledgeBaseSection />
       <Pricing />
       <Blog />
       <Newsletter />
