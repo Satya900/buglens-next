@@ -5,6 +5,9 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "CodeRabbit Alternative | Why BugLens is better for deep PR reviews",
   description: "Compare BugLens vs CodeRabbit and other AI code review tools. See why our context-aware senior reviewer catches more bugs.",
+  alternates: {
+    canonical: "/alternatives/",
+  },
 };
 
 const comparisons = [
@@ -91,7 +94,7 @@ export default function AlternativesPage() {
          </p>
          <div className="hero-actions">
            <Link href="/#updates" className="btn-primary">Get Started for Free</Link>
-           <Link href="/pricing" className="btn-ghost">View Pricing</Link>
+           <Link href="/pricing/" className="btn-ghost">View Pricing</Link>
          </div>
       </section>
     </main>

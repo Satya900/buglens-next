@@ -12,7 +12,7 @@ export default function RelatedPosts({ posts }: { posts: BlogPost[] }) {
           <article key={post.slug} className="blog-card">
             <span className="blog-tag">{post.tag}</span>
             <h3 className="blog-title">
-              <Link className="blog-title-link" href={`/blog/${post.slug}`}>{post.title}</Link>
+              <Link className="blog-title-link" href={`/blog/${post.slug}/`}>{post.title}</Link>
             </h3>
             <div className="blog-meta">
               <span>

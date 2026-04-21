@@ -12,7 +12,7 @@ export default function BlogNavbar() {
 
         <div className="blog-nav-links" aria-label="Blog navigation">
           <Link href="/">Product</Link>
-          <Link href="/blog">Journal</Link>
+          <Link href="/blog/">Journal</Link>
           <a
             href="https://github.com/Satya900"
             target="_blank"

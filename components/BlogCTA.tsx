@@ -15,7 +15,7 @@ export default function BlogCTA() {
           <Link href="/#updates" className="btn-primary">
             Get Early Access
           </Link>
-          <Link href="/pricing" className="btn-ghost" style={{ background: "transparent" }}>
+          <Link href="/pricing/" className="btn-ghost" style={{ background: "transparent" }}>
             View Pricing →
           </Link>
         </div>

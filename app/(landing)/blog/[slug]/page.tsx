@@ -166,7 +166,7 @@ export async function generateMetadata({
 
   const title = post.seoTitle ?? post.title;
   const description = post.seoDescription ?? post.excerpt;
-  const canonical = `/blog/${post.slug}`;
+  const canonical = `/blog/${post.slug}/`;
   const image = post.coverImageForMetadata ?? `/blog/${post.slug}/opengraph-image`;
 
   return {

@@ -39,7 +39,7 @@ export default function BlogGrid({ posts }: BlogGridProps) {
             <div className="blog-card-content">
               <span className="blog-tag-mini">{post.tag}</span>
               <h2 className="blog-title">
-                <Link className="blog-title-link" href={`/blog/${post.slug}`}>{post.title}</Link>
+                <Link className="blog-title-link" href={`/blog/${post.slug}/`}>{post.title}</Link>
               </h2>
               <p className="blog-excerpt">{post.excerpt}</p>
             </div>

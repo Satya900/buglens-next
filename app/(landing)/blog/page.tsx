@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Engineering notes from building BugLens, covering AI code review, retrieval systems, security analysis, and product architecture.",
   alternates: {
-    canonical: "/blog",
+    canonical: "/blog/",
   },
 };
 

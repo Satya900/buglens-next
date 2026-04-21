@@ -15,8 +15,8 @@ export default async function Navbar() {
       </Link>
       <ul className="nav-links">
         <li><Link href="/#features">Features</Link></li>
-        <li><Link href="/blog">Blog</Link></li>
-        <li><Link href="/pricing">Pricing</Link></li>
+        <li><Link href="/blog/">Blog</Link></li>
+        <li><Link href="/pricing/">Pricing</Link></li>
         <li><Link href="/#updates">Updates</Link></li>
         <li><a href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer">GitHub</a></li>
       </ul>
