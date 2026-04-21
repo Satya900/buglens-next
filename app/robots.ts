@@ -16,6 +16,8 @@ export default function robots(): MetadataRoute.Robots {
         "/*/apple-icon/",
         "/apple-icon/",
         "/manifest/",
+        "/sitemap/",
+        "/manifest.webmanifest",
       ],
     },
     host: siteConfig.url,
