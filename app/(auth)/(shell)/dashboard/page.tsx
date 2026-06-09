@@ -43,7 +43,7 @@ async function getGitHubStats(token: string) {
       totalRepos: repos.length,
       publicRepos: ghUser.public_repos,
       login: ghUser.login,
-      recent: repos.slice(0, 6).map((repo: any) => ({
+      recent: repos.slice(0, 6).map((repo: Record<string, unknown>) => ({
         id: repo.id,
         name: repo.name,
         full_name: repo.full_name,

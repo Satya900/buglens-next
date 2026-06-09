@@ -35,10 +35,14 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isProtectedRoute = 
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/profile') ||
-    request.nextUrl.pathname.startsWith('/onboarding')
+  const PROTECTED_PREFIXES = [
+    '/dashboard', '/profile', '/onboarding',
+    '/repos', '/reviews', '/analytics',
+    '/billing', '/settings', '/knowledge',
+  ]
+  const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) =>
+    request.nextUrl.pathname.startsWith(prefix)
+  )
 
   if (!user && isProtectedRoute) {
     // no user, redirect to login page
