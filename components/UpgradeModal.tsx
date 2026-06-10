@@ -77,14 +77,13 @@ export default function UpgradeModal({ show }: { show: boolean }) {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <Link 
-              href={`/api/checkout/polar?products=${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`} 
-              data-polar-checkout
-              className="btn-primary" 
+            <Link
+              href={`/api/checkout/dodo?productId=${process.env.NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID}`}
+              className="btn-primary"
               style={{ padding: '12px', textDecoration: 'none', textAlign: 'center', fontWeight: 600 }}
               onClick={() => setIsOpen(false)}
             >
-              🚀 Upgrade to Pro for $19
+              🚀 Upgrade to Starter for $19
             </Link>
             
             <button 

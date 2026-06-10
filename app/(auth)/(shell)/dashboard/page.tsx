@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import UpgradeModal from '@/components/UpgradeModal'
+import { safeDecrypt } from '@/utils/crypto'
 
 type RecentRepo = {
   id: number
@@ -89,7 +90,7 @@ export default async function DashboardPage() {
     }).eq('id', user.id)
   }
 
-  const stats = profile?.github_token ? await getGitHubStats(profile.github_token) : null
+  const stats = profile?.github_token ? await getGitHubStats(safeDecrypt(profile.github_token) ?? '') : null
   const displayName = profile?.full_name || stats?.login || user.email?.split('@')[0]
   const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
   

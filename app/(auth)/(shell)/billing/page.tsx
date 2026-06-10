@@ -155,12 +155,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                   </div>
                 ) : (
                   <Link 
-                    href={`/api/checkout/polar?products=${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`} 
-                    data-polar-checkout
+                    href={`/api/checkout/dodo?productId=${process.env.NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID}`} 
+
                     className="btn-primary" 
                     style={{ width: '100%', fontSize: 12, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
                   >
-                    Upgrade to Pro
+                    Upgrade to Starter
                   </Link>
                 )}
               </div>
@@ -174,7 +174,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             <div style={{ padding: '1rem' }}>
               <p style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: '1rem' }}>Manage your payment methods and download invoices.</p>
               <a 
-                href="/api/portal/polar" 
+                href="/api/portal/dodo" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="btn-secondary" 

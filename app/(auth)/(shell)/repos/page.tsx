@@ -199,6 +199,31 @@ export default function RepositoriesPage() {
         </div>
       </div>
 
+      {/* GitHub App not installed — no repos returned */}
+      {!loading && !error && repos.length === 0 && (
+        <div className="alert-banner warn" style={{ marginBottom: '1.5rem' }}>
+          <span>!</span>
+          <div>
+            <strong>GitHub App not installed.</strong> BugLens needs the GitHub App installed on your account to review pull requests.{' '}
+            <a
+              href="https://github.com/apps/buglensai/installations/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--green)', textDecoration: 'underline' }}
+            >
+              Install it here →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert-banner red" style={{ marginBottom: '1.5rem' }}>
+          <span>✕</span>
+          <span>{error}</span>
+        </div>
+      )}
+
       <div style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-dim)', marginBottom: '1rem' }}>
         {filtered.length} of {repos.length} repositories
       </div>

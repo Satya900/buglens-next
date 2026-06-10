@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { safeDecrypt } from '@/utils/crypto'
 
 type Params = Promise<{ owner: string; repo: string }>
 
@@ -27,7 +28,7 @@ export async function GET(
   const { owner, repo: repoName } = await params
 
   const headers = {
-    Authorization: `token ${profile.github_token}`,
+    Authorization: `token ${safeDecrypt(profile.github_token)}`,
     Accept: 'application/vnd.github.v3+json',
   }
 

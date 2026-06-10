@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-// The client you created from the utils/supabase/server.ts file
 import { createClient } from '@/utils/supabase/server'
+import { encrypt } from '@/utils/crypto'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         .from('profiles')
         .upsert({ 
           id: user.id, 
-          github_token: providerToken,
+          github_token: providerToken ? encrypt(providerToken) : null,
           github_username: metadata.user_name, // 🚀 Critical for multi-tenant linking
           full_name: metadata.full_name || metadata.user_name,
           email: user.email,

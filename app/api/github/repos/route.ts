@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { safeDecrypt } from '@/utils/crypto'
 
 export async function GET() {
   const supabase = await createClient()
@@ -24,7 +25,7 @@ export async function GET() {
       'https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator',
       {
         headers: {
-          Authorization: `token ${profile.github_token}`,
+          Authorization: `token ${safeDecrypt(profile.github_token)}`,
           Accept: 'application/vnd.github.v3+json',
         },
       }

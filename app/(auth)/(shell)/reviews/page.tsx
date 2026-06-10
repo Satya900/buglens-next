@@ -62,14 +62,49 @@ export default async function ReviewsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: reviews, error: reviewsError } = await supabase
-    .from('reviews')
-    .select('id, pr_title, repo_full_name, pr_number, pr_url, merge_decision, findings_count, risk_summary, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(50)
+  const [{ data: reviews, error: reviewsError }, { data: userRepos }] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('id, pr_title, repo_full_name, pr_number, pr_url, merge_decision, findings_count, risk_summary, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    supabase
+      .from('repos')
+      .select('repo_full_name')
+      .eq('user_id', user.id),
+  ])
 
-  const timeline = (reviews || []) as ReviewRow[]
+  const userRepoNames = (userRepos || []).map((r: { repo_full_name: string }) => r.repo_full_name)
+
+  const { data: shadowReviews } = userRepoNames.length
+    ? await supabase
+        .from('shadow_reviews')
+        .select('id, pr_title, repo_full_name, pr_number, pr_url, merge_decision, findings_count, risk_summary, created_at, findings_json')
+        .in('repo_full_name', userRepoNames)
+        .order('created_at', { ascending: false })
+        .limit(50)
+    : { data: [] }
+
+  const postedTimeline: TimelineReview[] = (reviews || []).map((r: ReviewRow) => ({
+    ...r,
+    kind: 'posted' as const,
+    findings_count: r.findings_count || 0,
+    avgConfidence: null,
+    sources: [],
+  }))
+
+  const shadowTimeline: TimelineReview[] = ((shadowReviews || []) as ShadowReviewRow[]).map((r) => ({
+    ...r,
+    kind: 'shadow' as const,
+    findings_count: r.findings_count || 0,
+    avgConfidence: averageConfidence(r.findings_json),
+    sources: [...new Set((r.findings_json || []).map((f) => f.source || 'ai').filter(Boolean))],
+  }))
+
+  const timeline = [...postedTimeline, ...shadowTimeline].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
 
   return (
     <div className="page-shell">
@@ -125,11 +160,23 @@ export default async function ReviewsPage() {
                       {review.repo_full_name} #{review.pr_number || '—'}
                     </div>
                   </td>
-                  <td><span className={statusCls}>{review.merge_decision || 'PENDING'}</span></td>
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span className={statusCls}>{review.merge_decision || 'PENDING'}</span>
+                      {review.kind === 'shadow' && (
+                        <span className="badge-dim" style={{ fontSize: 9 }}>SHADOW</span>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     <div style={{ fontFamily: 'var(--mono)', fontSize: 12 }} className={(review.findings_count || 0) > 0 ? 'text-red' : 'text-dim'}>
                       {review.findings_count || 0} findings
                     </div>
+                    {review.avgConfidence !== null && (
+                      <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
+                        {Math.round((review.avgConfidence || 0) * 100)}% avg confidence
+                      </div>
+                    )}
                   </td>
                   <td>
                     <span style={{ fontSize: 11, color: 'var(--text-dim)', maxWidth: '280px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -139,10 +186,17 @@ export default async function ReviewsPage() {
                   <td><span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)' }}>{timeAgo(review.created_at)}</span></td>
                   <td>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-                      <Link href={review.pr_url || '#'} target="_blank" style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
-                        GitHub ↗
+                      <Link href={`/reviews/${review.id}`} style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none' }}>
+                        Details →
                       </Link>
-                      <TeachAIButton repoFullName={review.repo_full_name} prTitle={review.pr_title} />
+                      {review.pr_url && (
+                        <Link href={review.pr_url} target="_blank" style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--green)', textDecoration: 'none' }}>
+                          GitHub ↗
+                        </Link>
+                      )}
+                      {review.kind === 'posted' && (
+                        <TeachAIButton repoFullName={review.repo_full_name} prTitle={review.pr_title} />
+                      )}
                     </div>
                   </td>
                 </tr>
