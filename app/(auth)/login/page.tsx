@@ -8,6 +8,7 @@ import BugLensMark from '@/components/BugLensMark'
 function LoginContent() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
+  const returnUrl = searchParams.get('returnUrl') || undefined
 
   return (
     <div className="auth-container">
@@ -24,7 +25,7 @@ function LoginContent() {
 
         <div className="auth-content">
           <button
-            onClick={() => signInWithGitHub()}
+            onClick={() => signInWithGitHub(returnUrl)}
             className="btn-github-primary"
           >
             <svg viewBox="0 0 24 24" fill="currentColor">

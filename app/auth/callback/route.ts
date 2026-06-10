@@ -39,13 +39,13 @@ export async function GET(request: Request) {
       }
 
       let redirectUrl = next || '/dashboard'
-      
-      // Check onboarding status
+
+      // Onboarding takes priority over any returnUrl
       if (!profile || profile.onboarding_completed === false) {
         console.log('User needs onboarding. Redirecting to /onboarding')
         redirectUrl = '/onboarding'
       } else {
-        console.log('Returning user. Redirecting to /dashboard')
+        console.log('Returning user. Redirecting to', redirectUrl)
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host')

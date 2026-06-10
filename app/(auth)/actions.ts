@@ -4,14 +4,17 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
-export async function signInWithGitHub() {
+export async function signInWithGitHub(returnUrl?: string) {
   const supabase = await createClient()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  
+  const callbackUrl = returnUrl
+    ? `${siteUrl}/auth/callback?next=${encodeURIComponent(returnUrl)}`
+    : `${siteUrl}/auth/callback`
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `${siteUrl}/auth/callback`,
+      redirectTo: callbackUrl,
       scopes: 'repo read:user user:email'
     },
   })
