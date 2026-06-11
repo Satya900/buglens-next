@@ -186,8 +186,8 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
           disabled={isPending}
           style={{
             padding: '12px 32px',
-            background: isPending ? 'rgba(124,58,237,0.5)' : '#7c3aed',
-            color: '#fff',
+            background: isPending ? 'rgba(124,58,237,0.5)' : 'var(--green, #22c55e)',
+            color: '#000',
             border: 'none',
             borderRadius: 8,
             fontWeight: 600,
@@ -259,7 +259,7 @@ const disabledInput: React.CSSProperties = {
 const checkboxStyle: React.CSSProperties = {
   width: 16,
   height: 16,
-  accentColor: '#7c3aed',
+  accentColor: 'var(--green, #22c55e)',
   cursor: 'pointer',
   marginTop: 2,
   flexShrink: 0,

@@ -69,8 +69,8 @@ export default async function ApplyOSSProgramPage() {
         {/* Benefits reminder */}
         <div style={{
           padding: '1rem 1.25rem',
-          background: 'rgba(139,92,246,0.08)',
-          border: '1px solid rgba(139,92,246,0.2)',
+          background: 'rgba(34,197,94,0.06)',
+          border: '1px solid rgba(34,197,94,0.15)',
           borderRadius: 10,
           marginBottom: '2rem',
           fontSize: 13,
@@ -78,7 +78,7 @@ export default async function ApplyOSSProgramPage() {
           lineHeight: 1.7,
         }}>
           <strong>What you get:</strong> 6 months Pro free — unlimited reviews, GitHub status checks, inline comments, email digests, .buglens.yml config.
-          {' '}<Link href="/oss-program" style={{ color: '#a78bfa', textDecoration: 'underline' }}>Learn more →</Link>
+          {' '}<Link href="/oss-program" style={{ color: 'var(--green, #22c55e)', textDecoration: 'underline' }}>Learn more →</Link>
         </div>
 
         <OSSForm githubUsername={githubUsername} />
