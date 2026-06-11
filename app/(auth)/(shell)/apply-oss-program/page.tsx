@@ -74,7 +74,7 @@ export default async function ApplyOSSProgramPage() {
           borderRadius: 10,
           marginBottom: '2rem',
           fontSize: 13,
-          color: '#c4b5fd',
+          color: 'var(--text-muted, #7a9980)',
           lineHeight: 1.7,
         }}>
           <strong>What you get:</strong> 6 months Pro free — unlimited reviews, GitHub status checks, inline comments, email digests, .buglens.yml config.

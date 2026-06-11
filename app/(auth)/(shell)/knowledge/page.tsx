@@ -94,7 +94,7 @@ export default async function KnowledgeBasePage() {
               {[
                 { label: 'Total Documents', value: '3' },
                 { label: 'Total Chunks', value: '1,248', cls: 'text-green' },
-                { label: 'Vector Store', value: 'Gemini 2.5' },
+                { label: 'AI Model', value: 'Latest', cls: 'text-green' },
                 { label: 'Shadow Learning', value: 'Active', cls: 'text-green' },
               ].map(s => (
                 <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
