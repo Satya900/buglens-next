@@ -30,7 +30,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
-  const storedUsageLimit = profile?.usage_limit ?? 50
+  const storedUsageLimit = profile?.usage_limit ?? 10
   const usageLimit = storedUsageLimit >= 1000000 ? Infinity : storedUsageLimit
   const isUnlimited = usageLimit === Infinity
   const usagePercent = isUnlimited ? 0 : Math.min(100, ((usageCount || 0) / usageLimit) * 100)

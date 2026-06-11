@@ -14,7 +14,7 @@ type BillingIdentity = {
 };
 
 const BILLING_PLANS: Record<BillingTier, BillingPlan> = {
-  FREE: { tier: "FREE", usageLimit: 50 },
+  FREE: { tier: "FREE", usageLimit: 10 },
   PRO: { tier: "PRO", usageLimit: 1_000_000 },
   BUSINESS: { tier: "BUSINESS", usageLimit: 10_000_000 },
 };
