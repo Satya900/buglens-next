@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Script from "next/script"
+import { Suspense } from "react"
 import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
+import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -91,6 +93,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
         <Analytics />
         <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />

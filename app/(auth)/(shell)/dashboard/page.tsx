@@ -94,8 +94,8 @@ export default async function DashboardPage() {
   const displayName = profile?.full_name || stats?.login || user.email?.split('@')[0]
   const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
   
-  // 🛡️ LOCK THE LIMIT: Force 50 for Free, Unlimited for Pro
-  const usageLimit = tier === 'PRO' ? Infinity : 50
+  // Usage limit: read from profile (set by billing), fallback 10 for free
+  const usageLimit = tier === 'PRO' ? Infinity : (profile?.usage_limit ?? 10)
   const usageCount = reviewList?.length || 0
   const isUnlimited = usageLimit === Infinity
   const prsLeft = isUnlimited ? Infinity : Math.max(0, usageLimit - usageCount)
