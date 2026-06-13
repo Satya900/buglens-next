@@ -3,7 +3,7 @@
 import { createClient as createServerClient } from '@/utils/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendOSSWelcomeEmail } from '@/lib/email'
-import { isAdmin } from './page'
+import { isAdmin } from './utils'
 
 function adminSupabase() {
   return createClient(
