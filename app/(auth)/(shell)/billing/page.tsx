@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import CouponCheckout from './CouponCheckout'
 
 export default async function BillingPage({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
   const { success } = await searchParams
@@ -118,7 +119,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
               <div style={{ padding: '1.5rem' }}>
                 <div style={{ fontSize: 24, fontWeight: 700, marginBottom: '1rem' }}>$0<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-dim)' }}>/mo</span></div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {['50 Reviews / month', 'Standard AI Engine', 'Public Repositories', 'Standard Support'].map(f => (
+                  {['10 Reviews / month', 'Standard AI Engine', 'Public Repositories', 'Standard Support'].map(f => (
                     <li key={f} style={{ fontSize: 12, color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ color: 'var(--green)' }}>✓</span> {f}
                     </li>
@@ -154,14 +155,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                     Currently Active
                   </div>
                 ) : (
-                  <Link 
-                    href={`/api/checkout/dodo?productId=${process.env.NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID}`} 
-
-                    className="btn-primary" 
-                    style={{ width: '100%', fontSize: 12, display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
-                  >
-                    Upgrade to Starter
-                  </Link>
+                  <CouponCheckout productId={process.env.NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID!} />
                 )}
               </div>
             </div>

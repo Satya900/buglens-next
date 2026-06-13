@@ -9,6 +9,7 @@ const DODO_ENV = (process.env.DODO_PAYMENTS_ENVIRONMENT ?? 'test_mode') as 'test
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get('productId') ?? PRODUCT_ID;
+  const coupon = searchParams.get('coupon') ?? undefined;
 
   if (!productId) {
     return new Response('Missing productId', { status: 400 });
@@ -32,6 +33,7 @@ export async function GET(request: Request) {
     product_id: productId,
     quantity: 1,
     payment_link: true,
+    ...(coupon ? { discount_code: coupon } : {}),
     metadata: {
       userId: user.id,
       email: user.email ?? '',
