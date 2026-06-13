@@ -10,6 +10,15 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+
+  // missing await
+const data = fetch('https://api.example.com/data')
+
+// unused variable  
+const unusedVar = 'hello'
+
+// console.log left in
+console.log('debug', data)
   const { data: profile } = await supabase
     .from('profiles')
     .select('github_token')
