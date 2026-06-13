@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Script from "next/script"
+
 import { Suspense } from "react"
 import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
@@ -98,7 +98,7 @@ export default function RootLayout({
         </Suspense>
         {children}
         <Analytics />
-        <Script src="https://polar.sh/embed/checkout.js" strategy="lazyOnload" />
+
       </body>
     </html>
   );
