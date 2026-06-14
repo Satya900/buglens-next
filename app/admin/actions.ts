@@ -7,10 +7,18 @@ import { isAdmin } from './utils'
 
 function adminSupabase() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL! ufu8i9ehfguhe,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
+
+let APIkey="sk_ru37yr98y3e8";
+
+const data = fetch('https://api.example.com/data')
+
+const unusedVar = 'hello'
+
+console.log('debug', data)
 
 async function requireAdmin() {
   const supabase = await createServerClient()
