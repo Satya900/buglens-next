@@ -191,17 +191,11 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
       {/* Table */}
       <div className="card" style={{ overflow: 'hidden', padding: 0 }}>
         {/* Header */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 110px 100px 80px',
-          gap: 12, padding: '8px 20px',
-          fontSize: 9, fontFamily: 'var(--mono)', color: 'var(--text-dim)',
-          textTransform: 'uppercase', letterSpacing: '0.08em',
-          borderBottom: '1px solid var(--border)', background: 'var(--surface2)',
-        }}>
+        <div className="reviews-table-header">
           <span>Pull request</span>
           <span>Status</span>
-          <span>Findings</span>
-          <span>Date</span>
+          <span className="col-hide-mobile">Findings</span>
+          <span className="col-hide-mobile">Date</span>
         </div>
 
         {filtered.length === 0 ? (
@@ -219,15 +213,12 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                 key={review.id}
                 href={`/reviews/${review.id}`}
                 style={{
-                  display: 'grid', gridTemplateColumns: '1fr 110px 100px 80px',
-                  gap: 12, padding: '12px 20px',
                   borderBottom: '1px solid var(--border)',
                   borderLeft: `3px solid ${borderColor}`,
                   textDecoration: 'none',
-                  alignItems: 'center',
                   transition: 'background 0.12s',
                 }}
-                className="review-table-row"
+                className="review-table-row reviews-table-row-grid"
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{
@@ -253,9 +244,9 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                   {isApprove ? '✓ APPROVE' : '✗ CHANGES'}
                 </span>
 
-                <FindingPills count={review.findings_count} decision={review.merge_decision} />
+                <span className="col-hide-mobile"><FindingPills count={review.findings_count} decision={review.merge_decision} /></span>
 
-                <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', whiteSpace: 'nowrap' }}>
+                <span className="col-hide-mobile" style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', whiteSpace: 'nowrap' }}>
                   {timeAgo(review.created_at)}
                 </span>
               </Link>

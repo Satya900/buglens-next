@@ -129,7 +129,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
       </div>
 
       {/* Stat strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="grid-4-stat">
         {[
           { label: 'Files reviewed', value: review.files_reviewed || 0, color: 'var(--text)' },
           { label: 'High', value: counts.HIGH, color: counts.HIGH > 0 ? '#f87171' : 'var(--text)' },
@@ -165,7 +165,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
           <p style={{ color: 'var(--text-dim)', fontSize: 12 }}>No issues found in this pull request.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '1.25rem', alignItems: 'start' }}>
+        <div className="grid-review-layout">
 
           {/* File Tree */}
           <FileTreeNav

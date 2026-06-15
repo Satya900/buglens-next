@@ -458,18 +458,108 @@
   color: var(--green);
 }
 
+/* ---- Responsive grid helpers -------------------------- */
+.grid-4-stat {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.grid-dashboard-main {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.25rem;
+}
+
+.grid-review-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.reviews-table-header,
+.reviews-table-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 110px 100px 80px;
+  gap: 12px;
+  padding: 12px 20px;
+  align-items: center;
+}
+
+.reviews-table-header {
+  padding: 8px 20px;
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.col-hide-mobile { /* hide on small screens */ }
+
 /* ---- Responsive --------------------------------------- */
 @media (max-width: 1024px) {
   .stat-cards-row {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-4-stat {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-dashboard-main {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .main-content { margin-left: 0; padding: 1.5rem; }
-  .page-shell { padding: 1.5rem; }
+  .page-shell { padding: 1rem; }
   .stat-cards-row { grid-template-columns: 1fr; }
+
+  .grid-4-stat {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .grid-dashboard-main {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-review-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile, hide the sticky file tree — it stacks above findings */
+  .file-tree-sticky {
+    position: static !important;
+  }
+
+  /* Reviews table — hide date + findings columns, show title + status only */
+  .reviews-table-header,
+  .reviews-table-row-grid {
+    grid-template-columns: 1fr 90px;
+  }
+
+  .col-hide-mobile {
+    display: none !important;
+  }
+
+  /* Repo cards already auto-fill, just tighten padding */
+  .page-shell .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-4-stat {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ---- Dashboard interactive rows ----------------------- */

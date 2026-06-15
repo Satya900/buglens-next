@@ -63,7 +63,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="grid-4-stat">
 
         <div className="stat-card">
           <div className="stat-label">System status</div>
@@ -103,7 +103,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.25rem' }}>
+      <div className="grid-dashboard-main">
 
         {/* Activity Feed */}
         <div className="card" style={{ overflow: 'hidden' }}>
