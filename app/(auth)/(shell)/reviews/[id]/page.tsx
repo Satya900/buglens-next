@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import FileTreeNav from './FileTreeNav'
 import Link from 'next/link'
 
 type Finding = {
@@ -167,43 +168,15 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '1.25rem', alignItems: 'start' }}>
 
           {/* File Tree */}
-          <div className="card" style={{ overflow: 'hidden', position: 'sticky', top: 20 }}>
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', fontSize: 9, fontFamily: 'var(--mono)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Files ({fileEntries.length})
-            </div>
-            {fileEntries.map(([fp, fls]) => {
+          <FileTreeNav
+            entries={fileEntries.map(([fp, fls]) => {
               const worst = fileWorstSev(fls)
               const { dot } = sevStyle(worst)
-              const filename = fp.split('/').pop() || fp
-              return (
-                <div
-                  key={fp}
-                  title={fp}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '7px 12px', borderBottom: '1px solid rgba(34,197,94,0.05)',
-                    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--mono)',
-                    cursor: 'pointer', transition: 'background 0.1s',
-                    overflow: 'hidden',
-                  }}
-                  className="file-tree-item"
-                  onClick={() => {
-                    document.getElementById(`file-${fp.replace(/[^a-z0-9]/gi, '-')}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }}
-                >
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot, flexShrink: 0 }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{filename}</span>
-                  <span style={{ fontSize: 9, color: 'var(--text-dim)', flexShrink: 0 }}>{fls.length}</span>
-                </div>
-              )
+              return { fp, filename: fp.split('/').pop() || fp, dot, count: fls.length }
             })}
-            {/* Clean files */}
-            {(review.files_reviewed || 0) > fileEntries.length && (
-              <div style={{ padding: '7px 12px', fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
-                +{(review.files_reviewed || 0) - fileEntries.length} clean
-              </div>
-            )}
-          </div>
+            totalFiles={review.files_reviewed || 0}
+            filesWithFindings={fileEntries.length}
+          />
 
           {/* Findings */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
