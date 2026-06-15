@@ -471,3 +471,67 @@
   .page-shell { padding: 1.5rem; }
   .stat-cards-row { grid-template-columns: 1fr; }
 }
+
+/* ---- Dashboard interactive rows ----------------------- */
+.review-row-link:hover {
+  background: rgba(34, 197, 94, 0.04) !important;
+}
+
+.quick-action-link:hover {
+  background: rgba(34, 197, 94, 0.07) !important;
+  border-color: rgba(34, 197, 94, 0.25) !important;
+  color: var(--text) !important;
+}
+
+/* ---- Reviews table rows ------------------------------- */
+.review-table-row:hover {
+  background: rgba(34, 197, 94, 0.03) !important;
+}
+.review-table-row:last-child {
+  border-bottom: none !important;
+}
+
+/* ---- Repo cards --------------------------------------- */
+.repo-card-item:hover {
+  border-color: rgba(34, 197, 94, 0.2) !important;
+  background: rgba(13, 21, 16, 0.9) !important;
+}
+
+.remove-repo-btn:hover {
+  opacity: 1 !important;
+}
+
+.add-repo-card:hover {
+  border-color: var(--green) !important;
+  background: rgba(34, 197, 94, 0.04) !important;
+}
+.add-repo-card:hover span {
+  color: var(--green) !important;
+}
+.add-repo-card:hover svg {
+  color: var(--green) !important;
+}
+
+/* ---- Review detail file tree -------------------------- */
+.file-tree-item:hover {
+  background: rgba(34, 197, 94, 0.06) !important;
+  color: var(--text) !important;
+}
+
+/* ---- Live status dot animation ------------------------ */
+.status-dot-live {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: status-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes status-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+  50%  { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}

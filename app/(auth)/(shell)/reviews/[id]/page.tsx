@@ -23,10 +23,10 @@ function timeAgo(d: string) {
   return `${Math.floor(m / 1440)}d ago`
 }
 
-function severityStyles(s: string): { color: string; bg: string; border: string } {
-  if (s === 'HIGH') return { color: '#dc2626', bg: 'rgba(220,38,38,0.08)', border: 'rgba(220,38,38,0.25)' }
-  if (s === 'MEDIUM') return { color: '#ea580c', bg: 'rgba(234,88,12,0.08)', border: 'rgba(234,88,12,0.25)' }
-  return { color: 'var(--text-dim)', bg: 'rgba(148,163,184,0.08)', border: 'rgba(148,163,184,0.25)' }
+function sevStyle(s: string) {
+  if (s === 'HIGH') return { color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', dot: '#f87171' }
+  if (s === 'MEDIUM') return { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.25)', dot: '#fbbf24' }
+  return { color: '#7a9980', bg: 'rgba(122,153,128,0.08)', border: 'rgba(122,153,128,0.2)', dot: '#7a9980' }
 }
 
 function groupByFile(findings: Finding[]): Record<string, Finding[]> {
@@ -38,21 +38,10 @@ function groupByFile(findings: Finding[]): Record<string, Finding[]> {
   }, {} as Record<string, Finding[]>)
 }
 
-function fileHighestSeverity(findings: Finding[]): 'HIGH' | 'MEDIUM' | 'LOW' {
+function fileWorstSev(findings: Finding[]): 'HIGH' | 'MEDIUM' | 'LOW' {
   if (findings.some(f => f.severity === 'HIGH')) return 'HIGH'
   if (findings.some(f => f.severity === 'MEDIUM')) return 'MEDIUM'
   return 'LOW'
-}
-
-function fileSeveritySummary(findings: Finding[]) {
-  const h = findings.filter(f => f.severity === 'HIGH').length
-  const m = findings.filter(f => f.severity === 'MEDIUM').length
-  const l = findings.filter(f => f.severity === 'LOW').length
-  const parts = []
-  if (h) parts.push(`${h} HIGH`)
-  if (m) parts.push(`${m} MEDIUM`)
-  if (l) parts.push(`${l} LOW`)
-  return parts.join(' · ')
 }
 
 export default async function ReviewDetailPage({ params }: { params: Params }) {
@@ -81,212 +70,286 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
   for (const f of allFindings) counts[f.severity as keyof typeof counts]++
 
   const byFile = groupByFile(allFindings)
+  const fileEntries = Object.entries(byFile)
   const isApprove = review.merge_decision === 'APPROVE'
-  const decisionColor = isApprove ? 'var(--green)' : '#dc2626'
-  const decisionBg = isApprove ? 'rgba(34,197,94,0.08)' : 'rgba(220,38,38,0.08)'
-  const decisionBorder = isApprove ? 'rgba(34,197,94,0.3)' : 'rgba(220,38,38,0.3)'
 
-  // Build pre-merge checklist from HIGH + MEDIUM findings
-  const checklistItems = allFindings
-    .filter(f => f.severity === 'HIGH' || f.severity === 'MEDIUM')
-    .slice(0, 6)
-    .map(f => ({ severity: f.severity, text: f.message, file: f.file_path, line: f.line_number }))
+  const decisionColor = isApprove ? 'var(--green)' : '#f87171'
+  const decisionBg = isApprove ? 'rgba(34,197,94,0.08)' : 'rgba(248,113,113,0.08)'
+  const decisionBorder = isApprove ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'
 
-  // Cross-file impact: files with HIGH findings that share state (heuristic: same dir)
-  const highFiles = Object.entries(byFile)
+  // Cross-file impact
+  const highFiles = fileEntries
     .filter(([, fs]) => fs.some(f => f.severity === 'HIGH'))
     .map(([fp]) => fp)
+
+  // Pre-merge checklist
+  const checklist = allFindings
+    .filter(f => f.severity === 'HIGH' || f.severity === 'MEDIUM')
+    .slice(0, 6)
 
   return (
     <div className="page-shell">
 
-      {/* ── Header ── */}
-      <div style={{ marginBottom: '1.75rem' }}>
-        <Link href="/reviews" style={{ fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', fontFamily: 'var(--mono)', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 12 }}>
-          ← All Reviews
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', margin: '0 0 8px' }}>
-              {review.pr_title || 'Untitled PR'}
-            </h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
-              <span>⎇ {review.repo_full_name}</span>
-              <span>PR #{review.pr_number}</span>
-              {review.pr_author && <span>@{review.pr_author}</span>}
-              <span>{timeAgo(review.created_at)}</span>
-            </div>
+      {/* Back nav */}
+      <Link href="/reviews" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', fontFamily: 'var(--mono)', marginBottom: 16 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+        All Reviews
+      </Link>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', margin: '0 0 8px', lineHeight: 1.3 }}>
+            {review.pr_title || 'Untitled PR'}
+          </h1>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
+            <span>⎇ {review.repo_full_name}</span>
+            <span>PR #{review.pr_number}</span>
+            {review.pr_author && <span>@{review.pr_author}</span>}
+            <span>{timeAgo(review.created_at)}</span>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-            <span style={{
-              fontSize: 11, fontWeight: 600, fontFamily: 'var(--mono)',
-              color: decisionColor, background: decisionBg,
-              border: `1px solid ${decisionBorder}`,
-              padding: '5px 12px', borderRadius: 6,
-            }}>
-              {isApprove ? '✓ APPROVE' : '✗ REQUEST CHANGES'}
-            </span>
-            {review.pr_url && (
-              <Link href={review.pr_url} target="_blank" rel="noopener noreferrer"
-                className="btn-secondary"
-                style={{ fontSize: 11, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                View on GitHub ↗
-              </Link>
-            )}
-          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)',
+            color: decisionColor, background: decisionBg,
+            border: `1px solid ${decisionBorder}`,
+            padding: '5px 14px', borderRadius: 6,
+          }}>
+            {isApprove ? '✓ APPROVE' : '✗ REQUEST CHANGES'}
+          </span>
+          {review.pr_url && (
+            <Link href={review.pr_url} target="_blank" rel="noopener noreferrer"
+              className="btn-secondary" style={{ fontSize: 11, textDecoration: 'none', gap: 5 }}>
+              GitHub ↗
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* ── Stats bar ── */}
+      {/* Stat strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Files Reviewed', value: review.files_reviewed || 0, color: 'var(--text)' },
-          { label: 'High Severity', value: counts.HIGH, color: counts.HIGH > 0 ? '#dc2626' : 'var(--text-dim)' },
-          { label: 'Medium Severity', value: counts.MEDIUM, color: counts.MEDIUM > 0 ? '#ea580c' : 'var(--text-dim)' },
-          { label: 'Low Severity', value: counts.LOW, color: 'var(--text-dim)' },
+          { label: 'Files reviewed', value: review.files_reviewed || 0, color: 'var(--text)' },
+          { label: 'High', value: counts.HIGH, color: counts.HIGH > 0 ? '#f87171' : 'var(--text)' },
+          { label: 'Medium', value: counts.MEDIUM, color: counts.MEDIUM > 0 ? '#fbbf24' : 'var(--text)' },
+          { label: 'Low', value: counts.LOW, color: 'var(--text-dim)' },
         ].map(s => (
-          <div key={s.label} className="card" style={{ padding: '1rem 1.25rem', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{s.label}</div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: s.color, fontFamily: 'var(--mono)' }}>{s.value}</div>
+          <div key={s.label} className="stat-card" style={{ padding: '1rem 1.25rem' }}>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-number" style={{ fontSize: 28, color: s.color }}>{s.value}</div>
           </div>
         ))}
       </div>
 
-      {/* ── AI Risk Assessment ── */}
+      {/* AI Risk Assessment */}
       {review.risk_summary && (
-        <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-          <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>AI Risk Assessment</div>
+        <div style={{
+          padding: '1rem 1.25rem', marginBottom: '1.5rem', borderRadius: 10,
+          background: isApprove ? 'rgba(34,197,94,0.04)' : 'rgba(248,113,113,0.05)',
+          border: `1px solid ${isApprove ? 'rgba(34,197,94,0.15)' : 'rgba(248,113,113,0.2)'}`,
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: isApprove ? 'var(--green)' : '#f87171', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+            AI Risk Assessment
+          </div>
           <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>{review.risk_summary}</p>
         </div>
       )}
 
-      {/* ── Findings grouped by file ── */}
-      <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '1.5rem' }}>
-        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Findings</span>
-          <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>{allFindings.length} total · {Object.keys(byFile).length} files</span>
+      {/* Main layout: file tree + findings */}
+      {allFindings.length === 0 ? (
+        <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+          <div style={{ fontSize: 28, marginBottom: 10, color: 'var(--green)' }}>✓</div>
+          <p style={{ color: 'var(--text)', fontSize: 14, fontWeight: 500, margin: '0 0 6px' }}>Clean review</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: 12 }}>No issues found in this pull request.</p>
         </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '1.25rem', alignItems: 'start' }}>
 
-        {allFindings.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-dim)', fontSize: 13 }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>✓</div>
-            No issues found — clean review
-          </div>
-        ) : (
-          Object.entries(byFile).map(([filePath, fileFindings]) => {
-            const worst = fileHighestSeverity(fileFindings)
-            const { color: wColor, bg: wBg, border: wBorder } = severityStyles(worst)
-            return (
-              <div key={filePath} style={{ borderBottom: '1px solid var(--border)' }}>
-                {/* File header */}
-                <div style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'var(--surface2)',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  borderBottom: '1px solid var(--border)',
-                }}>
-                  <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>⬡</span>
-                  <span style={{ fontSize: 12, fontFamily: 'var(--mono)', color: 'var(--text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{filePath}</span>
-                  <span style={{ fontSize: 10, fontWeight: 600, fontFamily: 'var(--mono)', color: wColor, background: wBg, border: `1px solid ${wBorder}`, padding: '2px 8px', borderRadius: 4, flexShrink: 0 }}>
-                    {fileSeveritySummary(fileFindings)}
-                  </span>
-                </div>
-
-                {/* Findings in this file */}
-                {fileFindings.map((f, i) => {
-                  const { color, bg, border } = severityStyles(f.severity)
-                  return (
-                    <div key={f.id} style={{
-                      padding: '1rem 1.5rem',
-                      borderBottom: i < fileFindings.length - 1 ? '1px solid var(--border)' : 'none',
-                    }}>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                        <span style={{
-                          fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)',
-                          color, background: bg, border: `1px solid ${border}`,
-                          padding: '3px 8px', borderRadius: 4, flexShrink: 0, marginTop: 1,
-                        }}>
-                          {f.severity}
-                        </span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 13, color: 'var(--text)', margin: '0 0 6px', lineHeight: 1.6 }}>{f.message}</p>
-                          <p style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-dim)', margin: '0 0 0' }}>
-                            {f.file_path}{f.line_number ? `:${f.line_number}` : ''}
-                            {f.source ? ` · ${f.source}` : ''}
-                            {f.confidence ? ` · ${Math.round(f.confidence * 100)}% confidence` : ''}
-                            {f.category ? ` · ${f.category}` : ''}
-                          </p>
-                          {f.suggestion && (
-                            <pre style={{
-                              background: 'var(--surface2)', border: '1px solid var(--border)',
-                              borderRadius: 6, padding: '0.75rem 1rem', fontSize: 12,
-                              fontFamily: 'var(--mono)', overflowX: 'auto', margin: '10px 0 0',
-                              color: 'var(--green)', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                            }}>
-                              {f.suggestion}
-                            </pre>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })
-        )}
-      </div>
-
-      {/* ── Cross-file Impact ── */}
-      {highFiles.length > 1 && (
-        <div style={{
-          padding: '1rem 1.25rem', marginBottom: '1.5rem',
-          background: 'rgba(234,88,12,0.06)', border: '1px solid rgba(234,88,12,0.25)',
-          borderRadius: 10,
-        }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#ea580c', fontFamily: 'var(--mono)', marginBottom: 6 }}>⚠ Cross-file Impact</div>
-          <p style={{ fontSize: 13, color: 'var(--text)', margin: 0, lineHeight: 1.6 }}>
-            High-severity issues detected across {highFiles.length} files:{' '}
-            {highFiles.map((f, i) => (
-              <span key={f}>
-                <code style={{ fontFamily: 'var(--mono)', fontSize: 11, background: 'var(--surface2)', padding: '1px 5px', borderRadius: 3 }}>{f.split('/').pop()}</code>
-                {i < highFiles.length - 1 ? ', ' : ''}
-              </span>
-            ))}.{' '}
-            Bugs in these files may compound — fix all HIGH findings before merging.
-          </p>
-        </div>
-      )}
-
-      {/* ── Pre-merge Checklist ── */}
-      {checklistItems.length > 0 && (
-        <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Pre-merge Checklist</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {checklistItems.map((item, i) => {
-              const { color } = severityStyles(item.severity)
+          {/* File Tree */}
+          <div className="card" style={{ overflow: 'hidden', position: 'sticky', top: 20 }}>
+            <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', fontSize: 9, fontFamily: 'var(--mono)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Files ({fileEntries.length})
+            </div>
+            {fileEntries.map(([fp, fls]) => {
+              const worst = fileWorstSev(fls)
+              const { dot } = sevStyle(worst)
+              const filename = fp.split('/').pop() || fp
               return (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 12, color: 'var(--text)' }}>
-                  <span style={{ color, flexShrink: 0, marginTop: 1 }}>☐</span>
-                  <span style={{ lineHeight: 1.5 }}>
-                    {item.text}
-                    {item.file && (
-                      <span style={{ marginLeft: 6, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-dim)' }}>
-                        {item.file.split('/').pop()}{item.line ? `:${item.line}` : ''}
-                      </span>
-                    )}
-                  </span>
+                <div
+                  key={fp}
+                  title={fp}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    padding: '7px 12px', borderBottom: '1px solid rgba(34,197,94,0.05)',
+                    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--mono)',
+                    cursor: 'pointer', transition: 'background 0.1s',
+                    overflow: 'hidden',
+                  }}
+                  className="file-tree-item"
+                  onClick={() => {
+                    document.getElementById(`file-${fp.replace(/[^a-z0-9]/gi, '-')}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }}
+                >
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot, flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{filename}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-dim)', flexShrink: 0 }}>{fls.length}</span>
                 </div>
               )
             })}
+            {/* Clean files */}
+            {(review.files_reviewed || 0) > fileEntries.length && (
+              <div style={{ padding: '7px 12px', fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
+                +{(review.files_reviewed || 0) - fileEntries.length} clean
+              </div>
+            )}
+          </div>
+
+          {/* Findings */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+            {/* Cross-file impact warning */}
+            {highFiles.length > 1 && (
+              <div style={{
+                padding: '12px 16px', borderRadius: 10,
+                background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.2)',
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', fontFamily: 'var(--mono)', marginBottom: 5 }}>⚠ Cross-file impact</div>
+                <p style={{ fontSize: 12, color: 'var(--text)', margin: 0, lineHeight: 1.6 }}>
+                  High-severity issues across {highFiles.length} files —{' '}
+                  {highFiles.map((f, i) => (
+                    <span key={f}>
+                      <code style={{ fontFamily: 'var(--mono)', fontSize: 11, background: 'var(--surface2)', padding: '1px 5px', borderRadius: 3 }}>{f.split('/').pop()}</code>
+                      {i < highFiles.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                  . Fix all HIGH findings before merging.
+                </p>
+              </div>
+            )}
+
+            {/* Grouped findings */}
+            {fileEntries.map(([filePath, fileFindings]) => {
+              const worst = fileWorstSev(fileFindings)
+              const { color: wColor, bg: wBg, border: wBorder } = sevStyle(worst)
+              const fileId = `file-${filePath.replace(/[^a-z0-9]/gi, '-')}`
+
+              return (
+                <div key={filePath} id={fileId} className="card" style={{ overflow: 'hidden' }}>
+                  {/* File header */}
+                  <div style={{
+                    padding: '10px 16px', background: 'var(--surface2)',
+                    borderBottom: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                  }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-dim)', flexShrink: 0 }}>
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    <span style={{ fontSize: 12, fontFamily: 'var(--mono)', color: 'var(--text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {filePath}
+                    </span>
+                    <span style={{
+                      fontSize: 9, fontWeight: 700, fontFamily: 'var(--mono)', flexShrink: 0,
+                      color: wColor, background: wBg, border: `1px solid ${wBorder}`,
+                      padding: '2px 7px', borderRadius: 4,
+                    }}>
+                      {fileFindings.filter(f => f.severity === 'HIGH').length > 0 && `${fileFindings.filter(f => f.severity === 'HIGH').length}H `}
+                      {fileFindings.filter(f => f.severity === 'MEDIUM').length > 0 && `${fileFindings.filter(f => f.severity === 'MEDIUM').length}M `}
+                      {fileFindings.filter(f => f.severity === 'LOW').length > 0 && `${fileFindings.filter(f => f.severity === 'LOW').length}L`}
+                    </span>
+                  </div>
+
+                  {/* Findings in file */}
+                  {fileFindings.map((f, i) => {
+                    const { color, bg, border } = sevStyle(f.severity)
+                    return (
+                      <div
+                        key={f.id}
+                        style={{
+                          padding: '14px 16px',
+                          borderBottom: i < fileFindings.length - 1 ? '1px solid var(--border)' : 'none',
+                          borderLeft: `3px solid ${color}`,
+                        }}
+                      >
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, fontFamily: 'var(--mono)',
+                            color, background: bg, border: `1px solid ${border}`,
+                            padding: '3px 7px', borderRadius: 4, flexShrink: 0, marginTop: 2,
+                          }}>
+                            {f.severity}
+                          </span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 13, color: 'var(--text)', margin: '0 0 6px', lineHeight: 1.6 }}>
+                              {f.message}
+                            </p>
+                            <p style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--text-dim)', margin: 0, lineHeight: 1.8 }}>
+                              {f.file_path}{f.line_number ? `:${f.line_number}` : ''}
+                              {f.source ? ` · ${f.source}` : ''}
+                              {f.confidence != null ? ` · ${Math.round(f.confidence * 100)}%` : ''}
+                            </p>
+                            {f.suggestion && (
+                              <pre style={{
+                                fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--text-muted)',
+                                background: 'var(--surface2)', border: '1px solid var(--border)',
+                                borderRadius: 6, padding: '10px 14px', margin: '8px 0 0',
+                                whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6,
+                              }}>
+                                {f.suggestion}
+                              </pre>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+
+              {/* Pre-merge checklist */}
+              {checklist.length > 0 && (
+                <div style={{
+                  marginTop: '1.5rem', padding: '1.25rem 1.5rem',
+                  background: 'rgba(251,191,36,0.04)', border: '1px solid rgba(251,191,36,0.15)',
+                  borderRadius: 10,
+                }}>
+                  <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+                    Pre-merge checklist
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {checklist.map((f, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
+                        <span style={{ color: f.severity === 'HIGH' ? '#f87171' : '#fbbf24', flexShrink: 0, marginTop: 1 }}>
+                          {f.severity === 'HIGH' ? '✕' : '○'}
+                        </span>
+                        <span style={{ lineHeight: 1.5 }}>{f.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cross-file impact warning */}
+              {highFiles.length > 1 && (
+                <div style={{
+                  marginTop: '1rem', padding: '1rem 1.25rem',
+                  background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)',
+                  borderRadius: 8, display: 'flex', gap: 10, alignItems: 'flex-start',
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <p style={{ fontSize: 12, color: '#f87171', fontFamily: 'var(--mono)', margin: 0, lineHeight: 1.6 }}>
+                    High-severity issues span {highFiles.length} files — review cross-file impact before merging.
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       )}
-
-      {/* ── Footer ── */}
-      <div style={{ textAlign: 'center', fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--mono)', paddingBottom: '2rem' }}>
-        Reviewed by BugLens AI · <Link href="/dashboard" style={{ color: 'var(--text-dim)', textDecoration: 'none' }}>buglens.app</Link>
-      </div>
     </div>
   )
 }

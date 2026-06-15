@@ -1,68 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import UpgradeModal from '@/components/UpgradeModal'
-import { safeDecrypt } from '@/utils/crypto'
-
-type RecentRepo = {
-  id: number
-  name: string
-  full_name: string
-  url: string
-  updated_at: string
-  open_issues: number
-  language: string | null
-  private: boolean
-}
-
-type DashboardReview = {
-  id: string
-  pr_title: string | null
-  repo_full_name: string
-  pr_url: string | null
-  findings_count: number | null
-  created_at: string
-  merge_decision: string | null
-  kind: 'posted' | 'shadow'
-}
-
-async function getGitHubStats(token: string) {
-  try {
-    const [reposRes, userRes] = await Promise.all([
-      fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
-        headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' },
-        next: { revalidate: 300 },
-      }),
-      fetch('https://api.github.com/user', {
-        headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' },
-        next: { revalidate: 300 },
-      }),
-    ])
-    if (!reposRes.ok || !userRes.ok) return null
-    const [repos, ghUser] = await Promise.all([reposRes.json(), userRes.json()])
-    return {
-      totalRepos: repos.length,
-      publicRepos: ghUser.public_repos,
-      login: ghUser.login,
-      recent: repos.slice(0, 6).map((repo: Record<string, unknown>) => ({
-        id: repo.id,
-        name: repo.name,
-        full_name: repo.full_name,
-        url: repo.html_url,
-        updated_at: repo.updated_at,
-        open_issues: repo.open_issues_count,
-        language: repo.language,
-        private: repo.private,
-      }))
-    }
-  } catch {
-    return null
-  }
-}
 
 function timeAgo(d: string) {
   const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000)
-  if (m < 0) return 'Just now'
   if (m < 60) return `${m}m ago`
   if (m < 1440) return `${Math.floor(m / 60)}h ago`
   return `${Math.floor(m / 1440)}d ago`
@@ -73,157 +14,234 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch data
-  const [{ data: profile }, { data: reviewList }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase.from('reviews').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+  const [
+    { data: profile },
+    { data: recentReviews },
+    { count: totalReviews },
+    { count: highFindings },
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('full_name, subscription_tier, usage_limit, current_usage')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('reviews')
+      .select('id, pr_title, repo_full_name, pr_number, merge_decision, findings_count, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id),
+    supabase
+      .from('findings')
+      .select('id, reviews!inner(user_id)', { count: 'exact', head: true })
+      .eq('severity', 'HIGH')
+      .eq('reviews.user_id', user.id),
   ])
 
-  // 🗓️ Monthly Reset Logic (Lazy)
-  const lastReset = new Date(profile?.last_usage_reset_at || profile?.created_at || Date.now())
-  const isNewMonth = lastReset.getMonth() !== new Date().getMonth() || lastReset.getFullYear() !== new Date().getFullYear()
-
-  if (isNewMonth) {
-    await supabase.from('profiles').update({
-      current_usage: 0,
-      last_usage_reset_at: new Date().toISOString()
-    }).eq('id', user.id)
-  }
-
-  const stats = profile?.github_token ? await getGitHubStats(safeDecrypt(profile.github_token) ?? '') : null
-  const displayName = profile?.full_name || stats?.login || user.email?.split('@')[0]
   const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
-  
-  // Usage limit: read from profile (set by billing), fallback 10 for free
-  const usageLimit = tier === 'PRO' ? Infinity : (profile?.usage_limit ?? 10)
-  const usageCount = reviewList?.length || 0
+  const rawLimit = profile?.usage_limit ?? 10
+  const usageLimit = rawLimit >= 1000000 ? Infinity : rawLimit
   const isUnlimited = usageLimit === Infinity
-  const prsLeft = isUnlimited ? Infinity : Math.max(0, usageLimit - usageCount)
-  const isOutOfPRs = tier === 'FREE' && prsLeft === 0
-  const usagePercent = isUnlimited ? 0 : Math.min(100, (usageCount / usageLimit) * 100)
-
-  const activityFeed = (reviewList?.slice(0, 5) || []) as DashboardReview[]
+  const usageCount = totalReviews || 0
+  const usagePercent = isUnlimited ? 100 : Math.min(100, (usageCount / (usageLimit as number)) * 100)
+  const remaining = isUnlimited ? null : Math.max(0, (usageLimit as number) - usageCount)
+  const critical = highFindings || 0
 
   return (
     <div className="page-shell">
-      <UpgradeModal show={isOutOfPRs} />
-
-      <div className="page-header" style={{ marginBottom: '3rem', alignItems: 'flex-start', borderBottom: 'none' }}>
+      {/* Header */}
+      <div className="page-header">
         <div>
-          <p className="section-eyebrow" style={{ margin: 0, opacity: 0.7 }}>OVERVIEW</p>
-          <h1 className="page-heading" style={{ fontSize: 42, fontWeight: 700, letterSpacing: '-0.03em', marginTop: 8, background: 'linear-gradient(to right, var(--text-active), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Welcome back, <span style={{ color: 'var(--green)', WebkitTextFillColor: 'initial' }}>{displayName}</span>
-          </h1>
+          <p className="page-title">Overview</p>
+          <h1 className="page-heading">Dashboard</h1>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginTop: 12 }}>
-          <Link href="/billing" className={isOutOfPRs ? 'badge-red' : 'badge-green'} style={{ textDecoration: 'none', fontSize: 10, padding: '6px 12px' }}>{tier} PLAN</Link>
-          <Link href="/repos" className="btn-primary" style={{ fontSize: 11, padding: '10px 20px' }}>Review Controls →</Link>
-        </div>
+        <Link href="/repos" className="btn-primary">+ Connect repo</Link>
       </div>
 
-      <div className="stat-cards-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
+      {/* Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+
         <div className="stat-card">
-          <div className="stat-label">System Status</div>
-          <div className="stat-number green">Online</div>
-          <div className="stat-sub">AI reviews fully operational</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">{isUnlimited ? 'Total Reviews' : 'PRs Remaining'}</div>
-          <div className={`stat-number ${isOutOfPRs ? 'limit-pulse' : 'green'}`}>
-            {isUnlimited ? usageCount : prsLeft}
+          <div className="stat-label">System status</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0 6px' }}>
+            <span className="status-dot-live" />
+            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--green)', fontFamily: 'var(--mono)' }}>Online</span>
           </div>
-          <div className="stat-sub">{usageCount} of {isUnlimited ? '∞' : usageLimit} used this month</div>
+          <div className="stat-sub">Webhook listening</div>
         </div>
+
         <div className="stat-card">
-          <div className="stat-label">Plan Tier</div>
-          <div className="stat-number">{tier}</div>
-          <div className="stat-sub">status: active</div>
+          <div className="stat-label">Total reviews</div>
+          <div className="stat-number">{usageCount}</div>
+          <div className="stat-sub">All time</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-label">Critical caught</div>
+          <div className="stat-number" style={{ color: critical > 0 ? '#f87171' : 'var(--text)' }}>{critical}</div>
+          <div className="stat-sub">High severity findings</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-label">Your plan</div>
+          <div style={{ margin: '10px 0 6px' }}>
+            <span style={{
+              fontSize: 15, fontWeight: 700, fontFamily: 'var(--mono)',
+              color: tier === 'PRO' ? 'var(--green)' : 'var(--text-muted)',
+            }}>{tier}</span>
+          </div>
+          {tier !== 'PRO' && (
+            <Link href="/billing" style={{ fontSize: 11, color: 'var(--green)', textDecoration: 'none', fontFamily: 'var(--mono)' }}>
+              Upgrade to PRO →
+            </Link>
+          )}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '2rem', alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="card-header" style={{ padding: '1.25rem 1.75rem', borderBottom: '1px solid var(--border)' }}>
-              <span className="card-title">Latest Review Activity</span>
-              <Link href="/reviews" style={{ fontSize: 11, color: 'var(--green)', textDecoration: 'none', fontWeight: 500 }}>View all →</Link>
+      {/* Main Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.25rem' }}>
+
+        {/* Activity Feed */}
+        <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card-header">
+            <span className="card-title">Recent PR reviews</span>
+            <Link href="/reviews" className="card-action" style={{ fontSize: 11 }}>View all →</Link>
+          </div>
+
+          {!recentReviews || recentReviews.length === 0 ? (
+            <div className="state-empty">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <polyline points="9 11 12 14 22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </svg>
+              <p>No reviews yet.</p>
+              <p style={{ fontSize: 11 }}>
+                <Link href="/repos" style={{ color: 'var(--green)', textDecoration: 'none' }}>Connect a repo</Link>
+                {' '}and open a pull request.
+              </p>
             </div>
-            
-            {activityFeed.length ? activityFeed.map((review) => (
-              <div key={review.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '1.25rem 1.75rem',
-                borderBottom: '1px solid var(--border)',
-                gap: '1.25rem',
-                transition: 'all var(--transition-fast)',
-                cursor: 'default'
-              }} className="list-item-hover">
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: review.merge_decision === 'APPROVE' ? 'rgba(34, 197, 94, 0.08)' : 'rgba(248, 113, 113, 0.08)',
-                  color: review.merge_decision === 'APPROVE' ? 'var(--green)' : '#f87171',
-                  border: '1px solid currentColor',
-                  boxShadow: review.merge_decision === 'APPROVE' ? '0 0 10px rgba(34, 197, 94, 0.2)' : 'none'
-                }}>
-                  <span style={{ fontSize: 14, fontWeight: 700 }}>{review.merge_decision === 'APPROVE' ? '✓' : '!'}</span>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-active)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {review.pr_title || 'Untitled Pull Request'}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 500 }}>
-                    {review.repo_full_name} · <span style={{ color: 'var(--text-muted)' }}>{review.findings_count || 0} findings</span> · {timeAgo(review.created_at)}
-                  </div>
-                </div>
-                <Link href={review.pr_url || '#'} target="_blank" className="btn-icon" style={{ opacity: 0.6 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
+          ) : (
+            <div>
+              {recentReviews.map(review => {
+                const isApprove = review.merge_decision === 'APPROVE'
+                const barColor = isApprove ? 'var(--green)' : review.findings_count > 2 ? '#f87171' : '#fbbf24'
+
+                return (
+                  <Link
+                    key={review.id}
+                    href={`/reviews/${review.id}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '12px 1.5rem', borderBottom: '1px solid var(--border)',
+                      textDecoration: 'none', transition: 'background 0.12s',
+                    }}
+                    className="review-row-link"
+                  >
+                    <span style={{ width: 3, minHeight: 38, borderRadius: 2, background: barColor, flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {review.pr_title || 'Untitled PR'}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>
+                        {review.repo_full_name} · PR #{review.pr_number} · {timeAgo(review.created_at)}
+                      </div>
+                    </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)',
+                      padding: '3px 9px', borderRadius: 5, flexShrink: 0,
+                      background: isApprove ? 'rgba(34,197,94,0.1)' : 'rgba(248,113,113,0.1)',
+                      color: isApprove ? 'var(--green)' : '#f87171',
+                      border: `1px solid ${isApprove ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                    }}>
+                      {isApprove ? '✓ APPROVE' : '✗ CHANGES'}
+                    </span>
+                  </Link>
+                )
+              })}
+              <div style={{ padding: '10px 1.5rem' }}>
+                <Link href="/reviews" style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', textDecoration: 'none' }}>
+                  See full review history →
                 </Link>
               </div>
-            )) : (
-              <div style={{ padding: '4rem 1rem', textAlign: 'center', color: 'var(--text-dim)', fontSize: 12 }}>
-                No active reviews found.
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="card" style={{ padding: '1.75rem' }}>
-            <div className="card-title" style={{ marginBottom: '1.5rem' }}>Usage Insight</div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 600, fontFamily: 'var(--mono)' }}>MONTHLY CAPACITY</span>
-              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)' }}>{usageCount} / {isUnlimited ? '∞' : usageLimit}</span>
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+          {/* Usage */}
+          <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
+              <span style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Monthly usage
+              </span>
+              <span style={{ fontSize: 12, fontFamily: 'var(--mono)', color: 'var(--text)' }}>
+                {usageCount} / {isUnlimited ? '∞' : usageLimit}
+              </span>
             </div>
 
-            <div style={{ height: 6, background: 'rgba(34, 197, 94, 0.05)', borderRadius: 10, overflow: 'hidden', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
-              <div style={{ 
-                width: `${usagePercent}%`, 
-                height: '100%', 
-                background: 'var(--green)', 
-                boxShadow: '0 0 15px var(--green-glow-intense)',
-                borderRadius: 10,
-                transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
+            <div style={{ height: 5, background: 'var(--surface2)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{
+                width: `${isUnlimited ? 100 : usagePercent}%`, height: '100%', borderRadius: 3,
+                background: isUnlimited ? 'var(--green)' : usagePercent > 80 ? '#f87171' : usagePercent > 60 ? '#fbbf24' : 'var(--green)',
+                transition: 'width 0.4s ease',
               }} />
             </div>
 
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '2rem', fontWeight: 450 }}>
-              {isUnlimited 
-                ? "Unlimited agent capacity enabled. Private repo support active."
-                : `You've utilized ${usageCount} of your ${usageLimit} PR reviews for this cycle. Credits refresh automatically on the 1st.`}
-            </p>
+            <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', marginBottom: 14, lineHeight: 1.5 }}>
+              {isUnlimited
+                ? 'Unlimited reviews included'
+                : remaining === 0
+                  ? <span style={{ color: '#f87171' }}>Limit reached — upgrade to continue</span>
+                  : <>{remaining} reviews remaining{(remaining ?? 0) <= 3 && <span style={{ color: '#fbbf24', marginLeft: 8 }}>· Running low</span>}</>
+              }
+            </div>
 
-            <Link href="/billing" className="btn-ghost" style={{ width: '100%', fontSize: 11, textAlign: 'center', textDecoration: 'none', padding: '8px' }}>
-              {isOutOfPRs ? "Unlock Unlimited Reviews" : "Manage Subscription"}
-            </Link>
+            {tier !== 'PRO' && (
+              <Link href="/billing" className="btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}>
+                Upgrade to PRO — Unlimited
+              </Link>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+            <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+              Quick actions
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {[
+                { href: '/repos', label: 'Connect repository', icon: '⎇' },
+                { href: '/knowledge', label: 'Update knowledge base', icon: '◉' },
+                { href: '/reviews', label: 'View all reviews', icon: '▤' },
+                { href: '/billing', label: 'Manage billing', icon: '◈' },
+              ].map(a => (
+                <Link
+                  key={a.href}
+                  href={a.href}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 12px', borderRadius: 8,
+                    background: 'var(--surface2)', border: '1px solid var(--border)',
+                    color: 'var(--text-muted)', fontSize: 12, textDecoration: 'none',
+                    fontFamily: 'var(--mono)', transition: 'all 0.15s',
+                  }}
+                  className="quick-action-link"
+                >
+                  <span style={{ color: 'var(--green)', fontSize: 14, width: 18, textAlign: 'center', flexShrink: 0 }}>{a.icon}</span>
+                  {a.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   )
 }
