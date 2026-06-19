@@ -1,7 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import FileTreeNav from './FileTreeNav'
+import FindingActions from './FindingActions'
+import CopyReviewButton from './CopyReviewButton'
 import Link from 'next/link'
+import { renderMarkdown } from '@/utils/renderMarkdown'
 
 type Finding = {
   id: string
@@ -91,11 +94,15 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
   return (
     <div className="page-shell">
 
-      {/* Back nav */}
-      <Link href="/reviews" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none', fontFamily: 'var(--mono)', marginBottom: 16 }}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-        All Reviews
-      </Link>
+      {/* Breadcrumb */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', marginBottom: 16 }}>
+        <Link href="/reviews" style={{ color: 'var(--text-dim)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          AI Reviews
+        </Link>
+        <span style={{ opacity: 0.4 }}>/</span>
+        <span style={{ color: 'var(--text-muted)' }}>PR #{review.pr_number}</span>
+      </div>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -110,7 +117,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
             <span>{timeAgo(review.created_at)}</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
           <span style={{
             fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)',
             color: decisionColor, background: decisionBg,
@@ -119,6 +126,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
           }}>
             {isApprove ? '✓ APPROVE' : '✗ REQUEST CHANGES'}
           </span>
+          <CopyReviewButton findings={allFindings} review={review} />
           {review.pr_url && (
             <Link href={review.pr_url} target="_blank" rel="noopener noreferrer"
               className="btn-secondary" style={{ fontSize: 11, textDecoration: 'none', gap: 5 }}>
@@ -254,9 +262,10 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
                             {f.severity}
                           </span>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 13, color: 'var(--text)', margin: '0 0 6px', lineHeight: 1.6 }}>
-                              {f.message}
-                            </p>
+                            <p
+                              style={{ fontSize: 13, color: 'var(--text)', margin: '0 0 6px', lineHeight: 1.6 }}
+                              dangerouslySetInnerHTML={{ __html: renderMarkdown(f.message) }}
+                            />
                             <p style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--text-dim)', margin: 0, lineHeight: 1.8 }}>
                               {f.file_path}{f.line_number ? `:${f.line_number}` : ''}
                               {f.source ? ` · ${f.source}` : ''}
@@ -272,6 +281,16 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
                                 {f.suggestion}
                               </pre>
                             )}
+                            <FindingActions
+                              message={f.message}
+                              suggestion={f.suggestion}
+                              severity={f.severity}
+                              category={f.category}
+                              confidence={f.confidence}
+                              filePath={f.file_path}
+                              lineNumber={f.line_number}
+                              prUrl={review.pr_url}
+                            />
                           </div>
                         </div>
                       </div>
@@ -323,6 +342,16 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
           </div>
         </div>
       )}
+
+      {/* Trust copy */}
+      <div style={{ marginTop: '2.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2" style={{ flexShrink: 0 }}>
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <p style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)', margin: 0 }}>
+          Code is analyzed and immediately discarded — never stored, never used for training.
+        </p>
+      </div>
     </div>
   )
 }
