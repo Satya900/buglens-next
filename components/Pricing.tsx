@@ -7,15 +7,15 @@ const plans = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "Perfect for students and early explorers.",
+    description: "One repo. 50 AI reviews per month. No credit card.",
     features: [
       "1 repository",
       "50 AI reviews / month",
-      "Generic review only",
-      "Community support",
+      "8 deterministic rules, every PR",
+      "Inline PR comments on GitHub",
       "Public repos only",
     ],
-    buttonText: "Start for Free",
+    buttonText: "Start for free",
     link: "/login",
     featured: false,
     comingSoon: false,
@@ -24,11 +24,11 @@ const plans = [
     name: "Starter",
     price: "$19",
     period: "per month",
-    description: "Advanced context-aware AI reviews for growing teams.",
+    description: "Context-aware reviews using your own codebase. Private repos included.",
     features: [
       "Unlimited AI reviews",
-      "Support for private repositories",
-      "Shadow mode (silent analysis)",
+      "Private repositories",
+      "Knowledge base — teach BugLens your conventions",
       "Priority analysis queue",
       "Email support",
     ],
@@ -41,15 +41,15 @@ const plans = [
     name: "Team",
     price: "$49",
     period: "per seat / month",
-    description: "Organization-wide AI reviews for scaling engineering teams.",
+    description: "Organization-wide install. Custom AI standards. Slack alerts on every review.",
     features: [
       "Everything in Starter",
       "Custom AI coding standards",
-      "Slack & Discord integrations",
+      "Slack & Discord notifications",
       "Organization-wide installation",
       "Priority Slack support",
     ],
-    buttonText: "Join Waitlist",
+    buttonText: "Join waitlist",
     link: "mailto:founder@buglens.app?subject=Team Plan Waitlist",
     featured: false,
     comingSoon: true,
@@ -60,8 +60,8 @@ const Pricing = () => {
   return (
     <section className="section" id="pricing">
       <div className="section-eyebrow">{"// pricing"}</div>
-      <h2 className="section-title">Scale your<br /><em>engineering quality</em></h2>
-      <p className="section-sub">Simple, transparent pricing for teams of all sizes. No hidden fees.</p>
+      <h2 className="section-title">Pick a plan.<br /><em>Ship better code.</em></h2>
+      <p className="section-sub">Free to start. Paid plans unlock private repos, unlimited reviews, and context-aware analysis. Cancel any time.</p>
 
       <div className="pricing-grid">
         {plans.map((plan) => (
