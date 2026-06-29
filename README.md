@@ -1,6 +1,6 @@
 ## BugLens.app
 
-### DATE - 09-04-2026
+### DATE - 29-06-2026
 
 Marketing site and blog for BugLens, built with Next.js 16.
 
