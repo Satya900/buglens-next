@@ -19,6 +19,7 @@ export default async function Navbar() {
         <li><Link href="/pricing/">Pricing</Link></li>
         <li><Link href="/oss-program">OSS Program</Link></li>
         <li><Link href="/changelog">Changelog</Link></li>
+        <li><Link href="/for-agents" className="nav-agents-link">For Agents <span className="nav-agents-badge">New</span></Link></li>
       </ul>
       {user ? (
         <div className="nav-profile-group">
@@ -28,7 +29,7 @@ export default async function Navbar() {
           </form>
         </div>
       ) : (
-        <Link className="nav-cta" href="/login">Get Started →</Link>
+        <a href="/login" className="nav-cta">Get started</a>
       )}
     </nav>
   );

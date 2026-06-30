@@ -1,14 +1,18 @@
+import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import Terminal from "@/components/Terminal";
-import ReviewPreview from "@/components/ReviewPreview";
+import PRDemoSection from "@/components/PRDemoSection";
+import PainSection from "@/components/PainSection";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
 import KnowledgeBaseSection from "@/components/KnowledgeBaseSection";
 import Pricing from "@/components/Pricing";
-import Blog from "@/components/Blog";
-import Newsletter from "@/components/Newsletter";
-import ClosingCTA from "@/components/ClosingCTA";
+import Security from "@/components/Security";
 import { siteConfig } from "@/lib/site";
+
+const Blog       = dynamic(() => import("@/components/Blog"));
+const Newsletter = dynamic(() => import("@/components/Newsletter"));
+const ClosingCTA = dynamic(() => import("@/components/ClosingCTA"));
 
 export default function Home() {
   const jsonLd = {
@@ -19,45 +23,28 @@ export default function Home() {
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web",
     url: siteConfig.url,
-    author: {
-      "@type": "Person",
-      name: siteConfig.creator,
-    },
+    author: { "@type": "Person", name: siteConfig.creator },
     publisher: {
       "@type": "Organization",
       name: siteConfig.name,
-      logo: {
-        "@type": "ImageObject",
-        url: `${siteConfig.url}/BUGLENS_Llogo.png`,
-      },
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}/BUGLENS_Llogo.png` },
     },
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      availability: "https://schema.org/OnlineOnly",
-    },
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/OnlineOnly" },
   };
 
   return (
     <main>
-      {/* 1. Hero — bold promise + mechanism */}
       <Hero />
-      {/* 2. Live demo — terminal install + review preview */}
       <Terminal />
-      <ReviewPreview />
-      {/* 3. Feature grid */}
+      <PRDemoSection />
+      <PainSection />
       <Features />
-      {/* 4. How it works — numbered steps */}
       <HowItWorks />
-      {/* 4b. Deep feature — Knowledge Base / Lessons */}
       <KnowledgeBaseSection />
-      {/* 5. Pricing */}
       <Pricing />
-      {/* Blog + Newsletter */}
+      <Security />
       <Blog />
       <Newsletter />
-      {/* 6. Closing CTA — echoes hero promise */}
       <ClosingCTA />
       <script
         type="application/ld+json"

@@ -19,14 +19,14 @@ export default async function BlogIndexPage() {
   return (
     <main className="blog-page">
       <section className="blog-container blog-shell">
-        <div className="blog-hero-refined">
-          <span className="section-eyebrow">{"// journal"}</span>
-          <h1 className="blog-title-main">
-            BugLens <em>Journal</em>
-          </h1>
-          <p className="blog-desc-main">
-            Deep dives into building professional code review agents — from
-            agentic RAG to the security of large-scale code analysis.
+        <div className="bl-hero">
+          <div className="bl-hero-left">
+            <span className="section-eyebrow">{"// journal"}</span>
+            <h1 className="bl-hero-title">BugLens <em>Journal</em></h1>
+          </div>
+          <p className="bl-hero-desc">
+            Engineering notes on AI code review, agentic systems,
+            and the infrastructure behind BugLens.
           </p>
         </div>
 

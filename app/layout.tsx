@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
-
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react"
 import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -60,7 +73,6 @@ export const metadata: Metadata = {
     icon: "/BUGLENS_Llogo.png",
     apple: "/BUGLENS_Llogo.png",
   },
-
   verification: {
     google: "2hBpANs5oMr3M_eJtuQFjx-dvCrNfLzr4qka_EjwzfQ",
   },
@@ -87,7 +99,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
         <script
           type="application/ld+json"
@@ -98,9 +110,7 @@ export default function RootLayout({
         </Suspense>
         {children}
         <Analytics />
-
       </body>
     </html>
   );
 }
-
