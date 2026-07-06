@@ -1,8 +1,17 @@
 import Pricing from "@/components/Pricing";
 
 export const metadata = {
-  title: 'Pricing | BugLens',
-  description: 'Simple, transparent pricing for teams of all sizes.',
+  title: 'Pricing',
+  description: 'Simple, transparent pricing for teams of all sizes. Free plan, $19/mo Starter, and Team plans. AI code review for every GitHub PR.',
+  alternates: {
+    canonical: 'https://buglens.app/pricing/',
+  },
+  openGraph: {
+    title: 'Pricing | BugLens',
+    description: 'Free plan, $19/mo Starter, and Team plans. AI code review for every GitHub PR.',
+    url: 'https://buglens.app/pricing/',
+    type: 'website',
+  },
 };
 
 export default function PricingPage() {

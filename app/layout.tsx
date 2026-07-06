@@ -83,28 +83,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "BugLens",
-    operatingSystem: "GitHub",
-    applicationCategory: "DeveloperApplication",
-    offers: {
-      "@type": "AggregateOffer",
-      lowPrice: "0",
-      highPrice: "19",
-      priceCurrency: "USD",
-    },
-    description: "AI senior reviewer for GitHub PRs that catches bugs and style violations.",
-  };
-
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <Suspense fallback={null}>
           <NavigationProgress />
         </Suspense>

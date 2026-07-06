@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/blog/",
   },
+  openGraph: {
+    title: "BugLens Journal — Engineering Notes on AI Code Review",
+    description: "Engineering notes from building BugLens, covering AI code review, retrieval systems, security analysis, and product architecture.",
+    url: "https://buglens.app/blog/",
+    type: "website",
+  },
 };
 
 export default async function BlogIndexPage() {

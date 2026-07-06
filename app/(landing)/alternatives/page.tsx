@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/alternatives/",
   },
+  openGraph: {
+    title: "CodeRabbit Alternative | Why BugLens is better for deep PR reviews",
+    description: "Compare BugLens vs CodeRabbit and other AI code review tools. See why our context-aware senior reviewer catches more bugs.",
+    url: "https://buglens.app/alternatives/",
+    type: "website",
+  },
 };
 
 const comparisons = [
