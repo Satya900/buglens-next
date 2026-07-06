@@ -11,7 +11,9 @@ const tabs = [
     visual: (
       <div className="kb-visual-chat">
         <div className="kb-chat-msg kb-chat-bot">
-          <div className="kb-chat-avatar">BL</div>
+          <div className="kb-chat-avatar kb-chat-avatar-bl">
+            <img src="/BUGLENS_Llogo.png" alt="BugLens" className="kb-bl-logo" />
+          </div>
           <div className="kb-chat-bubble">
             <strong>Line 42:</strong> Hardcoded API key detected. Move to environment variable.
           </div>
