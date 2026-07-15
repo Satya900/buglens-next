@@ -82,7 +82,7 @@
 .repo-card:hover {
   border-color: var(--green);
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .repo-card::before {
@@ -147,9 +147,9 @@
   font-weight: bold;
 }
 
-.health-badge.high { background: var(--green-muted); color: var(--green); }
-.health-badge.med { background: rgba(250, 204, 21, 0.1); color: #facc15; }
-.health-badge.low { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+.health-badge.high { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+.health-badge.med { background: rgba(250, 204, 21, 0.1); color: var(--warning-soft); }
+.health-badge.low { background: rgba(248, 113, 113, 0.1); color: var(--error-soft); }
 
 .repo-stats {
   display: grid;
@@ -198,7 +198,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--success);
 }
 
 .repo-actions {
@@ -267,7 +267,7 @@
 }
 
 .error-state {
-  color: #f87171;
+  color: var(--error-soft);
 }
 
 .error-hint {
@@ -284,7 +284,7 @@
 .private-badge {
   padding: 2px 8px;
   background: rgba(250, 204, 21, 0.1);
-  color: #facc15;
+  color: var(--warning-soft);
   border: 1px solid rgba(250, 204, 21, 0.2);
   border-radius: 4px;
   font-size: 10px;
@@ -301,4 +301,4 @@
   margin-top: -0.5rem;
 }
 
-.text-red { color: #f87171; }
+.text-red { color: var(--error-soft); }

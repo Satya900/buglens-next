@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import NProgress from 'nprogress'
 
 NProgress.configure({
@@ -13,9 +13,14 @@ NProgress.configure({
 
 export default function NavigationProgress() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const prevPathname = useRef(pathname)
-  const prevSearch = useRef(searchParams.toString())
+  const prevSearch = useRef('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      prevSearch.current = window.location.search
+    }
+  }, [])
 
   // Start bar on click of any <a> that leads to a different route
   useEffect(() => {
@@ -36,13 +41,13 @@ export default function NavigationProgress() {
 
   // Stop bar when route actually changes
   useEffect(() => {
-    const currentSearch = searchParams.toString()
+    const currentSearch = typeof window !== 'undefined' ? window.location.search : ''
     if (pathname !== prevPathname.current || currentSearch !== prevSearch.current) {
       NProgress.done()
       prevPathname.current = pathname
       prevSearch.current = currentSearch
     }
-  }, [pathname, searchParams])
+  }, [pathname])
 
   return null
 }

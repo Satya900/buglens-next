@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BugLensMark from "@/components/BugLensMark";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function BlogNavbar() {
   return (
@@ -22,9 +23,12 @@ export default function BlogNavbar() {
           </a>
         </div>
 
-        <Link className="blog-nav-cta" href="/login">
-          Start for Free
-        </Link>
+        <div className="blog-nav-right">
+          <ThemeToggle />
+          <Link className="blog-nav-cta" href="/login">
+            Start for Free
+          </Link>
+        </div>
       </nav>
     </header>
   );

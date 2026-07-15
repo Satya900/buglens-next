@@ -74,7 +74,7 @@ const Pricing = () => {
             )}
 
             <div className="price-name">
-              {plan.name}{plan.comingSoon && <span style={{ fontSize: '0.65em', opacity: 0.6 }}> (Soon)</span>}
+              {plan.name}{plan.comingSoon && <span className="price-name-soon"> (Soon)</span>}
             </div>
 
             <div className="price-val-wrap">
@@ -98,7 +98,6 @@ const Pricing = () => {
             <a
               href={plan.link}
               className={`price-btn ${plan.featured ? 'price-btn-primary' : 'price-btn-ghost'} ${plan.comingSoon ? 'disabled' : ''}`}
-              style={plan.comingSoon ? { pointerEvents: 'none', opacity: 0.5 } : {}}
             >
               {plan.buttonText}
             </a>

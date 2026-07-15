@@ -141,9 +141,9 @@ export default function OnboardingPage() {
           max-width: 520px;
           background: var(--surface);
           border: 1px solid var(--border-bright);
-          border-radius: 20px;
+          border-radius: 16px;
           padding: 4rem 3rem;
-          box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
           position: relative;
           overflow: hidden;
         }
@@ -205,7 +205,7 @@ export default function OnboardingPage() {
         .progress-step.active .step-number {
           background: var(--green);
           border-color: var(--green);
-          color: #000;
+          color: var(--on-primary);
           box-shadow: 0 0 20px var(--green-glow);
           transform: scale(1.1);
         }

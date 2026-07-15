@@ -64,7 +64,7 @@ export default function AlternativesPage() {
         </p>
       </section>
 
-      <section className="section py-0">
+      <section className="section section-flush">
         <div className="comparison-table-wrap">
           <table className="comparison-table">
             <thead>
@@ -93,9 +93,9 @@ export default function AlternativesPage() {
         </div>
       </section>
 
-      <section className="section text-center">
+      <section className="section alt-cta">
          <h2 className="section-title">Ready to level up your code reviews?</h2>
-         <p className="section-sub mx-auto">
+         <p className="section-sub">
            Join the 500+ developers shipping more reliable code with BugLens.
          </p>
          <div className="hero-actions">

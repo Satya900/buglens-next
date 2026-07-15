@@ -82,7 +82,7 @@ export default async function DashboardPage() {
 
         <div className="stat-card">
           <div className="stat-label">Critical caught</div>
-          <div className="stat-number" style={{ color: critical > 0 ? '#f87171' : 'var(--text)' }}>{critical}</div>
+          <div className="stat-number" style={{ color: critical > 0 ? 'var(--error-soft)' : 'var(--text)' }}>{critical}</div>
           <div className="stat-sub">High severity findings</div>
         </div>
 
@@ -128,7 +128,7 @@ export default async function DashboardPage() {
             <div>
               {recentReviews.map(review => {
                 const isApprove = review.merge_decision === 'APPROVE'
-                const barColor = isApprove ? 'var(--green)' : review.findings_count > 2 ? '#f87171' : '#fbbf24'
+                const barColor = isApprove ? 'var(--green)' : review.findings_count > 2 ? 'var(--error-soft)' : 'var(--warning-soft-2)'
 
                 return (
                   <Link
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                       fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)',
                       padding: '3px 9px', borderRadius: 5, flexShrink: 0,
                       background: isApprove ? 'rgba(34,197,94,0.1)' : 'rgba(248,113,113,0.1)',
-                      color: isApprove ? 'var(--green)' : '#f87171',
+                      color: isApprove ? 'var(--green)' : 'var(--error-soft)',
                       border: `1px solid ${isApprove ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'}`,
                     }}>
                       {isApprove ? '✓ APPROVE' : '✗ CHANGES'}
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
             <div style={{ height: 5, background: 'var(--surface2)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
               <div style={{
                 width: `${isUnlimited ? 100 : usagePercent}%`, height: '100%', borderRadius: 3,
-                background: isUnlimited ? 'var(--green)' : usagePercent > 80 ? '#f87171' : usagePercent > 60 ? '#fbbf24' : 'var(--green)',
+                background: isUnlimited ? 'var(--green)' : usagePercent > 80 ? 'var(--error-soft)' : usagePercent > 60 ? 'var(--warning-soft-2)' : 'var(--green)',
                 transition: 'width 0.4s ease',
               }} />
             </div>
@@ -197,8 +197,8 @@ export default async function DashboardPage() {
               {isUnlimited
                 ? 'Unlimited reviews included'
                 : remaining === 0
-                  ? <span style={{ color: '#f87171' }}>Limit reached — upgrade to continue</span>
-                  : <>{remaining} reviews remaining{(remaining ?? 0) <= 3 && <span style={{ color: '#fbbf24', marginLeft: 8 }}>· Running low</span>}</>
+                  ? <span style={{ color: 'var(--error-soft)' }}>Limit reached — upgrade to continue</span>
+                  : <>{remaining} reviews remaining{(remaining ?? 0) <= 3 && <span style={{ color: 'var(--warning-soft-2)', marginLeft: 8 }}>· Running low</span>}</>
               }
             </div>
 

@@ -57,10 +57,10 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 // ─── Badge ─────────────────────────────────────────────────────────────────────
 function Badge({ text, color }: { text: string; color: string }) {
   const colors: Record<string, { bg: string; text: string }> = {
-    green: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e' },
-    yellow: { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-    red: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444' },
-    gray: { bg: 'rgba(148,163,184,0.1)', text: '#94a3b8' },
+    green: { bg: 'rgba(16,185,129,0.15)', text: 'var(--success)' },
+    yellow: { bg: 'rgba(245,158,11,0.15)', text: 'var(--warning)' },
+    red: { bg: 'rgba(239,68,68,0.15)', text: 'var(--error)' },
+    gray: { bg: 'var(--surface-strong)', text: 'var(--muted)' },
   }
   const c = colors[color] || colors.gray
   return (
@@ -160,8 +160,8 @@ function UsersSection({ users, onTierChange }: {
         />
         {(['ALL', 'PRO', 'FREE'] as const).map(t => (
           <button key={t} onClick={() => setFilterTier(t)} style={{
-            background: filterTier === t ? 'var(--green)' : 'var(--surface)',
-            color: filterTier === t ? '#000' : 'var(--text)',
+            background: filterTier === t ? 'var(--primary)' : 'var(--surface)',
+            color: filterTier === t ? 'var(--on-primary)' : 'var(--text)',
             border: '1px solid var(--border)', borderRadius: 6,
             padding: '8px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
           }}>{t}</button>
@@ -188,7 +188,7 @@ function UsersSection({ users, onTierChange }: {
                 <td style={{ padding: '10px 14px' }}>
                   {u.subscription_tier === 'FREE' ? (
                     <button onClick={() => onTierChange(u.id, 'PRO')} style={{
-                      background: 'var(--green)', color: '#000', border: 'none', borderRadius: 5,
+                      background: 'var(--green)', color: 'var(--on-primary)', border: 'none', borderRadius: 5,
                       padding: '4px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     }}>→ PRO</button>
                   ) : (
@@ -219,8 +219,8 @@ function ReviewsSection({ reviews }: { reviews: AdminData['recentReviews'] }) {
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {(['ALL', 'APPROVE', 'REQUEST_CHANGES', 'COMMENT'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
-            background: filter === f ? 'var(--green)' : 'var(--surface)',
-            color: filter === f ? '#000' : 'var(--text)',
+            background: filter === f ? 'var(--primary)' : 'var(--surface)',
+            color: filter === f ? 'var(--on-primary)' : 'var(--text)',
             border: '1px solid var(--border)', borderRadius: 6,
             padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer',
           }}>{f.replace('_', ' ')}</button>
@@ -281,8 +281,8 @@ function OSSSection({ apps, onApprove, onReject }: {
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {(['pending', 'approved', 'rejected'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
-            background: filter === f ? 'var(--green)' : 'var(--surface)',
-            color: filter === f ? '#000' : 'var(--text)',
+            background: filter === f ? 'var(--primary)' : 'var(--surface)',
+            color: filter === f ? 'var(--on-primary)' : 'var(--text)',
             border: '1px solid var(--border)', borderRadius: 6,
             padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize',
           }}>
@@ -304,7 +304,7 @@ function OSSSection({ apps, onApprove, onReject }: {
               color: 'var(--text)', fontSize: 13, padding: '8px 10px', boxSizing: 'border-box', resize: 'vertical' }} />
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <button onClick={() => { onReject(rejectId, reason); setRejectId(null); setReason('') }} style={{
-              background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
+              background: 'rgba(239,68,68,0.15)', color: 'var(--error)', border: '1px solid rgba(239,68,68,0.3)',
               borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>Confirm Reject</button>
             <button onClick={() => { setRejectId(null); setReason('') }} style={{
@@ -326,7 +326,7 @@ function OSSSection({ apps, onApprove, onReject }: {
                     style={{ color: 'var(--green)', fontSize: 12, textDecoration: 'none' }}>
                     {app.repo_name}
                   </a>
-                  {app.stars != null && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>⭐ {app.stars}</span>}
+                  {app.stars != null && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{app.stars} stars</span>}
                   {app.license && <Badge text={app.license} color="gray" />}
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{app.email}</p>
@@ -337,16 +337,16 @@ function OSSSection({ apps, onApprove, onReject }: {
                   {app.approved_at && ` · Approved ${new Date(app.approved_at).toLocaleDateString()}`}
                   {app.rejected_at && ` · Rejected ${new Date(app.rejected_at).toLocaleDateString()}`}
                 </p>
-                {app.rejection_reason && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>Reason: {app.rejection_reason}</p>}
+                {app.rejection_reason && <p style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>Reason: {app.rejection_reason}</p>}
               </div>
               {app.status === 'pending' && (
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <button onClick={() => onApprove(app.id)} style={{
-                    background: 'var(--green)', color: '#000', border: 'none', borderRadius: 6,
+                    background: 'var(--green)', color: 'var(--on-primary)', border: 'none', borderRadius: 6,
                     padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                   }}>✓ Approve</button>
                   <button onClick={() => setRejectId(app.id)} style={{
-                    background: 'rgba(239,68,68,0.1)', color: '#ef4444',
+                    background: 'rgba(239,68,68,0.1)', color: 'var(--error)',
                     border: '1px solid rgba(239,68,68,0.3)', borderRadius: 6,
                     padding: '6px 14px', fontSize: 12, cursor: 'pointer',
                   }}>✗ Reject</button>
@@ -389,9 +389,9 @@ function AnalyticsSection({ analytics, stats }: { analytics: AdminData['analytic
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 12 }}>Severity Split</p>
           {[
-            { label: 'HIGH', count: severitySplit.HIGH, color: '#ef4444' },
-            { label: 'MEDIUM', count: severitySplit.MEDIUM, color: '#eab308' },
-            { label: 'LOW', count: severitySplit.LOW, color: '#22c55e' },
+            { label: 'HIGH', count: severitySplit.HIGH, color: 'var(--error)' },
+            { label: 'MEDIUM', count: severitySplit.MEDIUM, color: 'var(--warning)' },
+            { label: 'LOW', count: severitySplit.LOW, color: 'var(--success)' },
           ].map(s => (
             <div key={s.label} style={{ marginBottom: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -471,7 +471,10 @@ function HealthSection({ stats }: { stats: AdminData['stats'] }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{m.label}</p>
-              <span style={{ fontSize: 14 }}>{m.ok ? '✅' : '⚠️'}</span>
+              <span style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: m.ok ? 'var(--success)' : 'var(--warning)',
+              }} />
             </div>
             <p style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>{m.value}</p>
           </div>
@@ -550,13 +553,13 @@ export default function AdminDashboard() {
     })
   }
 
-  const navItems: { id: Section; label: string; icon: string }[] = [
-    { id: 'overview', label: 'Overview', icon: '⬡' },
-    { id: 'users', label: 'Users', icon: '👤' },
-    { id: 'reviews', label: 'Reviews', icon: '🔍' },
-    { id: 'oss', label: 'OSS Apps', icon: '📋' },
-    { id: 'analytics', label: 'Analytics', icon: '📊' },
-    { id: 'health', label: 'Health', icon: '💚' },
+  const navItems: { id: Section; label: string }[] = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'users', label: 'Users' },
+    { id: 'reviews', label: 'Reviews' },
+    { id: 'oss', label: 'OSS Apps' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'health', label: 'Health' },
   ]
 
   return (
@@ -588,7 +591,7 @@ export default function AdminDashboard() {
               alignItems: 'center',
               gap: 10,
               padding: '10px 16px',
-              background: section === item.id ? 'rgba(34,197,94,0.08)' : 'transparent',
+              background: section === item.id ? 'var(--green-glow-intense)' : 'transparent',
               color: section === item.id ? 'var(--green)' : 'var(--text-muted)',
               border: 'none',
               borderLeft: `3px solid ${section === item.id ? 'var(--green)' : 'transparent'}`,
@@ -598,13 +601,12 @@ export default function AdminDashboard() {
               textAlign: 'left',
               transition: 'all 0.12s',
             }}>
-              <span style={{ fontSize: 14 }}>{item.icon}</span>
               {item.label}
               {item.id === 'oss' && data && data.stats.pendingOSS > 0 && (
                 <span style={{
                   marginLeft: 'auto',
                   background: 'var(--green)',
-                  color: '#000',
+                  color: 'var(--on-primary)',
                   fontSize: 10,
                   fontWeight: 700,
                   borderRadius: 99,
@@ -631,7 +633,7 @@ export default function AdminDashboard() {
           </div>
         )}
         {error && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: 16, color: '#ef4444', fontSize: 13 }}>
+          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: 16, color: 'var(--error)', fontSize: 13 }}>
             {error}
           </div>
         )}
@@ -655,7 +657,7 @@ export default function AdminDashboard() {
       )}
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 20, right: 20, background: 'var(--green)', color: '#000', borderRadius: 8, padding: '10px 18px', fontSize: 13, fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.5)', zIndex: 100 }}>
+        <div style={{ position: 'fixed', bottom: 20, right: 20, background: 'var(--primary)', color: 'var(--on-primary)', borderRadius: 8, padding: '10px 18px', fontSize: 13, fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 100 }}>
           {toast}
         </div>
       )}

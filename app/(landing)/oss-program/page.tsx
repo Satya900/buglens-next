@@ -7,32 +7,26 @@ export const metadata = {
 
 const BENEFITS = [
   {
-    icon: '🤖',
     title: '6 Months Pro — Free',
     desc: 'Full Pro plan access, no credit card. Renew every 6 months as long as your project stays active.',
   },
   {
-    icon: '🔍',
     title: 'Unlimited PR Reviews',
     desc: 'No monthly cap. Every pull request gets a full AI review with inline comments and severity scoring.',
   },
   {
-    icon: '✅',
     title: 'GitHub Status Checks',
-    desc: 'BugLens posts a green or red commit status on every PR — integrates directly into your merge workflow.',
+    desc: 'BugLens posts a pass or fail commit status on every PR — integrates directly into your merge workflow.',
   },
   {
-    icon: '📧',
     title: 'Email Digests',
     desc: 'Review summaries delivered to your inbox after every merge. Stay on top of code quality without living in GitHub.',
   },
   {
-    icon: '⚙️',
     title: '.buglens.yml Config',
     desc: 'Configure strictness, ignore patterns, and file caps per-repo with a simple YAML file at your repo root.',
   },
   {
-    icon: '🛡️',
     title: 'README Badge',
     desc: 'Show contributors you take code quality seriously with a "Reviewed by BugLens" badge in your README.',
   },
@@ -54,145 +48,76 @@ const HOW_IT_WORKS = [
 
 export default function OSSProgramPage() {
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--bg, #060a07)', color: 'var(--text, #e8f0e9)' }}>
+    <main>
 
       {/* Hero */}
-      <section style={{ textAlign: 'center', padding: '6rem 2rem 4rem', maxWidth: 800, margin: '0 auto' }}>
-        <div style={{
-          display: 'inline-block',
-          padding: '4px 14px',
-          background: 'rgba(34,197,94,0.1)',
-          border: '1px solid rgba(34,197,94,0.25)',
-          borderRadius: 20,
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: '0.08em',
-          color: 'var(--green, #22c55e)',
-          marginBottom: '1.5rem',
-          fontFamily: 'monospace',
-        }}>
-          OPEN SOURCE PROGRAM
+      <section className="oss-hero">
+        <div className="badge">
+          <span className="badge-dot"></span>
+          Open Source Program
         </div>
-        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '1.5rem' }}>
-          AI Code Reviews for the
-          <br />
-          <span style={{ color: 'var(--green, #22c55e)' }}>Tools Developers Trust</span>
+        <h1 className="hero-title">
+          AI code reviews for the<br /><em>tools developers trust.</em>
         </h1>
-        <p style={{ fontSize: 18, color: 'var(--text-muted, #7a9980)', lineHeight: 1.7, maxWidth: 600, margin: '0 auto 2.5rem' }}>
+        <p className="hero-sub">
           Open source maintainers keep the ecosystem running. BugLens Pro is free for qualifying projects — 6 months, no credit card, renew as long as you ship.
         </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/apply-oss-program" style={{
-            padding: '12px 32px',
-            background: 'var(--green, #22c55e)',
-            color: '#000',
-            borderRadius: 8,
-            fontWeight: 700,
-            fontSize: 15,
-            textDecoration: 'none',
-            display: 'inline-block',
-          }}>
-            Apply Now — It's Free
-          </Link>
-          <Link href="/pricing" style={{
-            padding: '12px 32px',
-            background: 'transparent',
-            color: 'var(--text-muted, #7a9980)',
-            borderRadius: 8,
-            fontWeight: 500,
-            fontSize: 15,
-            textDecoration: 'none',
-            border: '1px solid rgba(34,197,94,0.15)',
-            display: 'inline-block',
-          }}>
-            View Pricing
-          </Link>
+        <div className="hero-actions">
+          <Link href="/apply-oss-program" className="btn-primary">Apply Now — It&apos;s Free</Link>
+          <Link href="/pricing" className="btn-secondary">View Pricing</Link>
         </div>
       </section>
 
       {/* Benefits grid */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '4rem 2rem' }}>
-        <h2 style={{ textAlign: 'center', fontSize: 28, fontWeight: 700, marginBottom: '3rem' }}>
-          Everything in Pro, free for 6 months
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <section className="oss-section">
+        <h2 className="oss-section-title">Everything in Pro, free for 6 months</h2>
+        <div className="feat-grid">
           {BENEFITS.map((b) => (
-            <div key={b.title} style={{
-              padding: '1.75rem',
-              background: 'var(--surface, #0d1510)',
-              border: '1px solid rgba(34,197,94,0.1)',
-              borderRadius: 12,
-            }}>
-              <div style={{ fontSize: 28, marginBottom: 12 }}>{b.icon}</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{b.title}</h3>
-              <p style={{ fontSize: 14, color: 'var(--text-muted, #7a9980)', lineHeight: 1.6, margin: 0 }}>{b.desc}</p>
+            <div key={b.title} className="feat-card">
+              <h3 className="feat-name">{b.title}</h3>
+              <div className="feat-desc">{b.desc}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* How it works */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 2rem 5rem' }}>
-        <h2 style={{ textAlign: 'center', fontSize: 28, fontWeight: 700, marginBottom: '3rem' }}>How it works</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+      <section className="oss-how">
+        <h2 className="oss-section-title">How it works</h2>
+        <div className="oss-how-grid">
           {HOW_IT_WORKS.map((h) => (
-            <div key={h.step} style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: 13,
-                fontWeight: 700,
-                fontFamily: 'monospace',
-                color: 'var(--green, #22c55e)',
-                marginBottom: 12,
-                letterSpacing: '0.1em',
-              }}>{h.step}</div>
-              <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{h.title}</h3>
-              <p style={{ fontSize: 14, color: 'var(--text-muted, #7a9980)', lineHeight: 1.6, margin: 0 }}>{h.desc}</p>
+            <div key={h.step}>
+              <div className="hiw-number">{h.step}</div>
+              <h3 className="hiw-title">{h.title}</h3>
+              <p className="hiw-desc">{h.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Eligibility */}
-      <section style={{
-        maxWidth: 700,
-        margin: '0 auto',
-        padding: '3rem 2rem',
-        background: 'var(--surface, #0d1510)',
-        borderTop: '1px solid rgba(34,197,94,0.1)',
-        borderBottom: '1px solid rgba(34,197,94,0.1)',
-      }}>
-        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center' }}>Eligibility</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
+      <section className="oss-eligibility">
+        <h2 className="oss-eligibility-title">Eligibility</h2>
+        <ul className="oss-eligibility-list">
           {ELIGIBILITY.map((e) => (
-            <li key={e} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', fontSize: 14, color: 'var(--text-muted, #7a9980)', lineHeight: 1.6 }}>
-              <span style={{ color: 'var(--green, #22c55e)', fontWeight: 700, flexShrink: 0 }}>✓</span>
+            <li key={e} className="oss-eligibility-item">
+              <span className="oss-eligibility-check">✓</span>
               {e}
             </li>
           ))}
         </ul>
-        <p style={{ fontSize: 13, color: 'var(--text-dim, #4a6650)', marginTop: '1.5rem', textAlign: 'center' }}>
-          We don't gatekeep on stars or age. A new project with a real license and active commits qualifies.
+        <p className="oss-eligibility-note">
+          We don&apos;t gatekeep on stars or age. A new project with a real license and active commits qualifies.
         </p>
       </section>
 
       {/* CTA */}
-      <section style={{ textAlign: 'center', padding: '5rem 2rem' }}>
-        <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: '1rem' }}>Ready to apply?</h2>
-        <p style={{ fontSize: 16, color: 'var(--text-muted, #7a9980)', marginBottom: '2rem' }}>
+      <section className="oss-cta">
+        <h2 className="oss-cta-title">Ready to apply?</h2>
+        <p className="oss-cta-sub">
           Takes under 3 minutes. We review applications within 48 hours.
         </p>
-        <Link href="/apply-oss-program" style={{
-          padding: '14px 40px',
-          background: 'var(--green, #22c55e)',
-          color: '#000',
-          borderRadius: 8,
-          fontWeight: 700,
-          fontSize: 16,
-          textDecoration: 'none',
-          display: 'inline-block',
-        }}>
-          Apply for Free Access →
-        </Link>
+        <Link href="/apply-oss-program" className="btn-primary">Apply for Free Access →</Link>
       </section>
 
     </main>

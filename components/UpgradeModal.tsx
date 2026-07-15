@@ -35,7 +35,7 @@ export default function UpgradeModal({ show }: { show: boolean }) {
         background: 'var(--surface)',
         borderRadius: 20,
         border: '1px solid var(--border)',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5), 0 0 30px var(--green-glow)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 0 30px var(--green-glow)',
         overflow: 'hidden',
         position: 'relative'
       }}>

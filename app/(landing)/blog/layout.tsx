@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Newsletter from "@/components/Newsletter";
-import Footer from "@/components/Footer";
 
 type BlogLayoutProps = Readonly<{
   children: ReactNode;
@@ -11,7 +10,6 @@ export default function BlogLayout({ children }: BlogLayoutProps) {
     <>
       {children}
       <Newsletter />
-      <Footer />
     </>
   );
 }

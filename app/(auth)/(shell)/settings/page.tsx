@@ -33,7 +33,7 @@ export default async function SettingsPage() {
       {/* Danger Zone */}
       <div className="card" style={{ maxWidth: 720, marginTop: '2rem', borderColor: 'rgba(248,113,113,0.2)' }}>
         <div className="card-header">
-          <span className="card-title" style={{ color: '#f87171' }}>Danger Zone</span>
+          <span className="card-title" style={{ color: 'var(--error-soft)' }}>Danger Zone</span>
         </div>
         <div style={{ padding: '2rem' }}>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
@@ -41,7 +41,7 @@ export default async function SettingsPage() {
           </p>
           <button
             className="btn-ghost"
-            style={{ color: '#f87171', borderColor: 'rgba(248,113,113,0.3)' }}
+            style={{ color: 'var(--error-soft)', borderColor: 'rgba(248,113,113,0.3)' }}
             onClick={undefined}
           >
             Delete Account

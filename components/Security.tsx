@@ -1,7 +1,6 @@
 export default function Security() {
   return (
     <>
-      <div className="divider-line" />
       <section className="section" id="security">
         <div className="section-eyebrow">{"// security"}</div>
         <h2 className="section-title">

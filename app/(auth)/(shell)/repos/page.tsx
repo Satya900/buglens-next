@@ -39,9 +39,9 @@ const LANG_COLORS: Record<string, string> = {
 
 function StrictnessChip({ value }: { value: string }) {
   const map: Record<string, { color: string; bg: string; border: string }> = {
-    strict: { color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
-    balanced: { color: 'var(--green)', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)' },
-    relaxed: { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+    strict: { color: 'var(--error-soft)', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
+    balanced: { color: 'var(--success)', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)' },
+    relaxed: { color: 'var(--warning-soft-2)', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
   }
   const s = map[value] || map.balanced
   return (
@@ -63,8 +63,8 @@ function Toggle({ on, loading, onClick }: { on: boolean; loading: boolean; onCli
       title={on ? 'Click to deactivate' : 'Click to activate'}
       style={{
         width: 36, height: 20, borderRadius: 10, border: 'none',
-        background: on ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.07)',
-        outline: `1.5px solid ${on ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)'}`,
+        background: on ? 'var(--success)' : 'var(--surface-strong)',
+        outline: `1.5px solid ${on ? 'var(--success)' : 'var(--hairline)'}`,
         position: 'relative', cursor: loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s', flexShrink: 0, opacity: loading ? 0.5 : 1,
       }}
@@ -72,7 +72,8 @@ function Toggle({ on, loading, onClick }: { on: boolean; loading: boolean; onCli
       <span style={{
         position: 'absolute', width: 14, height: 14, borderRadius: '50%', top: 2,
         left: on ? 18 : 2,
-        background: on ? 'var(--green)' : '#4a6650',
+        background: '#fff',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.15)',
         transition: 'left 0.2s, background 0.2s',
       }} />
     </button>
@@ -267,7 +268,7 @@ export default function RepositoriesPage() {
               <div
                 key={repo.id}
                 style={{
-                  background: 'var(--glass-bg)', borderRadius: 12, padding: '16px 18px',
+                  background: 'var(--canvas)', borderRadius: 12, padding: '16px 18px',
                   border: `1px solid ${isActive ? 'rgba(34,197,94,0.25)' : 'var(--border)'}`,
                   transition: 'border-color 0.2s, background 0.2s',
                   position: 'relative', opacity: isActioning ? 0.7 : 1,
@@ -350,7 +351,7 @@ ict">Strict</option>
                         title="Remove from BugLens"
                         style={{
                           background: 'transparent', border: 'none', cursor: 'pointer',
-                          color: '#f87171', opacity: 0.5, padding: 2,
+                          color: 'var(--error-soft)', opacity: 0.5, padding: 2,
                           display: 'flex', alignItems: 'center', transition: 'opacity 0.15s',
                         }}
                         className="remove-repo-btn"

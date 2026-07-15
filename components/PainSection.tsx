@@ -78,6 +78,7 @@ export default function PainSection() {
         <div className="pain-left">
           <div className="pain-corner pain-corner-tl" />
           <div className="pain-corner pain-corner-bl" />
+          <div className="section-eyebrow">{"// why this matters"}</div>
           <h2 className="pain-title">
             Code reviews were hard before.<br />
             Now, they feel <em>impossible.</em>

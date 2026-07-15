@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react"
+import Script from "next/script";
 import { Analytics } from '@vercel/analytics/react';
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import NavigationProgress from "@/components/NavigationProgress";
 import "./globals.css";
+
+const THEME_INIT_SCRIPT = `
+  try {
+    var t = localStorage.getItem('buglens-theme');
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+    }
+  } catch (e) {}
+`;
 
 const inter = Inter({
   subsets: ["latin"],
@@ -84,8 +94,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" data-theme="dark" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
         <Suspense fallback={null}>
           <NavigationProgress />
         </Suspense>

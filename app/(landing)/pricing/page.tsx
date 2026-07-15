@@ -20,7 +20,7 @@ export default function PricingPage() {
       <Pricing />
       
       {/* Additional information context */}
-      <section className="section py-0">
+      <section className="section section-flush">
           <div className="pricing-info-card">
               <div className="info-badge">Pro Tip</div>
               <h3 className="info-title">Why choose context-aware reviews?</h3>

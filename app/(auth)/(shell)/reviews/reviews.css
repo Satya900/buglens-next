@@ -97,7 +97,7 @@
 }
 
 .reviews-table tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface-soft);
 }
 
 .cell-pr {
@@ -126,13 +126,13 @@
   font-weight: bold;
 }
 
-.severity-pill.critical { background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2); }
-.severity-pill.high { background: rgba(251, 146, 60, 0.1); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.2); }
-.severity-pill.medium { background: rgba(250, 204, 21, 0.1); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.2); }
+.severity-pill.critical { background: rgba(248, 113, 113, 0.1); color: var(--error-soft); border: 1px solid rgba(248, 113, 113, 0.2); }
+.severity-pill.high { background: rgba(251, 146, 60, 0.1); color: var(--badge-orange); border: 1px solid rgba(251, 146, 60, 0.2); }
+.severity-pill.medium { background: rgba(250, 204, 21, 0.1); color: var(--warning-soft); border: 1px solid rgba(250, 204, 21, 0.2); }
 .severity-pill.low { border: 1px solid var(--border-bright); color: var(--text-muted); }
 
-.status-passed { color: var(--green); }
-.status-flagged { color: #f87171; }
+.status-passed { color: var(--success); }
+.status-flagged { color: var(--error-soft); }
 
 .btn-view {
   color: var(--green);

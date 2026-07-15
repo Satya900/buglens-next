@@ -121,7 +121,7 @@ export default function SettingsForm({
               fontSize: 13,
               background: status.type === 'success' ? 'rgba(34,197,94,0.1)' : 'rgba(248,113,113,0.1)',
               border: `1px solid ${status.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(248,113,113,0.3)'}`,
-              color: status.type === 'success' ? '#4ade80' : '#f87171',
+              color: status.type === 'success' ? 'var(--success-soft)' : 'var(--error-soft)',
             }}>
               {status.msg}
             </div>

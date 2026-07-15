@@ -1,7 +1,6 @@
 export default function Features() {
   return (
     <>
-      <div className="divider-line"></div>
       <section className="section" id="features">
         <div className="section-eyebrow">{"// what buglens does"}</div>
         <h2 className="section-title">Catches bugs<br /><em>before your team does.</em></h2>

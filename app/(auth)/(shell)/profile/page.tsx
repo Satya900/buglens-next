@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pb-20">
+    <div className="profile-page">
       <div className="profile-container">
         <div className="profile-card">
           <div className="profile-header">
@@ -56,7 +56,7 @@ export default async function ProfilePage() {
 
             <div className="detail-section">
               <label>Account ID</label>
-              <code className="text-xs text-[var(--text-dim)]">{user.id}</code>
+              <code className="profile-id">{user.id}</code>
             </div>
           </div>
 

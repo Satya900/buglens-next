@@ -1,7 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-
-const DURATION = 5000; // ms per tab
+import { useState } from "react";
 
 const tabs = [
   {
@@ -44,9 +42,9 @@ const tabs = [
     visual: (
       <div className="kb-visual-terminal">
         <div className="kb-term-bar">
-          <span className="kb-term-dot" style={{ background: "#fc5f57" }} />
-          <span className="kb-term-dot" style={{ background: "#fdbc2c" }} />
-          <span className="kb-term-dot" style={{ background: "#33c748" }} />
+          <span className="kb-term-dot t-dot--red" />
+          <span className="kb-term-dot t-dot--yellow" />
+          <span className="kb-term-dot t-dot--green" />
           <span className="kb-term-label">codebase-context.js</span>
         </div>
         <div className="kb-term-body">
@@ -56,7 +54,7 @@ const tabs = [
           <div className="kb-t-line"><span className="kb-t-dim">$</span> fetching context (50 lines each)…</div>
           <div className="kb-t-line kb-t-ok">✓ fetched 2 imported file(s)</div>
           <div className="kb-t-line"><span className="kb-t-dim">$</span> injecting into review prompt…</div>
-          <div className="kb-t-line" style={{ marginTop: "8px", color: "var(--green)" }}>
+          <div className="kb-t-line kb-t-highlight">
             → AI now sees your auth layer
           </div>
         </div>
@@ -90,43 +88,21 @@ const tabs = [
 
 export default function KnowledgeBaseSection() {
   const [active, setActive] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startRef = useRef<number>(Date.now());
-
-  const startTimer = (idx: number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setProgress(0);
-    startRef.current = Date.now();
-    timerRef.current = setInterval(() => {
-      const elapsed = Date.now() - startRef.current;
-      const pct = Math.min((elapsed / DURATION) * 100, 100);
-      setProgress(pct);
-      if (elapsed >= DURATION) {
-        setActive((prev) => (prev + 1) % tabs.length);
-        startRef.current = Date.now();
-        setProgress(0);
-      }
-    }, 30);
-  };
-
-  useEffect(() => {
-    startTimer(active);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [active]);
 
   const handleClick = (idx: number) => {
     if (idx === active) return;
     setActive(idx);
   };
 
+  const advance = () => setActive((prev) => (prev + 1) % tabs.length);
+
   return (
     <section className="section kb-section">
-      <div className="section-eyebrow" style={{ textAlign: "center" }}>{"// intelligence"}</div>
-      <h2 className="section-title" style={{ textAlign: "center" }}>
+      <div className="section-eyebrow kb-section-heading">{"// intelligence"}</div>
+      <h2 className="section-title kb-section-heading">
         Code reviews that<br /><em>learn from you.</em>
       </h2>
-      <p className="section-sub" style={{ textAlign: "center", maxWidth: "520px", margin: "0 auto 3.5rem" }}>
+      <p className="section-sub kb-section-heading kb-section-sub">
         Set your rules once. Reply to flag an edge case. BugLens accumulates context and gets sharper with every PR.
       </p>
 
@@ -145,10 +121,13 @@ export default function KnowledgeBaseSection() {
                 <div className="kb-tab-desc">{tab.desc}</div>
               )}
               <div className="kb-tab-bar">
-                <div
-                  className="kb-tab-bar-fill"
-                  style={{ width: active === i ? `${progress}%` : "0%" }}
-                />
+                {active === i && (
+                  <div
+                    key={active}
+                    className="kb-tab-bar-fill"
+                    onAnimationEnd={advance}
+                  />
+                )}
               </div>
             </button>
           ))}

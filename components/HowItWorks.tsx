@@ -19,7 +19,6 @@ export default function HowItWorks() {
 
   return (
     <>
-      <div className="divider-line" />
       <section className="section" id="how-it-works">
         <div className="section-eyebrow">{"// how it works"}</div>
         <h2 className="section-title">

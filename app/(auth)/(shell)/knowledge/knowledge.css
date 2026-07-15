@@ -128,8 +128,8 @@
   text-transform: uppercase;
 }
 
-.doc-status.active { background: var(--green-muted); color: var(--green); }
-.doc-status.pending { background: rgba(250, 204, 21, 0.1); color: #facc15; }
+.doc-status.active { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+.doc-status.pending { background: rgba(250, 204, 21, 0.1); color: var(--warning-soft); }
 
 .test-query {
   margin-top: 2rem;

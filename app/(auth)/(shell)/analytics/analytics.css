@@ -120,9 +120,9 @@
 }
 
 .segment { height: 100%; }
-.segment.critical { background: #f87171; width: 15%; }
-.segment.high { background: #fb923c; width: 25%; }
-.segment.medium { background: #facc15; width: 40%; }
+.segment.critical { background: var(--error-soft); width: 15%; }
+.segment.high { background: var(--badge-orange); width: 25%; }
+.segment.medium { background: var(--warning-soft); width: 40%; }
 .segment.low { background: var(--border-bright); width: 20%; }
 
 .tag-cloud {

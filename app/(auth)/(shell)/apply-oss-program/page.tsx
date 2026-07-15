@@ -54,7 +54,7 @@ export default async function ApplyOSSProgramPage() {
             border: `1px solid ${existing.status === 'approved'
               ? 'rgba(34,197,94,0.3)' : existing.status === 'rejected'
               ? 'rgba(248,113,113,0.3)' : 'rgba(251,191,36,0.3)'}`,
-            color: existing.status === 'approved' ? '#4ade80' : existing.status === 'rejected' ? '#f87171' : '#fbbf24',
+            color: existing.status === 'approved' ? 'var(--success-soft)' : existing.status === 'rejected' ? 'var(--error-soft)' : 'var(--warning-soft-2)',
             fontSize: 13,
           }}>
             <span style={{ fontWeight: 700 }}>
@@ -74,11 +74,11 @@ export default async function ApplyOSSProgramPage() {
           borderRadius: 10,
           marginBottom: '2rem',
           fontSize: 13,
-          color: 'var(--text-muted, #7a9980)',
+          color: 'var(--text-muted)',
           lineHeight: 1.7,
         }}>
           <strong>What you get:</strong> 6 months Pro free — unlimited reviews, GitHub status checks, inline comments, email digests, .buglens.yml config.
-          {' '}<Link href="/oss-program" style={{ color: 'var(--green, #22c55e)', textDecoration: 'underline' }}>Learn more →</Link>
+          {' '}<Link href="/oss-program" style={{ color: 'var(--green)', textDecoration: 'underline' }}>Learn more →</Link>
         </div>
 
         <OSSForm githubUsername={githubUsername} />

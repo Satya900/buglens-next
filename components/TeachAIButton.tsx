@@ -68,7 +68,7 @@ export default function TeachAIButton({ repoFullName, prTitle }: Props) {
       border: '1px solid var(--border-bright)',
       borderRadius: 8,
       padding: 12,
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4)',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
       marginTop: 8,
     }}>
       <h4 style={{ fontSize: 11, color: 'var(--text)', marginBottom: 8, fontFamily: 'var(--mono)' }}>

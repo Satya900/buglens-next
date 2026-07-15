@@ -43,7 +43,6 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
   if (submitted) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <div style={{ fontSize: 56, marginBottom: 24 }}>🎉</div>
         <h2 style={{ fontSize: 26, fontWeight: 700, marginBottom: 12 }}>Application Submitted!</h2>
         <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto 2rem' }}>
           We'll review your project and get back to you within <strong>48 hours</strong> at your email. If approved, you'll get instant Pro access for 6 months.
@@ -51,11 +50,11 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
         <div style={{
           display: 'inline-block',
           padding: '12px 20px',
-          background: 'rgba(139,92,246,0.1)',
-          border: '1px solid rgba(139,92,246,0.25)',
+          background: 'rgba(245,158,11,0.1)',
+          border: '1px solid rgba(245,158,11,0.25)',
           borderRadius: 8,
           fontSize: 13,
-          color: '#a78bfa',
+          color: 'var(--warning)',
           fontFamily: 'monospace',
         }}>
           Status: PENDING REVIEW
@@ -174,7 +173,7 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
           fontSize: 13,
           background: 'rgba(248,113,113,0.1)',
           border: '1px solid rgba(248,113,113,0.3)',
-          color: '#f87171',
+          color: 'var(--error-soft)',
         }}>
           {status.msg}
         </div>
@@ -186,8 +185,8 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
           disabled={isPending}
           style={{
             padding: '12px 32px',
-            background: isPending ? 'rgba(124,58,237,0.5)' : 'var(--green, #22c55e)',
-            color: '#000',
+            background: isPending ? 'var(--primary-disabled)' : 'var(--green)',
+            color: isPending ? 'var(--muted)' : 'var(--on-primary)',
             border: 'none',
             borderRadius: 8,
             fontWeight: 600,
@@ -206,12 +205,12 @@ export default function OSSForm({ githubUsername }: { githubUsername: string }) 
 }
 
 function Required() {
-  return <span style={{ color: '#f87171' }}>*</span>
+  return <span style={{ color: 'var(--error-soft)' }}>*</span>
 }
 
 const sectionStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'var(--canvas)',
+  border: '1px solid var(--hairline)',
   borderRadius: 12,
   padding: '1.75rem',
   display: 'grid',
@@ -239,8 +238,8 @@ const labelStyle: React.CSSProperties = {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: 'var(--surface2, rgba(255,255,255,0.05))',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: 'var(--surface-soft)',
+  border: '1px solid var(--hairline)',
   padding: '10px 14px',
   borderRadius: 6,
   color: 'var(--text)',
@@ -259,7 +258,7 @@ const disabledInput: React.CSSProperties = {
 const checkboxStyle: React.CSSProperties = {
   width: 16,
   height: 16,
-  accentColor: 'var(--green, #22c55e)',
+  accentColor: 'var(--green)',
   cursor: 'pointer',
   marginTop: 2,
   flexShrink: 0,

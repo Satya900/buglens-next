@@ -23,7 +23,7 @@ function formatSize(bytes: number): string {
 }
 
 function FileIcon({ ext }: { ext: string }) {
-  const color = ext === 'pdf' ? '#f87171' : 'var(--text-dim)'
+  const color = ext === 'pdf' ? 'var(--error-soft)' : 'var(--text-dim)'
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -100,7 +100,7 @@ export default function DocumentsManager({ initialDocuments }: Props) {
               {isUploading ? 'Uploading...' : '+ Upload'}
             </button>
             {uploadError && (
-              <span style={{ fontSize: 11, color: '#f87171' }}>{uploadError}</span>
+              <span style={{ fontSize: 11, color: 'var(--error-soft)' }}>{uploadError}</span>
             )}
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function DocumentsManager({ initialDocuments }: Props) {
                           title="Delete"
                           disabled={isPending}
                           onClick={() => handleDelete(d.id, d.storage_path, d.file_name)}
-                          style={{ color: '#f87171', opacity: 0.7 }}
+                          style={{ color: 'var(--error-soft)', opacity: 0.7 }}
                         >
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="3 6 5 6 21 6" />

@@ -51,7 +51,7 @@ function FindingPills({ count, decision }: { count: number | null; decision: str
         <span style={{
           fontSize: 10, fontWeight: 600, fontFamily: 'var(--mono)',
           padding: '2px 6px', borderRadius: 4,
-          background: 'rgba(248,113,113,0.08)', color: '#f87171',
+          background: 'rgba(248,113,113,0.08)', color: 'var(--error-soft)',
           border: '1px solid rgba(248,113,113,0.2)',
         }}>{high}H</span>
       )}
@@ -59,7 +59,7 @@ function FindingPills({ count, decision }: { count: number | null; decision: str
         <span style={{
           fontSize: 10, fontWeight: 600, fontFamily: 'var(--mono)',
           padding: '2px 6px', borderRadius: 4,
-          background: 'rgba(251,191,36,0.08)', color: '#fbbf24',
+          background: 'rgba(251,191,36,0.08)', color: 'var(--warning-soft-2)',
           border: '1px solid rgba(251,191,36,0.2)',
         }}>{med}M</span>
       )}
@@ -206,7 +206,7 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
           filtered.map(review => {
             const isApprove = review.merge_decision === 'APPROVE'
             const count = review.findings_count || 0
-            const borderColor = isApprove ? 'var(--green)' : count > 2 ? '#f87171' : '#fbbf24'
+            const borderColor = isApprove ? 'var(--green)' : count > 2 ? 'var(--error-soft)' : 'var(--warning-soft-2)'
 
             return (
               <Link
@@ -237,7 +237,7 @@ export default function ReviewsClient({ reviews }: { reviews: Review[] }) {
                   fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono)',
                   padding: '3px 8px', borderRadius: 4, display: 'inline-block',
                   background: isApprove ? 'rgba(34,197,94,0.1)' : 'rgba(248,113,113,0.1)',
-                  color: isApprove ? 'var(--green)' : '#f87171',
+                  color: isApprove ? 'var(--green)' : 'var(--error-soft)',
                   border: `1px solid ${isApprove ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'}`,
                   whiteSpace: 'nowrap',
                 }}>

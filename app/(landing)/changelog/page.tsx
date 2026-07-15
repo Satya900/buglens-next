@@ -11,7 +11,7 @@ const ENTRIES = [
     title: 'Re-review on push + GitHub status checks',
     items: [
       'New pushes to open PRs automatically dismiss the old review and trigger a fresh one',
-      'BugLens now posts a ✅ or ❌ commit status on every reviewed commit',
+      'BugLens now posts a pass or fail commit status on every reviewed commit',
       'Re-review header shows which push triggered the new analysis',
     ],
   },
@@ -117,86 +117,53 @@ const ENTRIES = [
   },
 ]
 
-const tagColors: Record<string, { bg: string; color: string }> = {
-  Feature:     { bg: 'rgba(34,197,94,0.1)',   color: '#4ade80' },
-  Improvement: { bg: 'rgba(96,165,250,0.1)',  color: '#60a5fa' },
-  Security:    { bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24' },
-  Launch:      { bg: 'rgba(34,197,94,0.15)',  color: '#22c55e' },
+const tagClass: Record<string, string> = {
+  Feature: 'changelog-tag--feature',
+  Improvement: 'changelog-tag--improvement',
+  Security: 'changelog-tag--security',
+  Launch: 'changelog-tag--launch',
 }
 
 export default function ChangelogPage() {
   return (
-    <main style={{ maxWidth: 760, margin: '0 auto', padding: '5rem 2rem', color: 'var(--text)' }}>
-      <p style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--text-dim)', marginBottom: '1rem' }}>
-        Newest first
-      </p>
-      <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, marginBottom: '0.5rem' }}>Changelog</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '3rem', fontSize: 16 }}>
+    <main className="legal-page">
+      <p className="legal-updated">Newest first</p>
+      <h1 className="legal-title">Changelog</h1>
+      <p className="legal-intro">
         Everything shipped in BugLens. We ship fast and document what changes.
       </p>
 
-      <div style={{ position: 'relative' }}>
-        {/* Timeline line */}
-        <div style={{
-          position: 'absolute',
-          left: 0,
-          top: 8,
-          bottom: 0,
-          width: 1,
-          background: 'rgba(34,197,94,0.15)',
-        }} />
+      <div className="changelog-timeline">
+        <div className="changelog-timeline-rail" />
 
-        <div style={{ display: 'grid', gap: '3rem', paddingLeft: '2rem' }}>
-          {ENTRIES.map((entry, i) => {
-            const tag = tagColors[entry.tag] || tagColors.Feature
-            return (
-              <div key={i} style={{ position: 'relative' }}>
-                {/* Dot */}
-                <div style={{
-                  position: 'absolute',
-                  left: -32,
-                  top: 6,
-                  width: 9,
-                  height: 9,
-                  borderRadius: '50%',
-                  background: 'var(--green)',
-                  border: '2px solid var(--bg)',
-                }} />
+        <div className="changelog-entries">
+          {ENTRIES.map((entry, i) => (
+            <div key={i} className="changelog-entry">
+              <div className="changelog-entry-dot" />
 
-                {/* Date + tag */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--text-dim)' }}>
-                    {entry.date} · {entry.version}
-                  </span>
-                  <span style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 4,
-                    background: tag.bg,
-                    color: tag.color,
-                    fontFamily: 'monospace',
-                    letterSpacing: '0.05em',
-                  }}>
-                    {entry.tag.toUpperCase()}
-                  </span>
-                </div>
-
-                <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12, marginTop: 0 }}>
-                  {entry.title}
-                </h2>
-
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
-                  {entry.items.map((item, j) => (
-                    <li key={j} style={{ display: 'flex', gap: 10, fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                      <span style={{ color: 'var(--green)', flexShrink: 0, marginTop: 2 }}>→</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="changelog-entry-meta">
+                <span className="changelog-entry-date">
+                  {entry.date} · {entry.version}
+                </span>
+                <span className={`changelog-tag ${tagClass[entry.tag] || tagClass.Feature}`}>
+                  {entry.tag.toUpperCase()}
+                </span>
               </div>
-            )
-          })}
+
+              <h2 className="changelog-entry-title">
+                {entry.title}
+              </h2>
+
+              <ul className="changelog-entry-list">
+                {entry.items.map((item, j) => (
+                  <li key={j} className="changelog-entry-item">
+                    <span className="changelog-entry-item-arrow">→</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
     </main>

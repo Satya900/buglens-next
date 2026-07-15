@@ -4,10 +4,11 @@ import BugLensMark from "@/components/BugLensMark";
 export default function Footer() {
   return (
     <footer style={{
-      borderTop: '1px solid rgba(34,197,94,0.1)',
-      background: 'var(--surface, #0d1510)',
-      padding: '3rem 2rem 2rem',
-      marginTop: '4rem',
+      borderTop: '1px solid var(--footer-border)',
+      background: 'var(--footer-bg)',
+      padding: '4rem 2rem',
+      marginTop: '6rem',
+      color: 'var(--footer-text-soft)',
     }}>
       <div style={{
         maxWidth: 1100,
@@ -21,9 +22,9 @@ export default function Footer() {
         <div style={{ gridColumn: 'span 1' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 12 }}>
             <BugLensMark />
-            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text)' }}>buglens.app</span>
+            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--footer-text)' }}>buglens.app</span>
           </Link>
-          <p style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: 13, color: 'var(--footer-text-soft)', lineHeight: 1.6, margin: 0 }}>
             AI code reviews for every pull request. Catches bugs before your team does.
           </p>
         </div>
@@ -65,17 +66,17 @@ export default function Footer() {
         maxWidth: 1100,
         margin: '2.5rem auto 0',
         paddingTop: '1.5rem',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
+        borderTop: '1px solid var(--footer-border)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 8,
         fontSize: 12,
-        color: 'var(--text-dim)',
+        color: 'var(--footer-text-soft)',
       }}>
-        <span>© 2026 BugLens. Built by <a href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--green)', textDecoration: 'none' }}>Satyabrata Mohanty</a>.</span>
-        <span>Made with ☕ for developers who ship.</span>
+        <span>© 2026 BugLens. Built by <a href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--footer-text)', textDecoration: 'underline' }}>Satyabrata Mohanty</a>.</span>
+        <span>Made by developers who ship.</span>
       </div>
     </footer>
   );
@@ -85,8 +86,9 @@ const colHeader: React.CSSProperties = {
   fontSize: 11,
   fontWeight: 700,
   letterSpacing: '0.08em',
-  color: 'var(--text-dim)',
-  fontFamily: 'monospace',
+  color: 'var(--footer-text)',
+  fontFamily: 'var(--sans)',
+  textTransform: 'uppercase',
   marginBottom: 12,
   marginTop: 0,
 };
@@ -101,6 +103,6 @@ const colList: React.CSSProperties = {
 
 const linkStyle: React.CSSProperties = {
   fontSize: 14,
-  color: 'var(--text-muted)',
+  color: 'var(--footer-text-soft)',
   textDecoration: 'none',
 };

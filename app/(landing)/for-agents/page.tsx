@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function ForAgentsPage() {
   return (
-    <main>
+    <main className="fa-page">
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="section fa-hero">
@@ -69,7 +69,6 @@ export default function ForAgentsPage() {
       </section>
 
       {/* ── Story scenario ───────────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section">
         <div className="section-eyebrow">{"// how it works"}</div>
         <h2 className="fa-section-title">
@@ -83,9 +82,9 @@ export default function ForAgentsPage() {
 
         <div className="fa-story">
           <div className="fa-story-bar">
-            <span className="fa-t-dot" style={{ background: "#fc5f57" }} />
-            <span className="fa-t-dot" style={{ background: "#fdbc2c" }} />
-            <span className="fa-t-dot" style={{ background: "#33c748" }} />
+            <span className="fa-t-dot t-dot--red" />
+            <span className="fa-t-dot t-dot--yellow" />
+            <span className="fa-t-dot t-dot--green" />
             <span className="fa-t-label">buglens — live agent loop · PR #142</span>
           </div>
           <div className="fa-story-body">
@@ -168,7 +167,6 @@ export default function ForAgentsPage() {
       </section>
 
       {/* ── Four pillars ─────────────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section">
         <div className="section-eyebrow">{"// what buglens does for agents"}</div>
         <h2 className="fa-section-title">
@@ -212,7 +210,6 @@ export default function ForAgentsPage() {
       </section>
 
       {/* ── Integration interfaces ────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section">
         <div className="section-eyebrow">{"// integration"}</div>
         <h2 className="fa-section-title">
@@ -227,7 +224,6 @@ export default function ForAgentsPage() {
       </section>
 
       {/* ── Coming soon roadmap ───────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section">
         <div className="section-eyebrow">{"// roadmap"}</div>
         <h2 className="fa-section-title">
@@ -311,17 +307,16 @@ export default function ForAgentsPage() {
       </section>
 
       {/* ── llms.txt ──────────────────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section">
         <div className="fa-llms-card">
           <div className="fa-llms-inner">
             <div className="fa-llms-left">
               <div className="fa-llms-eyebrow">{"// discoverability"}</div>
-              <h2 className="fa-section-title" style={{ fontSize: "clamp(20px, 2.8vw, 32px)" }}>
+              <h2 className="fa-section-title fa-section-title--sm">
                 Agents find BugLens<br />
                 <em>on their own.</em>
               </h2>
-              <p className="fa-section-sub" style={{ maxWidth: "340px", marginBottom: "20px" }}>
+              <p className="fa-section-sub fa-section-sub--narrow">
                 <code className="fa-inline-code">buglens.app/llms.txt</code> gives AI agents
                 structured docs to discover, authenticate, and integrate BugLens
                 without a human in the loop. Follows the emerging llms.txt standard.
@@ -361,14 +356,13 @@ Exit 0 = clean. Exit 1 = issues found.`}</pre>
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────────────────── */}
-      <div className="divider-line" />
       <section className="section fa-cta-section">
         <div className="section-eyebrow">{"// early access"}</div>
         <h2 className="fa-section-title">
           Building an agent that writes code?<br />
           <em>We want you as an early tester.</em>
         </h2>
-        <p className="fa-section-sub" style={{ maxWidth: "420px", margin: "0 auto 28px" }}>
+        <p className="fa-section-sub fa-section-sub--cta">
           API design happens in the open. If you&apos;re building on Devin,
           Claude Code, or your own coding agent — email us. Early adopters
           shape the API contract.

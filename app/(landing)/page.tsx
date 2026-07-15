@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
-import Terminal from "@/components/Terminal";
 import PRDemoSection from "@/components/PRDemoSection";
 import PainSection from "@/components/PainSection";
 import Features from "@/components/Features";
@@ -33,9 +32,8 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="home-page">
       <Hero />
-      <Terminal />
       <PRDemoSection />
       <PainSection />
       <Features />

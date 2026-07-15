@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BugLensMark from "@/components/BugLensMark";
+import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/utils/supabase/server";
 import { signOut } from "@/app/(auth)/actions";
 
@@ -27,9 +28,13 @@ export default async function Navbar() {
           <form action={signOut}>
             <button className="nav-cta" type="submit">Log Out</button>
           </form>
+          <ThemeToggle />
         </div>
       ) : (
-        <a href="/login" className="nav-cta">Get started</a>
+        <div className="nav-profile-group">
+          <a href="/login" className="nav-cta">Get started</a>
+          <ThemeToggle />
+        </div>
       )}
     </nav>
   );

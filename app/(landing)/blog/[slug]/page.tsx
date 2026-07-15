@@ -276,7 +276,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <article className="post-article">
           <header className="post-header">
             <div className="post-kicker-row">
-              <span className="blog-tag">{post.tag}</span>
+              <span className="bl-tag">{post.tag}</span>
               <div className="post-meta-fancy">
                 <div className="post-meta-item">
                   <IconPublishedBy />

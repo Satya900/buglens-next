@@ -151,7 +151,7 @@ export default function LessonsManager({ initialLessons, repos }: Props) {
                       <button
                         onClick={() => handleDelete(lesson.id)}
                         className="btn-icon"
-                        style={{ color: '#f87171', opacity: 0.7 }}
+                        style={{ color: 'var(--error-soft)', opacity: 0.7 }}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polyline points="3 6 5 6 21 6" />

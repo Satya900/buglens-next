@@ -64,7 +64,7 @@ export default async function AnalyticsPage() {
       <div className="stat-cards-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
         <div className="stat-card">
           <div className="stat-label">Critical Caught</div>
-          <div className="stat-number" style={{ color: '#f87171' }}>{highSeverityCount}</div>
+          <div className="stat-number" style={{ color: 'var(--error-soft)' }}>{highSeverityCount}</div>
           <div className="stat-sub">High-risk vulnerabilities</div>
         </div>
         <div className="stat-card">
@@ -96,7 +96,7 @@ export default async function AnalyticsPage() {
             {['HIGH', 'MEDIUM', 'LOW'].map((sev) => {
               const count = severityMap[sev]
               const percent = totalFindings ? (count / totalFindings) * 100 : 0
-              const color = sev === 'HIGH' ? '#f87171' : sev === 'MEDIUM' ? '#fbbf24' : 'var(--green)'
+              const color = sev === 'HIGH' ? 'var(--error-soft)' : sev === 'MEDIUM' ? 'var(--warning-soft-2)' : 'var(--green)'
               
               return (
                 <div key={sev}>

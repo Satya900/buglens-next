@@ -28,9 +28,9 @@ function timeAgo(d: string) {
 }
 
 function sevStyle(s: string) {
-  if (s === 'HIGH') return { color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', dot: '#f87171' }
-  if (s === 'MEDIUM') return { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.25)', dot: '#fbbf24' }
-  return { color: '#7a9980', bg: 'rgba(122,153,128,0.08)', border: 'rgba(122,153,128,0.2)', dot: '#7a9980' }
+  if (s === 'HIGH') return { color: 'var(--error-soft)', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', dot: 'var(--error-soft)' }
+  if (s === 'MEDIUM') return { color: 'var(--warning-soft-2)', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.25)', dot: 'var(--warning-soft-2)' }
+  return { color: 'var(--text-muted)', bg: 'var(--surface-soft)', border: 'var(--hairline)', dot: 'var(--text-muted)' }
 }
 
 function groupByFile(findings: Finding[]): Record<string, Finding[]> {
@@ -77,7 +77,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
   const fileEntries = Object.entries(byFile)
   const isApprove = review.merge_decision === 'APPROVE'
 
-  const decisionColor = isApprove ? 'var(--green)' : '#f87171'
+  const decisionColor = isApprove ? 'var(--green)' : 'var(--error-soft)'
   const decisionBg = isApprove ? 'rgba(34,197,94,0.08)' : 'rgba(248,113,113,0.08)'
   const decisionBorder = isApprove ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'
 
@@ -140,8 +140,8 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
       <div className="grid-4-stat">
         {[
           { label: 'Files reviewed', value: review.files_reviewed || 0, color: 'var(--text)' },
-          { label: 'High', value: counts.HIGH, color: counts.HIGH > 0 ? '#f87171' : 'var(--text)' },
-          { label: 'Medium', value: counts.MEDIUM, color: counts.MEDIUM > 0 ? '#fbbf24' : 'var(--text)' },
+          { label: 'High', value: counts.HIGH, color: counts.HIGH > 0 ? 'var(--error-soft)' : 'var(--text)' },
+          { label: 'Medium', value: counts.MEDIUM, color: counts.MEDIUM > 0 ? 'var(--warning-soft-2)' : 'var(--text)' },
           { label: 'Low', value: counts.LOW, color: 'var(--text-dim)' },
         ].map(s => (
           <div key={s.label} className="stat-card" style={{ padding: '1rem 1.25rem' }}>
@@ -158,7 +158,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
           background: isApprove ? 'rgba(34,197,94,0.04)' : 'rgba(248,113,113,0.05)',
           border: `1px solid ${isApprove ? 'rgba(34,197,94,0.15)' : 'rgba(248,113,113,0.2)'}`,
         }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: isApprove ? 'var(--green)' : '#f87171', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: isApprove ? 'var(--green)' : 'var(--error-soft)', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
             AI Risk Assessment
           </div>
           <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>{review.risk_summary}</p>
@@ -195,7 +195,7 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
                 padding: '12px 16px', borderRadius: 10,
                 background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.2)',
               }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', fontFamily: 'var(--mono)', marginBottom: 5 }}>⚠ Cross-file impact</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--warning-soft-2)', fontFamily: 'var(--mono)', marginBottom: 5 }}>⚠ Cross-file impact</div>
                 <p style={{ fontSize: 12, color: 'var(--text)', margin: 0, lineHeight: 1.6 }}>
                   High-severity issues across {highFiles.length} files —{' '}
                   {highFiles.map((f, i) => (
@@ -307,13 +307,13 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
                   background: 'rgba(251,191,36,0.04)', border: '1px solid rgba(251,191,36,0.15)',
                   borderRadius: 10,
                 }}>
-                  <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--warning-soft-2)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
                     Pre-merge checklist
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {checklist.map((f, i) => (
                       <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--mono)' }}>
-                        <span style={{ color: f.severity === 'HIGH' ? '#f87171' : '#fbbf24', flexShrink: 0, marginTop: 1 }}>
+                        <span style={{ color: f.severity === 'HIGH' ? 'var(--error-soft)' : 'var(--warning-soft-2)', flexShrink: 0, marginTop: 1 }}>
                           {f.severity === 'HIGH' ? '✕' : '○'}
                         </span>
                         <span style={{ lineHeight: 1.5 }}>{f.message}</span>
@@ -330,11 +330,11 @@ export default async function ReviewDetailPage({ params }: { params: Params }) {
                   background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)',
                   borderRadius: 8, display: 'flex', gap: 10, alignItems: 'flex-start',
                 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--error-soft)" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
-                  <p style={{ fontSize: 12, color: '#f87171', fontFamily: 'var(--mono)', margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 12, color: 'var(--error-soft)', fontFamily: 'var(--mono)', margin: 0, lineHeight: 1.6 }}>
                     High-severity issues span {highFiles.length} files — review cross-file impact before merging.
                   </p>
                 </div>

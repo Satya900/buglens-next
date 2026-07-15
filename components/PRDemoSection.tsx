@@ -79,15 +79,14 @@ export default function PRDemoSection() {
               Estimated review effort
             </div>
             <div className="prd-stat-row">
-              <span className="prd-stat-icon">🔴</span>
+              <span className="prd-stat-dot prd-stat-dot--error" />
               <span className="prd-stat-label">1 Critical</span>
             </div>
             <div className="prd-stat-row">
-              <span className="prd-stat-icon">🟡</span>
+              <span className="prd-stat-dot prd-stat-dot--warning" />
               <span className="prd-stat-label">2 Warnings</span>
             </div>
             <div className="prd-stat-row">
-              <span className="prd-stat-icon">📄</span>
               <span className="prd-stat-label">11 files reviewed · ~18 min effort</span>
             </div>
             <div className="prd-divider" />
@@ -111,7 +110,7 @@ export default function PRDemoSection() {
                 <span className="prd-commenter-badge">bot</span>
                 <span className="prd-commenter-time">1 min ago</span>
               </div>
-              <span className="prd-severity-badge">⚠ Critical&nbsp;|&nbsp;🔒 Security</span>
+              <span className="prd-severity-badge">Critical&nbsp;·&nbsp;Security</span>
             </div>
             <p className="prd-issue-title">
               SQL injection — user input directly interpolated into query string

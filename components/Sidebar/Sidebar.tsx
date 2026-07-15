@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import BugLensMark from '@/components/BugLensMark'
+import ThemeToggle from '@/components/ThemeToggle'
 import './Sidebar.css'
 
 const CORE_NAV = [
@@ -44,12 +45,15 @@ export function Sidebar({ userEmail, userPlan }: { userEmail?: string; userPlan?
 
       <aside className={`sidebar${mobileOpen ? ' sidebar-mobile-open' : ''}`}>
         <div className="sidebar-top">
-          <Link href="/dashboard" className="sidebar-logo">
-            <BugLensMark size={30} />
-            <span className="sidebar-logo-text" style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)' }}>
-              BugLens
-            </span>
-          </Link>
+          <div className="sidebar-top-row">
+            <Link href="/dashboard" className="sidebar-logo">
+              <BugLensMark size={30} />
+              <span className="sidebar-logo-text" style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)' }}>
+                BugLens
+              </span>
+            </Link>
+            <ThemeToggle />
+          </div>
 
           <nav className="nav-container">
             <div className="nav-section">

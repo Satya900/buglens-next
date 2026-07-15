@@ -7,25 +7,23 @@ export default function RelatedPosts({ posts }: { posts: BlogPost[] }) {
   return (
     <section className="related-section" aria-labelledby="related-title">
       <h2 id="related-title" className="related-title">More from the blog</h2>
-      <div className="blog-grid related-grid">
+      <div className="bl-grid related-grid">
         {posts.map((post) => (
-          <article key={post.slug} className="blog-card">
-            <span className="blog-tag">{post.tag}</span>
-            <h3 className="blog-title">
-              <Link className="blog-title-link" href={`/blog/${post.slug}/`}>{post.title}</Link>
-            </h3>
-            <div className="blog-meta">
-              <span>
+          <Link key={post.slug} href={`/blog/${post.slug}/`} className="bl-card">
+            <span className="bl-tag">{post.tag}</span>
+            <h3 className="bl-card-title">{post.title}</h3>
+            <div className="bl-card-footer">
+              <span className="bl-meta-line">
                 {new Date(post.publishedAt).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}
+                <span className="bl-dot">·</span>
+                {post.readTime}
               </span>
-              <span className="blog-meta-dot"></span>
-              <span>{post.readTime}</span>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     </section>
