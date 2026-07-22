@@ -1,8 +1,30 @@
-## BugLens.app
+# buglens-next
 
-### DATE - 14-07-2026
+The marketing site, blog, and customer dashboard for [BugLens](https://buglens.app) — built with Next.js 16.
 
-Marketing site and blog for BugLens, built with Next.js 16.
+`buglens-core` handles the GitHub webhook + AI review pipeline; this app is everything the user sees: landing pages, auth, billing, and the dashboard that surfaces review activity.
+
+## Structure
+
+```
+app/
+├─ (landing)/     marketing pages — home, pricing, blog, changelog, security, alternatives
+├─ (auth)/
+│  └─ (shell)/    logged-in dashboard — dashboard, repos, reviews, analytics, knowledge, billing, settings, profile
+├─ admin/         internal admin dashboard (OSS program approvals, usage stats)
+└─ api/           route handlers — GitHub repo listing, Dodo Payments checkout/portal/webhook, admin actions
+```
+
+Auth is GitHub OAuth via Supabase. The dashboard reads directly from the `profiles`, `reviews`, and `findings` tables that `buglens-core` writes to after each PR review — the two apps share one Supabase project.
+
+## Dashboard features
+
+- **Overview** — usage against plan limit, recent PR reviews, critical (HIGH severity) finding count, webhook status
+- **Repos** — connect/disconnect GitHub repos for review
+- **Reviews** — full review history and per-PR finding detail
+- **Knowledge base** — team-authored "Lessons" that get fed back into future AI reviews
+- **Analytics** — bug pattern and code health trends over time
+- **Billing** — plan tier, upgrade flow via Dodo Payments
 
 ## Environment
 
@@ -54,35 +76,22 @@ Notes:
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The dashboard routes under `/dashboard` require a logged-in Supabase session (GitHub OAuth via `/login`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+|---------|-------------|
+| `yarn dev` | Start dev server |
+| `yarn build` | Production build |
+| `yarn lint` | Run ESLint |
+| `yarn notion:setup-blog` | Provision the Notion blog database schema |
+| `yarn notion:publish-sample-post` | Push a sample post to the connected Notion database |
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployed on Vercel at [buglens.app](https://buglens.app). Set all env vars above in the Vercel project settings before deploying.
