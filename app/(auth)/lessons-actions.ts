@@ -11,9 +11,23 @@ export async function addLesson(repoFullName: string, content: string) {
     return { error: 'Not authenticated' }
   }
 
+  // Reject lessons for repos the caller doesn't own — the client-side repo
+  // dropdown is already scoped, but this action can be invoked directly.
+  const { data: repo } = await supabase
+    .from('repos')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('repo_full_name', repoFullName)
+    .maybeSingle()
+
+  if (!repo) {
+    return { error: 'Repository not found or not connected to your account' }
+  }
+
   const { error } = await supabase
     .from('lessons_learned')
     .insert({
+      user_id: user.id,
       repo_full_name: repoFullName,
       content,
     })
@@ -40,6 +54,7 @@ export async function deleteLesson(lessonId: string) {
     .from('lessons_learned')
     .delete()
     .eq('id', lessonId)
+    .eq('user_id', user.id)
 
   if (error) {
     console.error('Error deleting lesson:', error.message)
@@ -61,6 +76,7 @@ export async function getLessons() {
   const { data, error } = await supabase
     .from('lessons_learned')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
