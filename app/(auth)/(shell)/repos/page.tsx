@@ -144,6 +144,23 @@ export default function RepositoriesPage() {
     }
   }
 
+  const updateShadowMode = async (repoFullName: string, value: boolean) => {
+    setActioning(repoFullName)
+    const prev = repoSettings[repoFullName]
+    setRepoSettings(p => ({ ...p, [repoFullName]: { ...prev, shadow_mode: value, repo_full_name: repoFullName, is_active: true } }))
+    try {
+      await fetch('/api/app/repos', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo_full_name: repoFullName, shadow_mode: value }),
+      })
+    } catch {
+      setRepoSettings(p => ({ ...p, [repoFullName]: prev }))
+    } finally {
+      setActioning(null)
+    }
+  }
+
   const removeRepo = async (repoFullName: string) => {
     if (!confirm(`Remove ${repoFullName}? This deletes all review history for this repo from your dashboard.`)) return
     setActioning(repoFullName)
@@ -338,6 +355,25 @@ ict">Strict</option>
                       <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--mono)' }}>Not active</span>
                     )}
                     {isActive && <StrictnessChip value={strictness} />}
+                    {isActive && (
+                      <button
+                        onClick={e => { e.stopPropagation(); updateShadowMode(repo.full_name, !settings?.shadow_mode) }}
+                        disabled={isActioning}
+                        title={settings?.shadow_mode
+                          ? 'Shadow mode: analysis runs but nothing is posted to GitHub. Click to go live.'
+                          : 'Live: reviews post directly to GitHub PRs. Click to switch to shadow mode (dry run).'}
+                        style={{
+                          fontSize: 9, fontWeight: 600, fontFamily: 'var(--mono)', textTransform: 'uppercase',
+                          letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 4, border: '1px solid',
+                          cursor: isActioning ? 'not-allowed' : 'pointer',
+                          color: settings?.shadow_mode ? 'var(--warning-soft-2)' : 'var(--text-dim)',
+                          background: settings?.shadow_mode ? 'rgba(251,191,36,0.08)' : 'transparent',
+                          borderColor: settings?.shadow_mode ? 'rgba(251,191,36,0.2)' : 'var(--border)',
+                        }}
+                      >
+                        {settings?.shadow_mode ? 'Shadow' : 'Live'}
+                      </button>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
