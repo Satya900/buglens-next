@@ -95,7 +95,7 @@ export async function POST(req: Request) {
         repo_full_name: full_name,
         repo_id: id,
         is_active: true,
-        shadow_mode: true,
+        shadow_mode: false,
         review_strictness: 'balanced',
         auto_post_reviews: false,
         last_review_at: null,
