@@ -187,6 +187,7 @@ export default function RepositoriesPage() {
       const data = await res.json()
       if (data.success) {
         setRepoSettings(prev => { const next = { ...prev }; delete next[repoFullName]; return next })
+        if (data.warning) alert(data.warning)
       }
     } finally {
       setActioning(null)

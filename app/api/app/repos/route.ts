@@ -119,6 +119,19 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // The repos row is gone either way (that's the primary contract this
+    // endpoint owes), but don't silently claim full success if the cached
+    // source code purge above failed — the user's confirm dialog promises
+    // their data is gone, so a partial failure needs to be visible, not
+    // swallowed into a plain { success: true }.
+    if (indexFilesError || indexMetaError) {
+      return NextResponse.json({
+        success: true,
+        warning:
+          'Repo removed, but some cached source code may not have been fully purged. Contact support if this persists.',
+      })
+    }
+
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
