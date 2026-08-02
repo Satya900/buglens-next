@@ -1,6 +1,25 @@
 import { createClient } from '@/utils/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { safeDecrypt } from '@/utils/crypto'
+
+function triggerInitialIndex(repoFullName: string) {
+  const webhookUrl = process.env.NEXT_PUBLIC_BUGLENS_CORE_WEBHOOK_URL
+  const secret = process.env.WEBHOOK_SECRET
+  if (!webhookUrl || !secret) return
+
+  after(() =>
+    fetch(webhookUrl.replace('/webhook', '/internal/index-repo'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-webhook-secret': secret },
+      body: JSON.stringify({ repoFullName }),
+    }).catch(() => {
+      // Best-effort — a failed initial-index trigger must never block repo
+      // connection. The repo still gets indexed on its next default-branch
+      // push, and reviews fall back to the live one-hop context lookup
+      // until then either way.
+    })
+  )
+}
 
 export async function GET() {
   const supabase = await createClient()
@@ -107,6 +126,8 @@ export async function POST(req: Request) {
       console.error('Database Error (Registering Repo):', error.message)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    triggerInitialIndex(full_name)
 
     return NextResponse.json({ success: true, data })
   } catch (error: unknown) {
