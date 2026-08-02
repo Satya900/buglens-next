@@ -115,10 +115,24 @@ export default function RepositoriesPage() {
 
   const toggleRepo = async (repo: Repo) => {
     setActioning(repo.full_name)
+    const existing = repoSettings[repo.full_name]
     try {
-      const res = await fetch('/api/github/repos', {
-        method: 'POST',
-        body: JSON.stringify({ id: repo.id, full_name: repo.full_name, private: repo.private }),
+      if (!existing) {
+        // First time connecting this repo — create its row.
+        const res = await fetch('/api/github/repos', {
+          method: 'POST',
+          body: JSON.stringify({ id: repo.id, full_name: repo.full_name, private: repo.private }),
+        })
+        const data = await res.json()
+        if (data.success) setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
+        return
+      }
+
+      // Already registered — flip is_active instead of always forcing it true.
+      const res = await fetch('/api/app/repos', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo_full_name: repo.full_name, is_active: !existing.is_active }),
       })
       const data = await res.json()
       if (data.success) setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
