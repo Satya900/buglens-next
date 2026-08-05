@@ -19,53 +19,26 @@ export default function AppleIcon() {
           justifyContent: "center",
           background: "#060a07",
           borderRadius: "36px",
-          color: "#22c55e",
         }}
       >
         <svg
-          width="128"
-          height="128"
-          viewBox="0 0 20 20"
-          fill="none"
+          width="140"
+          height="140"
+          viewBox="0 0 200 200"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <circle
-            cx="9"
-            cy="9"
-            r="5"
-            stroke="#22c55e"
-            strokeWidth="1.5"
-          />
-          <circle cx="9" cy="9" r="2" fill="#22c55e" />
-          <line
-            x1="13"
-            y1="13"
-            x2="18"
-            y2="18"
-            stroke="#22c55e"
-            strokeLinecap="round"
-            strokeWidth="2"
-          />
-          <circle cx="6.5" cy="2" r="1" fill="#22c55e" />
-          <circle cx="11.5" cy="2" r="1" fill="#22c55e" />
-          <line
-            x1="6.5"
-            y1="3"
-            x2="7.5"
-            y2="5.5"
-            stroke="#22c55e"
-            strokeLinecap="round"
-            strokeWidth="1"
-          />
-          <line
-            x1="11.5"
-            y1="3"
-            x2="10.5"
-            y2="5.5"
-            stroke="#22c55e"
-            strokeLinecap="round"
-            strokeWidth="1"
-          />
+          <polygon points="52,42 68,68 38,66" fill="#146B48" />
+          <polygon points="148,42 132,68 162,66" fill="#146B48" />
+          <ellipse cx="100" cy="118" rx="74" ry="70" fill="#1FAE72" />
+          <ellipse cx="38" cy="128" rx="17" ry="36" fill="#146B48" />
+          <ellipse cx="162" cy="128" rx="17" ry="36" fill="#146B48" />
+          <circle cx="72" cy="102" r="34" fill="#F6F7F3" />
+          <circle cx="128" cy="102" r="34" fill="#F6F7F3" />
+          <circle cx="72" cy="102" r="22" fill="#12150F" />
+          <circle cx="128" cy="102" r="22" fill="#12150F" />
+          <circle cx="77" cy="96" r="6" fill="#F6F7F3" />
+          <circle cx="133" cy="96" r="6" fill="#F6F7F3" />
+          <polygon points="100,116 89,136 111,136" fill="#FF6B4E" />
         </svg>
       </div>
     ),

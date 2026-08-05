@@ -46,40 +46,23 @@ export default function OpengraphImage() {
             }}
           >
             <svg
-              width="44"
-              height="44"
-              viewBox="0 0 64 64"
-              fill="none"
+              width="48"
+              height="48"
+              viewBox="0 0 200 200"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <circle
-                cx="28"
-                cy="28"
-                r="14"
-                stroke="#22c55e"
-                strokeWidth="4"
-              />
-              <circle cx="28" cy="28" r="5.5" fill="#22c55e" />
-              <path
-                d="M39 39L52 52"
-                stroke="#22c55e"
-                strokeLinecap="round"
-                strokeWidth="5"
-              />
-              <circle cx="21" cy="9.5" r="2.5" fill="#22c55e" />
-              <circle cx="35" cy="9.5" r="2.5" fill="#22c55e" />
-              <path
-                d="M21 12L23.5 18"
-                stroke="#22c55e"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-              />
-              <path
-                d="M35 12L32.5 18"
-                stroke="#22c55e"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-              />
+              <polygon points="52,42 68,68 38,66" fill="#146B48" />
+              <polygon points="148,42 132,68 162,66" fill="#146B48" />
+              <ellipse cx="100" cy="118" rx="74" ry="70" fill="#1FAE72" />
+              <ellipse cx="38" cy="128" rx="17" ry="36" fill="#146B48" />
+              <ellipse cx="162" cy="128" rx="17" ry="36" fill="#146B48" />
+              <circle cx="72" cy="102" r="34" fill="#F6F7F3" />
+              <circle cx="128" cy="102" r="34" fill="#F6F7F3" />
+              <circle cx="72" cy="102" r="22" fill="#12150F" />
+              <circle cx="128" cy="102" r="22" fill="#12150F" />
+              <circle cx="77" cy="96" r="6" fill="#F6F7F3" />
+              <circle cx="133" cy="96" r="6" fill="#F6F7F3" />
+              <polygon points="100,116 89,136 111,136" fill="#FF6B4E" />
             </svg>
           </div>
           <span>buglens.app</span>

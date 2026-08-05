@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import BugLensMark from "@/components/BugLensMark";
 
 /* ── Sequence steps that animate in ── */
 const STEPS = [
@@ -64,7 +64,7 @@ export default function PRDemoSection() {
 
           <div className={`prd-scanning prd-fade${show("scanning") ? " prd-in" : ""}`}>
             <div className="prd-scan-row">
-              <Image src="/BUGLENS_Llogo.png" alt="BugLens" width={18} height={18} />
+              <BugLensMark size={18} />
               <span className="prd-scan-label">BugLens reviewing…</span>
               <span className="prd-scan-dot" />
             </div>
@@ -75,7 +75,7 @@ export default function PRDemoSection() {
 
           <div className={`prd-stats prd-fade${show("stats") ? " prd-in" : ""}`}>
             <div className="prd-stats-title">
-              <Image src="/BUGLENS_Llogo.png" alt="BugLens" width={16} height={16} />
+              <BugLensMark size={16} />
               Estimated review effort
             </div>
             <div className="prd-stat-row">
@@ -105,7 +105,7 @@ export default function PRDemoSection() {
           <div className={`prd-comment-card prd-fade${show("comment") ? " prd-in" : ""}`}>
             <div className="prd-comment-top">
               <div className="prd-commenter">
-                <Image src="/BUGLENS_Llogo.png" alt="BugLens" width={26} height={26} className="prd-commenter-logo" />
+                <BugLensMark size={26} className="prd-commenter-logo" />
                 <span className="prd-commenter-name">buglens[bot]</span>
                 <span className="prd-commenter-badge">bot</span>
                 <span className="prd-commenter-time">1 min ago</span>
@@ -151,7 +151,7 @@ export default function PRDemoSection() {
               </div>
             </div>
             <div className="prd-thread-msg">
-              <Image src="/BUGLENS_Llogo.png" alt="BugLens" width={26} height={26} className="prd-thread-logo" />
+              <BugLensMark size={26} className="prd-thread-logo" />
               <div className="prd-thread-bubble prd-thread-bubble-bot">
                 Understood. I&apos;ll compare against <code className="prd-code">lib/db.ts</code> patterns in all future reviews for this repo.
               </div>

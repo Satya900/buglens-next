@@ -6,7 +6,7 @@ export const siteConfig = {
     "BugLens is an AI senior reviewer for GitHub PRs that catches bugs, vulnerabilities, and style violations before your team does.",
   creator: "Satyabrata Mohanty",
   twitterHandle: "@satyabrat_me",
-  logo: "/BUGLENS_Llogo.png",
+  logo: "/owl-logo.svg",
   category: "technology",
   keywords: [
     "AI Code Review",

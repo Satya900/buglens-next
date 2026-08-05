@@ -7,7 +7,7 @@ import HowItWorks from "@/components/HowItWorks";
 import KnowledgeBaseSection from "@/components/KnowledgeBaseSection";
 import Pricing from "@/components/Pricing";
 import Security from "@/components/Security";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, getAbsoluteUrl } from "@/lib/site";
 
 const Blog       = dynamic(() => import("@/components/Blog"));
 const Newsletter = dynamic(() => import("@/components/Newsletter"));
@@ -26,7 +26,7 @@ export default function Home() {
     publisher: {
       "@type": "Organization",
       name: siteConfig.name,
-      logo: { "@type": "ImageObject", url: `${siteConfig.url}/BUGLENS_Llogo.png` },
+      logo: { "@type": "ImageObject", url: getAbsoluteUrl(siteConfig.logo) },
     },
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/OnlineOnly" },
   };
