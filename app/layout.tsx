@@ -87,10 +87,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: "/BUGLENS_Llogo.png",
-    apple: "/BUGLENS_Llogo.png",
-  },
   verification: {
     google: "2hBpANs5oMr3M_eJtuQFjx-dvCrNfLzr4qka_EjwzfQ",
   },
