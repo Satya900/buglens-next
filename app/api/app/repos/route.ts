@@ -89,6 +89,26 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: reviewsError.message }, { status: 500 })
     }
 
+    // Same reasoning for the persisted repo-index tables: no FK cascade
+    // exists there either, so without this a removed repo's cached source
+    // code (repo_index_files.head_snippet) stays around indefinitely —
+    // a real privacy issue since it's a fresh copy of the customer's code.
+    // Best-effort: log but don't block repo removal on these, since the
+    // repos-table delete below is the primary contract this endpoint owes.
+    const { error: indexFilesError } = await supabase
+      .from('repo_index_files')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('repo_full_name', repo_full_name)
+    if (indexFilesError) console.error('Failed to purge repo_index_files:', indexFilesError.message)
+
+    const { error: indexMetaError } = await supabase
+      .from('repo_index_meta')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('repo_full_name', repo_full_name)
+    if (indexMetaError) console.error('Failed to purge repo_index_meta:', indexMetaError.message)
+
     const { error } = await supabase
       .from('repos')
       .delete()
@@ -97,6 +117,19 @@ export async function DELETE(req: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // The repos row is gone either way (that's the primary contract this
+    // endpoint owes), but don't silently claim full success if the cached
+    // source code purge above failed — the user's confirm dialog promises
+    // their data is gone, so a partial failure needs to be visible, not
+    // swallowed into a plain { success: true }.
+    if (indexFilesError || indexMetaError) {
+      return NextResponse.json({
+        success: true,
+        warning:
+          'Repo removed, but some cached source code may not have been fully purged. Contact support if this persists.',
+      })
     }
 
     return NextResponse.json({ success: true })
