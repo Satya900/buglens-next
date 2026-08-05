@@ -188,6 +188,7 @@ nav {
   font-family: var(--sans);
   font-size: 22px;
   font-weight: 600;
+  line-height: 1;
   color: var(--ink);
   text-decoration: none;
 }
@@ -195,6 +196,7 @@ nav {
 .nav-logo svg {
   width: 42px;
   height: 42px;
+  flex-shrink: 0;
 }
 
 .nav-links {
