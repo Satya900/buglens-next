@@ -184,17 +184,17 @@ nav {
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
 }
 
 .nav-logo svg {
-  width: 20px;
-  height: 20px;
+  width: 42px;
+  height: 42px;
 }
 
 .nav-links {
