@@ -11,7 +11,7 @@ export default async function Navbar() {
   return (
     <nav>
       <Link className="nav-logo" href="/" aria-label="BugLens home">
-        <BugLensMark size={30} />
+        <BugLensMark size={42} />
         buglens.app
       </Link>
       <ul className="nav-links">
