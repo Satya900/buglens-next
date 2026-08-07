@@ -19,7 +19,7 @@ export default async function Hero() {
             {user ? (
               <a className="btn-primary" href="/dashboard">Go to Dashboard</a>
             ) : (
-              <a className="btn-primary" href="/login">Get early access</a>
+              <a className="btn-primary" href="/login">Start reviewing free</a>
             )}
             <a className="btn-ghost" href="https://github.com/Satya900" target="_blank" rel="noopener noreferrer">View on GitHub -&gt;</a>
           </div>
@@ -35,6 +35,10 @@ export default async function Hero() {
             <span className="hero-trust-sep">&middot;</span>
             <span>Free to start</span>
           </div>
+          <p className="hero-agents-bridge">
+            Building with AI coding agents? BugLens also reviews agent-authored PRs via{" "}
+            <a href="/for-agents">API, MCP server, and CLI &rarr;</a>
+          </p>
         </div>
 
         <div className="hero-right">

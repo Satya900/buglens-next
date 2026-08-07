@@ -32,7 +32,7 @@ export default async function Navbar() {
         </div>
       ) : (
         <div className="nav-profile-group">
-          <a href="/login" className="nav-cta">Get started</a>
+          <a href="/login" className="nav-cta">Start reviewing free</a>
           <ThemeToggle />
         </div>
       )}

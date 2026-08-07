@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/blog";
 import BlogGrid from "@/components/BlogGrid";
+import { getAbsoluteUrl } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -16,6 +17,13 @@ export const metadata: Metadata = {
     description: "Engineering notes from building BugLens, covering AI code review, retrieval systems, security analysis, and product architecture.",
     url: "https://buglens.app/blog/",
     type: "website",
+    images: [{ url: getAbsoluteUrl("/opengraph-image"), width: 1200, height: 630, alt: "BugLens Journal" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BugLens Journal — Engineering Notes on AI Code Review",
+    description: "Engineering notes from building BugLens, covering AI code review, retrieval systems, security analysis, and product architecture.",
+    images: [getAbsoluteUrl("/opengraph-image")],
   },
 };
 
