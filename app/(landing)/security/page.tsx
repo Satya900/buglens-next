@@ -58,7 +58,7 @@ export default function SecurityPage() {
       <LegalSection title="PR data handling">
         <ul>
           <li>Only the <strong>diff</strong> (changed lines) of a PR is sent for analysis — not full file contents</li>
-          <li>Diffs are sent to our AI analysis provider over HTTPS. We do not retain diffs after analysis completes.</li>
+          <li>Diffs are sent over HTTPS to our AI subprocessors — Google (Gemini API) for paid-tier reviews, with OpenRouter used to route free-tier fallback requests. We do not retain diffs after analysis completes.</li>
           <li>Review findings (bug descriptions, line numbers, suggestions) are stored in our database tied to your account</li>
           <li>We do not use your code or diffs to train any AI model</li>
         </ul>

@@ -17,7 +17,7 @@ export default async function ClosingCTA() {
       {user ? (
         <a className="btn-primary" href="/dashboard">Go to Dashboard</a>
       ) : (
-        <a className="btn-primary" href="/login">Start reviewing →</a>
+        <a className="btn-primary" href="/login">Start reviewing free →</a>
       )}
     </div>
   );

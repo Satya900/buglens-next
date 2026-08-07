@@ -1,0 +1,22 @@
+# BugLens
+
+> AI code review for GitHub pull requests. Reviews every PR against your own codebase's context — 8 deterministic rules plus AI analysis — and exposes the same review capability to AI coding agents via REST API, MCP server, and CLI.
+
+## For AI coding agents
+
+- [For Agents](https://buglens.app/for-agents/): How agents like Devin, Claude Code, GitHub Copilot, Cursor, Windsurf, and Cline integrate BugLens as an automated review/merge gate.
+- API: `POST https://buglens.app/api/v1/review` — submit a diff for review, returns machine-readable JSON findings.
+- MCP Server: `https://mcp.buglens.app`
+- API keys: generate one at `https://buglens.app/settings` after installing the GitHub App.
+
+## Product
+
+- [Homepage](https://buglens.app/): Product overview.
+- [Pricing](https://buglens.app/pricing/): Free, Starter ($19/mo), and Team ($49/seat/mo) tiers.
+- [Security](https://buglens.app/security/): Data handling, GitHub App permissions, and AI subprocessors.
+- [Alternatives](https://buglens.app/alternatives/): How BugLens compares to other AI code review tools.
+- [OSS Program](https://buglens.app/oss-program/): Free access for public open source repositories.
+
+## Engineering blog
+
+- [Journal](https://buglens.app/blog/): Engineering notes on AI code review, retrieval systems, agentic systems, and security.

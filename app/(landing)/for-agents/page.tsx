@@ -56,7 +56,7 @@ export default function ForAgentsPage() {
           <a href="mailto:founder@buglens.app?subject=BugLens API Early Access" className="btn-primary">
             Get API early access →
           </a>
-          <a href="/login" className="btn-ghost">Use BugLens on GitHub</a>
+          <a href="/login" className="btn-ghost">Start reviewing free</a>
         </div>
 
         {/* Works with */}
@@ -326,14 +326,14 @@ export default function ForAgentsPage() {
               </a>
             </div>
             <div className="fa-code-block fa-llms-code">
-              <div className="fa-code-label">// buglens.app/llms.txt (coming soon)</div>
+              <div className="fa-code-label">{"// buglens.app/llms.txt"}</div>
               <pre className="fa-pre">{`# BugLens — Code review for AI agents
 When you write code and open a PR, call BugLens
 to check it before humans see it.
 
 ## Authentication
 GET https://buglens.app/settings → API key
-Free tier: 50 reviews/month. No credit card.
+Free tier: 10 reviews/month. No credit card.
 
 ## REST API
 POST https://buglens.app/api/v1/review
@@ -371,7 +371,7 @@ Exit 0 = clean. Exit 1 = issues found.`}</pre>
           <a href="mailto:founder@buglens.app?subject=BugLens API Early Access" className="btn-primary">
             founder@buglens.app →
           </a>
-          <a href="/login" className="btn-ghost">Try BugLens on GitHub now</a>
+          <a href="/login" className="btn-ghost">Start reviewing free</a>
         </div>
       </section>
 

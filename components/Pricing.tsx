@@ -7,15 +7,15 @@ const plans = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "One repo. 50 AI reviews per month. No credit card.",
+    description: "One repo. 10 AI reviews per month. No credit card.",
     features: [
       "1 repository",
-      "50 AI reviews / month",
+      "10 AI reviews / month",
       "8 deterministic rules, every PR",
       "Inline PR comments on GitHub",
       "Public repos only",
     ],
-    buttonText: "Start for free",
+    buttonText: "Start reviewing free",
     link: "/login",
     featured: false,
     comingSoon: false,
@@ -34,6 +34,7 @@ const plans = [
     ],
     buttonText: "Upgrade to Starter",
     link: STARTER_CHECKOUT,
+    note: "Cancel anytime, no lock-in.",
     featured: true,
     comingSoon: false,
   },
@@ -101,6 +102,9 @@ const Pricing = () => {
             >
               {plan.buttonText}
             </a>
+            <p className={`price-note ${!plan.note ? 'price-note-placeholder' : ''}`} aria-hidden={!plan.note}>
+              {plan.note || ' '}
+            </p>
           </div>
         ))}
       </div>
