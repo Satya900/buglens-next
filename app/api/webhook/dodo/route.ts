@@ -8,8 +8,24 @@ import {
 } from '@/utils/billing';
 
 const STARTER_PLAN = { tier: 'PRO' as const, usageLimit: 1_000_000 };
+const MAX_WEBHOOK_AGE_SECONDS = 300;
 
-// Manual HMAC-SHA256 verification — no SDK timestamp tolerance issues
+function timingSafeEqualString(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+function isTimestampFresh(msgTimestamp: string): boolean {
+  const ts = Number(msgTimestamp);
+  if (!Number.isFinite(ts)) return false;
+  const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - ts);
+  return ageSeconds <= MAX_WEBHOOK_AGE_SECONDS;
+}
+
 async function verifyDodoSignature(
   rawBody: string,
   headers: Headers,
@@ -21,32 +37,42 @@ async function verifyDodoSignature(
     const msgSignature = headers.get('webhook-signature') ?? '';
 
     if (!msgId || !msgTimestamp || !msgSignature) {
-      console.warn('[Dodo Webhook] Missing signature headers', { msgId: !!msgId, msgTimestamp: !!msgTimestamp, msgSignature: !!msgSignature });
+      console.warn('[Dodo Webhook] Missing signature headers', {
+        msgId: !!msgId,
+        msgTimestamp: !!msgTimestamp,
+        msgSignature: !!msgSignature,
+      });
       return false;
     }
 
-    // Strip whsec_ prefix and decode base64 key
-    const keyB64 = secret.startsWith('whsec_') ? secret.slice(6) : secret;
-    const keyBytes = Uint8Array.from(atob(keyB64), c => c.charCodeAt(0));
+    if (!isTimestampFresh(msgTimestamp)) {
+      console.warn('[Dodo Webhook] Timestamp outside allowed window', { msgTimestamp });
+      return false;
+    }
 
-    // Build signed content: msgId.timestamp.rawBody
+    const keyB64 = secret.startsWith('whsec_') ? secret.slice(6) : secret;
+    const keyBytes = Uint8Array.from(atob(keyB64), (c) => c.charCodeAt(0));
+
     const toSign = `${msgId}.${msgTimestamp}.${rawBody}`;
     const encoder = new TextEncoder();
 
     const cryptoKey = await crypto.subtle.importKey(
-      'raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+      'raw',
+      keyBytes,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
     );
     const sigBuffer = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(toSign));
     const computedSig = btoa(String.fromCharCode(...new Uint8Array(sigBuffer)));
 
-    // Dodo sends: "v1,<sig1> v1,<sig2>" (space separated, multiple possible)
-    const valid = msgSignature.split(' ').some(s => {
-      const [, sig] = s.split(',');
-      return sig === computedSig;
+    const valid = msgSignature.split(' ').some((entry) => {
+      const [, sig] = entry.split(',');
+      return typeof sig === 'string' && timingSafeEqualString(sig, computedSig);
     });
 
     if (!valid) {
-      console.warn('[Dodo Webhook] Signature mismatch', { computed: computedSig, received: msgSignature });
+      console.warn('[Dodo Webhook] Signature mismatch');
     }
     return valid;
   } catch (err) {
@@ -57,11 +83,15 @@ async function verifyDodoSignature(
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
-  const webhookKey = process.env.DODO_PAYMENTS_WEBHOOK_KEY!;
+  const webhookKey = process.env.DODO_PAYMENTS_WEBHOOK_KEY;
+
+  if (!webhookKey) {
+    console.error('[Dodo Webhook] DODO_PAYMENTS_WEBHOOK_KEY is not set');
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+  }
 
   console.log('[Dodo Webhook] Received event');
 
-  // Verify signature
   const isValid = await verifyDodoSignature(rawBody, req.headers, webhookKey);
   if (!isValid) {
     console.error('[Dodo Webhook] Signature verification failed');
@@ -92,10 +122,10 @@ export async function POST(req: NextRequest) {
       const profile = await findProfileForBilling(supabase, { userId, email });
       if (!profile) {
         console.warn(`[Dodo Webhook] No profile found for userId=${userId} email=${email}`);
-        return NextResponse.json({ error: 'Profile not found' }, { status: 200 }); // 200 so Dodo doesn't retry
+        return NextResponse.json({ error: 'Profile not found' }, { status: 200 });
       }
       await applyBillingState(supabase, profile.id, STARTER_PLAN);
-      console.log(`[Dodo Webhook] ✅ Upgraded ${profile.id} to PRO`);
+      console.log(`[Dodo Webhook] Upgraded ${profile.id} to PRO`);
     }
 
     else if (eventType === 'payment.succeeded') {
@@ -112,7 +142,7 @@ export async function POST(req: NextRequest) {
           amount: (amount / 100).toFixed(2),
           status: 'paid',
         });
-        console.log(`[Dodo Webhook] ✅ Recorded payment $${(amount / 100).toFixed(2)} for ${profile.id}`);
+        console.log(`[Dodo Webhook] Recorded payment $${(amount / 100).toFixed(2)} for ${profile.id}`);
       }
     }
 
@@ -121,7 +151,7 @@ export async function POST(req: NextRequest) {
       if (!profile) return NextResponse.json({ ok: true }, { status: 200 });
 
       await applyBillingState(supabase, profile.id, getPlanByTier('FREE'));
-      console.log(`[Dodo Webhook] ✅ Downgraded ${profile.id} to FREE (${eventType})`);
+      console.log(`[Dodo Webhook] Downgraded ${profile.id} to FREE (${eventType})`);
     }
 
     else {
