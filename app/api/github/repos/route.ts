@@ -2,6 +2,8 @@ import { createClient } from '@/utils/supabase/server'
 import { NextResponse, after } from 'next/server'
 import { safeDecrypt } from '@/utils/crypto'
 
+const FREE_REPO_LIMIT = 1
+
 function triggerInitialIndex(repoFullName: string) {
   const webhookUrl = process.env.NEXT_PUBLIC_BUGLENS_CORE_WEBHOOK_URL
   const secret = process.env.WEBHOOK_SECRET
@@ -19,6 +21,56 @@ function triggerInitialIndex(repoFullName: string) {
       // until then either way.
     })
   )
+}
+
+async function getActiveRepoCount(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+) {
+  const { count, error } = await supabase
+    .from('repos')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('is_active', true)
+
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
+async function assertFreeTierCanActivateRepo(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  repoFullName: string
+) {
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('subscription_tier')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profileError) throw new Error(profileError.message)
+
+  const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
+  if (tier !== 'FREE') return
+
+  const { data: existing } = await supabase
+    .from('repos')
+    .select('id, is_active')
+    .eq('user_id', userId)
+    .eq('repo_full_name', repoFullName)
+    .maybeSingle()
+
+  // Re-activating or updating an already-active repo does not consume a new slot.
+  if (existing?.is_active) return
+
+  const activeCount = await getActiveRepoCount(supabase, userId)
+  if (activeCount >= FREE_REPO_LIMIT) {
+    const err = new Error(
+      'Free plan allows 1 active repository. Upgrade to connect more.'
+    )
+    ;(err as Error & { status: number }).status = 403
+    throw err
+  }
 }
 
 export async function GET() {
@@ -57,7 +109,6 @@ export async function GET() {
 
     const repos = await response.json()
 
-    // Shape the data for the UI
     const formatted = repos.map((repo: {
       id: number;
       name: string;
@@ -106,7 +157,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing repo details' }, { status: 400 })
     }
 
-    // Insert or update repo in our tracking table
+    try {
+      await assertFreeTierCanActivateRepo(supabase, user.id, full_name)
+    } catch (limitError: unknown) {
+      const status =
+        typeof limitError === 'object' &&
+        limitError &&
+        'status' in limitError &&
+        typeof (limitError as { status: unknown }).status === 'number'
+          ? (limitError as { status: number }).status
+          : 500
+      const message = limitError instanceof Error ? limitError.message : 'Repo limit check failed'
+      return NextResponse.json({ error: message }, { status })
+    }
+
     const { data, error } = await supabase
       .from('repos')
       .upsert({

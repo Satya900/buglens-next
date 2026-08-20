@@ -173,10 +173,31 @@ export async function findProfileForBilling(
   }
 
   if (identity.email) {
+    // Exact match first (common path when casing matches the profile row).
+    const exact = await supabase
+      .from("profiles")
+      .select("id, email, github_username, subscription_tier, current_usage, usage_limit")
+      .eq("email", identity.email)
+      .maybeSingle();
+
+    if (exact.error) {
+      throw exact.error;
+    }
+
+    if (exact.data) {
+      return exact.data;
+    }
+
+    // Case-insensitive literal match. Escape %/_ so john_doe@x.com is not a pattern.
+    const escaped = identity.email
+      .replace(/\\/g, "\\\\")
+      .replace(/%/g, "\\%")
+      .replace(/_/g, "\\_");
+
     const result = await supabase
       .from("profiles")
       .select("id, email, github_username, subscription_tier, current_usage, usage_limit")
-      .ilike("email", identity.email)
+      .ilike("email", escaped)
       .maybeSingle();
 
     if (result.error) {
