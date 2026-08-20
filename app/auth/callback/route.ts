@@ -41,7 +41,9 @@ export async function GET(request: Request) {
         .upsert({
           id: user.id,
           github_token: providerToken ? encrypt(providerToken) : null,
-          github_username: metadata.user_name,
+          github_username: metadata.user_name
+            ? String(metadata.user_name).toLowerCase()
+            : null,
           full_name: metadata.full_name || metadata.user_name,
           email: user.email,
           avatar_url: metadata.avatar_url,

@@ -42,6 +42,40 @@ export async function PATCH(req: Request) {
     if (typeof review_strictness === 'string') payload.review_strictness = review_strictness
     if (typeof is_active === 'boolean') payload.is_active = is_active
 
+    // Free tier: activating a second repo must fail the same way as connect.
+    if (payload.is_active === true) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      const tier = (profile?.subscription_tier || 'FREE').toUpperCase()
+      if (tier === 'FREE') {
+        const { data: target } = await supabase
+          .from('repos')
+          .select('is_active')
+          .eq('user_id', user.id)
+          .eq('repo_full_name', repo_full_name)
+          .maybeSingle()
+
+        if (!target?.is_active) {
+          const { count } = await supabase
+            .from('repos')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+
+          if ((count ?? 0) >= 1) {
+            return NextResponse.json(
+              { error: 'Free plan allows 1 active repository. Upgrade to connect more.' },
+              { status: 403 }
+            )
+          }
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from('repos')
       .update(payload)

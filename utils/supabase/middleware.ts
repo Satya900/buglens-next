@@ -39,6 +39,7 @@ export async function updateSession(request: NextRequest) {
     '/dashboard', '/profile', '/onboarding',
     '/repos', '/reviews', '/analytics',
     '/billing', '/settings', '/knowledge',
+    '/admin', '/apply-oss-program',
   ]
   const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) =>
     request.nextUrl.pathname.startsWith(prefix)
