@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:billing": "npx --yes tsx --test utils/billing.test.ts",
     "notion:setup-blog": "node scripts/setup-notion-blog.mjs",
     "notion:publish-sample-post": "node scripts/publish-sample-post.mjs"
   },

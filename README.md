@@ -39,14 +39,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 NEXT_PUBLIC_BUGLENS_CORE_WEBHOOK_URL=http://localhost:3001/webhook
 WEBHOOK_SECRET=shared_webhook_secret_for_buglens_core
+DODO_PAYMENTS_API_KEY=your_dodo_api_key
 DODO_PAYMENTS_WEBHOOK_KEY=whsec_your_dodo_webhook_key
+DODO_PAYMENTS_ENVIRONMENT=test_mode
+NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID=pdt_your_starter_product_id
 ADMIN_GITHUB_USERNAMES=your_github_login
 ADMIN_EMAILS=you@example.com
-POLAR_SERVER=sandbox
-POLAR_ACCESS_TOKEN=polar_access_token
-POLAR_WEBHOOK_SECRET=polar_webhook_secret
-NEXT_PUBLIC_POLAR_PRODUCT_ID=polar_pro_product_id
-NEXT_PUBLIC_POLAR_BUSINESS_PRODUCT_ID=polar_business_product_id
+ENCRYPTION_KEY=64_char_hex_aes_key_here_generate_with_openssl_or_node
 ```
 
 Notes:
@@ -57,7 +56,7 @@ Notes:
 - `SUPABASE_SERVICE_ROLE_KEY` is required for Dodo webhook writes into `profiles` and `billing_history`.
 - `WEBHOOK_SECRET` must match `buglens-core`. It is server-only; never return it to the browser.
 - `ADMIN_GITHUB_USERNAMES` / `ADMIN_EMAILS` are comma-separated allowlists. If both are empty, `/admin` is denied for everyone.
-- `POLAR_SERVER=sandbox` should only be used with sandbox Polar products; switch to `production` for live checkout. Live billing today is Dodo.
+- Billing is Dodo Payments. Set `DODO_PAYMENTS_ENVIRONMENT` to `live_mode` in production.
 
 ## Notion CMS Setup
 
@@ -93,6 +92,7 @@ Open [http://localhost:3000](http://localhost:3000). The dashboard routes under 
 | `yarn dev` | Start dev server |
 | `yarn build` | Production build |
 | `yarn lint` | Run ESLint |
+| `yarn test:billing` | Unit tests for billing helpers |
 | `yarn notion:setup-blog` | Provision the Notion blog database schema |
 | `yarn notion:publish-sample-post` | Push a sample post to the connected Notion database |
 

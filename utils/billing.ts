@@ -60,12 +60,12 @@ function getProductHints(payload: unknown) {
   return hints.map((hint) => hint.toUpperCase());
 }
 
-export function getPolarServer() {
-  if (process.env.POLAR_SERVER === "sandbox") {
-    return "sandbox" as const;
-  }
-
-  return process.env.POLAR_SERVER === "production" ? ("production" as const) : ("sandbox" as const);
+/** Escape % _ \ so Postgres ilike is a case-insensitive literal match. */
+export function escapeIlikeLiteral(value: string) {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/%/g, "\\%")
+    .replace(/_/g, "\\_");
 }
 
 export function requireEnv(name: string) {
@@ -84,17 +84,21 @@ export function getPlanByTier(tier: BillingTier) {
   return BILLING_PLANS[tier];
 }
 
+/**
+ * Map a Dodo (or similar) product payload to a plan.
+ * Uses NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID / NEXT_PUBLIC_DODO_TEAM_PRODUCT_ID when set.
+ */
 export function resolvePlanFromPayload(payload: unknown) {
   const productHints = getProductHints(payload);
-  const configuredBusinessId = normalizeString(process.env.NEXT_PUBLIC_POLAR_BUSINESS_PRODUCT_ID);
-  const configuredProId = normalizeString(process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID);
+  const starterId = normalizeString(process.env.NEXT_PUBLIC_DODO_STARTER_PRODUCT_ID);
+  const teamId = normalizeString(process.env.NEXT_PUBLIC_DODO_TEAM_PRODUCT_ID);
 
   for (const hint of productHints) {
-    if (configuredBusinessId && hint === configuredBusinessId.toUpperCase()) {
+    if (teamId && hint === teamId.toUpperCase()) {
       return BILLING_PLANS.BUSINESS;
     }
 
-    if (configuredProId && hint === configuredProId.toUpperCase()) {
+    if (starterId && hint === starterId.toUpperCase()) {
       return BILLING_PLANS.PRO;
     }
 
@@ -102,7 +106,7 @@ export function resolvePlanFromPayload(payload: unknown) {
       return BILLING_PLANS.BUSINESS;
     }
 
-    if (hint.includes("PRO") || hint.includes("BUGLENS_PRO")) {
+    if (hint.includes("PRO") || hint.includes("STARTER") || hint.includes("BUGLENS_PRO")) {
       return BILLING_PLANS.PRO;
     }
   }
@@ -173,7 +177,6 @@ export async function findProfileForBilling(
   }
 
   if (identity.email) {
-    // Exact match first (common path when casing matches the profile row).
     const exact = await supabase
       .from("profiles")
       .select("id, email, github_username, subscription_tier, current_usage, usage_limit")
@@ -188,16 +191,10 @@ export async function findProfileForBilling(
       return exact.data;
     }
 
-    // Case-insensitive literal match. Escape %/_ so john_doe@x.com is not a pattern.
-    const escaped = identity.email
-      .replace(/\\/g, "\\\\")
-      .replace(/%/g, "\\%")
-      .replace(/_/g, "\\_");
-
     const result = await supabase
       .from("profiles")
       .select("id, email, github_username, subscription_tier, current_usage, usage_limit")
-      .ilike("email", escaped)
+      .ilike("email", escapeIlikeLiteral(identity.email))
       .maybeSingle();
 
     if (result.error) {
@@ -278,10 +275,27 @@ export async function recordBillingHistory(
   return data;
 }
 
-export function formatPolarAmount(amountInCents: number | null | undefined) {
+/** Format a provider amount in cents as dollars for billing_history. */
+export function formatAmountFromCents(amountInCents: number | null | undefined) {
   if (typeof amountInCents !== "number" || Number.isNaN(amountInCents)) {
     return "0.00";
   }
 
   return (amountInCents / 100).toFixed(2);
+}
+
+/**
+ * Build a user-facing message when a repo settings PATCH fails.
+ * Pure helper so we can unit-test without mounting the page.
+ */
+export function settingsSaveErrorMessage(
+  ok: boolean,
+  body: { error?: string } | null,
+  fallback = "Could not save settings. Try again."
+) {
+  if (body?.error && typeof body.error === "string" && body.error.trim()) {
+    return body.error.trim();
+  }
+  if (!ok) return fallback;
+  return fallback;
 }

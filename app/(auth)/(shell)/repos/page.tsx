@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { settingsSaveErrorMessage } from '@/utils/billing'
 
 type Repo = {
   id: number
@@ -23,6 +24,8 @@ type RepoSettings = {
   review_strictness?: 'relaxed' | 'balanced' | 'strict'
   auto_post_reviews?: boolean
 }
+
+type Toast = { type: 'error' | 'success'; message: string }
 
 function timeAgo(d: string) {
   const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000)
@@ -88,6 +91,17 @@ export default function RepositoriesPage() {
   const [search, setSearch] = useState('')
   const [actioning, setActioning] = useState<string | null>(null)
   const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all')
+  const [toast, setToast] = useState<Toast | null>(null)
+
+  useEffect(() => {
+    if (!toast) return
+    const id = window.setTimeout(() => setToast(null), 4500)
+    return () => window.clearTimeout(id)
+  }, [toast])
+
+  const showToast = (type: Toast['type'], message: string) => {
+    setToast({ type, message })
+  }
 
   useEffect(() => {
     async function init() {
@@ -124,7 +138,12 @@ export default function RepositoriesPage() {
           body: JSON.stringify({ id: repo.id, full_name: repo.full_name, private: repo.private }),
         })
         const data = await res.json()
-        if (data.success) setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
+        if (!res.ok || !data.success) {
+          showToast('error', settingsSaveErrorMessage(res.ok, data, 'Could not connect repository.'))
+          return
+        }
+        setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
+        showToast('success', `Connected ${repo.full_name}`)
         return
       }
 
@@ -135,7 +154,13 @@ export default function RepositoriesPage() {
         body: JSON.stringify({ repo_full_name: repo.full_name, is_active: !existing.is_active }),
       })
       const data = await res.json()
-      if (data.success) setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
+      if (!res.ok || !data.success) {
+        showToast('error', settingsSaveErrorMessage(res.ok, data, 'Could not update repository.'))
+        return
+      }
+      setRepoSettings(prev => ({ ...prev, [repo.full_name]: data.data }))
+    } catch {
+      showToast('error', 'Could not update repository. Check your connection.')
     } finally {
       setActioning(null)
     }
@@ -146,13 +171,20 @@ export default function RepositoriesPage() {
     const prev = repoSettings[repoFullName]
     setRepoSettings(p => ({ ...p, [repoFullName]: { ...prev, review_strictness: value, repo_full_name: repoFullName, is_active: true } }))
     try {
-      await fetch('/api/app/repos', {
+      const res = await fetch('/api/app/repos', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_full_name: repoFullName, review_strictness: value }),
       })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || data?.error) {
+        setRepoSettings(p => ({ ...p, [repoFullName]: prev }))
+        showToast('error', settingsSaveErrorMessage(res.ok, data))
+        return
+      }
     } catch {
       setRepoSettings(p => ({ ...p, [repoFullName]: prev }))
+      showToast('error', 'Could not save strictness. Check your connection.')
     } finally {
       setActioning(null)
     }
@@ -163,13 +195,20 @@ export default function RepositoriesPage() {
     const prev = repoSettings[repoFullName]
     setRepoSettings(p => ({ ...p, [repoFullName]: { ...prev, shadow_mode: value, repo_full_name: repoFullName, is_active: true } }))
     try {
-      await fetch('/api/app/repos', {
+      const res = await fetch('/api/app/repos', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_full_name: repoFullName, shadow_mode: value }),
       })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || data?.error) {
+        setRepoSettings(p => ({ ...p, [repoFullName]: prev }))
+        showToast('error', settingsSaveErrorMessage(res.ok, data))
+        return
+      }
     } catch {
       setRepoSettings(p => ({ ...p, [repoFullName]: prev }))
+      showToast('error', 'Could not save shadow mode. Check your connection.')
     } finally {
       setActioning(null)
     }
@@ -184,11 +223,16 @@ export default function RepositoriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_full_name: repoFullName }),
       })
-      const data = await res.json()
-      if (data.success) {
-        setRepoSettings(prev => { const next = { ...prev }; delete next[repoFullName]; return next })
-        if (data.warning) alert(data.warning)
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.success) {
+        showToast('error', settingsSaveErrorMessage(res.ok, data, 'Could not remove repository.'))
+        return
       }
+      setRepoSettings(prev => { const next = { ...prev }; delete next[repoFullName]; return next })
+      if (data.warning) showToast('error', data.warning)
+      else showToast('success', `Removed ${repoFullName}`)
+    } catch {
+      showToast('error', 'Could not remove repository. Check your connection.')
     } finally {
       setActioning(null)
     }
@@ -239,6 +283,13 @@ export default function RepositoriesPage() {
         <div className="alert-banner error">
           <span>✕</span>
           <span>{error}</span>
+        </div>
+      )}
+
+      {toast && (
+        <div className={`alert-banner ${toast.type === 'error' ? 'error' : 'warn'}`} role="status">
+          <span>{toast.type === 'error' ? '✕' : '✓'}</span>
+          <span>{toast.message}</span>
         </div>
       )}
 
